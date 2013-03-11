@@ -9,15 +9,15 @@
 package mergo
 
 import (
-	"reflect"
 	"errors"
+	"reflect"
 )
 
 var (
-	InvalidArgumentsErr = errors.New("src and dst must be valid")
-	NilArgumentsErr = errors.New("src and dst must not be nil")
+	InvalidArgumentsErr        = errors.New("src and dst must be valid")
+	NilArgumentsErr            = errors.New("src and dst must not be nil")
 	DifferentArgumentsTypesErr = errors.New("src and dst must be of same type")
-	OnlyStructSupportedErr = errors.New("only structs are supported")
+	OnlyStructSupportedErr     = errors.New("only structs are supported")
 )
 
 // During deepMerge, must keep track of checks that are
@@ -72,7 +72,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 	switch dst.Kind() {
 	case reflect.Struct:
 		for i, n := 0, dst.NumField(); i < n; i++ {
-			if err := deepMerge(dst.Field(i), src.Field(i), visited, depth + 1); err != nil {
+			if err := deepMerge(dst.Field(i), src.Field(i), visited, depth+1); err != nil {
 				return err
 			}
 		}

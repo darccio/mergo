@@ -1,8 +1,8 @@
 package mergo
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 type simpleTest struct {
