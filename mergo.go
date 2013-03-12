@@ -13,6 +13,7 @@ import (
 	"reflect"
 )
 
+// Errors reported by Mergo when it finds invalid arguments.
 var (
 	InvalidArgumentsErr        = errors.New("src and dst must be valid")
 	NilArgumentsErr            = errors.New("src and dst must not be nil")
@@ -84,6 +85,12 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 	return nil
 }
 
+// Merge sets fields' values in dst from src if they have a zero
+// value of their type.
+// dst and src must be valid same-type structs and dst must be
+// a pointer to struct.
+// It won't merge unexported (private) fields and will do recursively
+// any exported field.
 func Merge(dst interface{}, src interface{}) error {
 	if dst == nil || src == nil {
 		return NilArgumentsErr

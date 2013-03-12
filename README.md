@@ -1,6 +1,6 @@
 # Mergo
 
-A helper to merge structs in Golang. Useful for configuration default values.
+A helper to merge structs in Golang. Useful for configuration default values, avoiding messy if-statements.
 
 Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the Province of Ancona in the Italian region Marche.
 
@@ -26,11 +26,13 @@ It is quick hack to scratch my own itch around how to handle configuration defau
 
 ## Usage
 
-You only can merge structs with same type and exported fields. Mergo won't merge unexported (private) fields but will do recursively any exported one.
+You can only merge same-type structs with exported fields initialized as zero value of their type. Mergo won't merge unexported (private) fields but will do recursively any exported one.
 
-    if err := mergo.Merge(&dst, src) {
+    if err := mergo.Merge(&dst, src); err != nil {
         // ...
     }
+
+More information and examples in [godoc documentation](http://godoc.org/github.com/kless/modsql).
 
 ## Contact me
 
