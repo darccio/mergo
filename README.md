@@ -32,7 +32,7 @@ You can only merge same-type structs with exported fields initialized as zero va
         // ...
     }
 
-More information and examples in [godoc documentation](http://godoc.org/github.com/kless/modsql).
+More information and examples in [godoc documentation](http://godoc.org/github.com/imdario/mergo).
 
 ## Contact me
 
