@@ -10,6 +10,11 @@ Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the
 
 It is quick hack to scratch my own itch around how to handle configuration default values. It works fine but it needs a lot more of testing and real world usage.
 
+[![Build Status][1]][2]
+
+[1]: https://travis-ci.org/imdario/mergo.png
+[2]: https://travis-ci.org/imdario/mergo
+
 ## Installation
 
     go get github.com/imdario/mergo
@@ -34,3 +39,7 @@ If I can help you, you have an idea or you are using Mergo in your projects, don
 ## About
 
 Written by [Dario Castañé](http://dario.im).
+
+## License
+
+[BSD 3-Clause](http://opensource.org/licenses/BSD-3-Clause) license, as [Go language](http://golang.org/LICENSE).
