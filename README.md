@@ -26,7 +26,7 @@ It is quick hack to scratch my own itch around how to handle configuration defau
 
 ## Usage
 
-You can only merge same-type structs with exported fields initialized as zero value of their type. Mergo won't merge unexported (private) fields but will do recursively any exported one.
+You can only merge same-type structs with exported fields initialized as zero value of their type and same-types maps. Mergo won't merge unexported (private) fields but will do recursively any exported one. In maps Mergo won't merge equal keys values, because they are not addressable under reflection.
 
     if err := mergo.Merge(&dst, src); err != nil {
         // ...

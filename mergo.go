@@ -18,7 +18,7 @@ var (
 	InvalidArgumentsErr        = errors.New("src and dst must be valid")
 	NilArgumentsErr            = errors.New("src and dst must not be nil")
 	DifferentArgumentsTypesErr = errors.New("src and dst must be of same type")
-	OnlyStructSupportedErr     = errors.New("only structs are supported")
+	NotSupportedErr     = errors.New("only structs and maps are supported")
 )
 
 // During deepMerge, must keep track of checks that are
@@ -77,6 +77,22 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 				return err
 			}
 		}
+	case reflect.Map:
+		for _, key := range src.MapKeys() {
+			srcElement := src.MapIndex(key)
+			if !srcElement.IsValid() {
+				continue
+			}
+			dstElement := dst.MapIndex(key)
+			if !dstElement.IsValid() {
+				dst.SetMapIndex(key, src.MapIndex(key))
+				continue
+			}
+			// TODO Recursively merge maps. Values retrieved via MapIndex are not addressable.
+			// if err := deepMerge(dst.MapIndex(key), src.MapIndex(key), visited, depth+1); err != nil {
+			//	return err
+			//}
+		}
 	default:
 		if dst.CanSet() && isEmptyValue(dst) {
 			dst.Set(src)
@@ -100,8 +116,8 @@ func Merge(dst interface{}, src interface{}) error {
 	if vDst.Type() != vSrc.Type() {
 		return DifferentArgumentsTypesErr
 	}
-	if vDst.Kind() != reflect.Struct {
-		return OnlyStructSupportedErr
+	if vDst.Kind() != reflect.Struct && vDst.Kind() != reflect.Map {
+		return NotSupportedErr
 	}
 	return deepMerge(vDst, vSrc, make(map[uintptr]*visit), 0)
 }

@@ -65,3 +65,30 @@ func TestComplexStruct(t *testing.T) {
 		t.Fatalf("a's field Id not preserved from merge: a.Id(%s) == b.Id(%s)", a.Id, b.Id)
 	}
 }
+
+func TestMaps(t *testing.T) {
+	m := map[string]simpleTest {
+		"a": simpleTest{},
+		"b": simpleTest{42},
+	}
+	n := map[string]simpleTest {
+		"a": simpleTest{16},
+		"b": simpleTest{},
+		"c": simpleTest{12},
+	}
+	if err := Merge(&m, n); err != nil {
+		t.Fatalf(err.Error())
+	}
+	if len(m) != 3 {
+		t.Fatalf(`n not merged in m properly, m must have 3 elements instead of %d`, len(m))
+	}
+	if m["a"].Value != 0 {
+		t.Fatalf(`n merged in m because I solved non-addressable map values TODO: m["a"].Value(%d) != n["a"].Value(%d)`, m["a"].Value, n["a"].Value)
+	}
+	if m["b"].Value != 42 {
+		t.Fatalf(`n wrongly merged in m: m["b"].Value(%d) != n["b"].Value(%d)`, m["b"].Value, n["b"].Value)
+	}
+	if m["c"].Value != 12 {
+		t.Fatalf(`n not merged in m: m["c"].Value(%d) != n["c"].Value(%d)`, m["c"].Value, n["c"].Value)
+	}
+}
