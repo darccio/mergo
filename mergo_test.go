@@ -67,11 +67,11 @@ func TestComplexStruct(t *testing.T) {
 }
 
 func TestMaps(t *testing.T) {
-	m := map[string]simpleTest {
+	m := map[string]simpleTest{
 		"a": simpleTest{},
 		"b": simpleTest{42},
 	}
-	n := map[string]simpleTest {
+	n := map[string]simpleTest{
 		"a": simpleTest{16},
 		"b": simpleTest{},
 		"c": simpleTest{12},

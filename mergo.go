@@ -18,7 +18,7 @@ var (
 	InvalidArgumentsErr        = errors.New("src and dst must be valid")
 	NilArgumentsErr            = errors.New("src and dst must not be nil")
 	DifferentArgumentsTypesErr = errors.New("src and dst must be of same type")
-	NotSupportedErr     = errors.New("only structs and maps are supported")
+	NotSupportedErr            = errors.New("only structs and maps are supported")
 )
 
 // During deepMerge, must keep track of checks that are
