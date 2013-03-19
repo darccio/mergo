@@ -4,9 +4,9 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package mergo merges same-type structs by setting default values in zero-value fields.
+Package mergo merges same-type structs and maps by setting default values in zero-value fields.
 
-Mergo won't merge unexported (private) fields but will do recursively any exported one.
+Mergo won't merge unexported (private) fields but will do recursively any exported one. It also won't merge structs inside maps (because they are not addressable using Go reflection).
 
 Usage
 

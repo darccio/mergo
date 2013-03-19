@@ -8,6 +8,8 @@ package mergo
 import (
 	"reflect"
 	"testing"
+	"launchpad.net/goyaml"
+	"io/ioutil"
 )
 
 type simpleTest struct {
@@ -91,4 +93,30 @@ func TestMaps(t *testing.T) {
 	if m["c"].Value != 12 {
 		t.Fatalf(`n not merged in m: m["c"].Value(%d) != n["c"].Value(%d)`, m["c"].Value, n["c"].Value)
 	}
+}
+
+func TestYAMLMaps(t *testing.T) {
+	thing := loadYAML("testdata/thing.yml")
+	license := loadYAML("testdata/license.yml")
+	ft := thing["fields"].(map[interface{}]interface{})
+	fl := license["fields"].(map[interface{}]interface{})
+	expected_length := len(ft) + len(fl)
+	if err := Merge(&license, thing); err != nil {
+		t.Fatal(err.Error())
+	}
+	current_length := len(license["fields"].(map[interface{}]interface{}))
+	if current_length != expected_length {
+		t.Fatalf(`thing not merged in license properly, license must have %d elements instead of %d`, expected_length, current_length)
+	}
+	fields := license["fields"].(map[interface{}]interface{})
+	if _, ok := fields["id"]; !ok {
+		t.Fatalf(`thing not merged in license properly, license must have a new id field from thing`)
+	}
+}
+
+func loadYAML(path string) (m map[string]interface{}) {
+	m = make(map[string]interface{})
+	raw, _ := ioutil.ReadFile(path)
+	_ = goyaml.Unmarshal(raw, &m)
+	return
 }

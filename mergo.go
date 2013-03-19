@@ -15,7 +15,6 @@ import (
 
 // Errors reported by Mergo when it finds invalid arguments.
 var (
-	InvalidArgumentsErr        = errors.New("src and dst must be valid")
 	NilArgumentsErr            = errors.New("src and dst must not be nil")
 	DifferentArgumentsTypesErr = errors.New("src and dst must be of same type")
 	NotSupportedErr            = errors.New("only structs and maps are supported")
@@ -54,8 +53,8 @@ func isEmptyValue(v reflect.Value) bool {
 // The map argument tracks comparisons that have already been seen, which allows
 // short circuiting on recursive types.
 func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) error {
-	if !dst.IsValid() || !src.IsValid() {
-		return InvalidArgumentsErr
+	if !src.IsValid() {
+		return nil
 	}
 	if dst.CanAddr() {
 		addr := dst.UnsafeAddr()
@@ -73,7 +72,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 	switch dst.Kind() {
 	case reflect.Struct:
 		for i, n := 0, dst.NumField(); i < n; i++ {
-			if err := deepMerge(dst.Field(i), src.Field(i), visited, depth+1); err != nil {
+			if err := deepMerge(dst.Field(i), src.Field(i), visited, depth + 1); err != nil {
 				return err
 			}
 		}
@@ -84,14 +83,21 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 				continue
 			}
 			dstElement := dst.MapIndex(key)
-			if !dstElement.IsValid() {
-				dst.SetMapIndex(key, src.MapIndex(key))
-				continue
+			switch reflect.TypeOf(srcElement.Interface()).Kind() {
+			case reflect.Struct:
+				fallthrough
+			case reflect.Map:
+				if err := deepMerge(dstElement, srcElement, visited, depth + 1); err != nil {
+					return err
+				}
 			}
-			// TODO Recursively merge maps. Values retrieved via MapIndex are not addressable.
-			// if err := deepMerge(dst.MapIndex(key), src.MapIndex(key), visited, depth+1); err != nil {
-			//	return err
-			//}
+			if !dstElement.IsValid() {
+				dst.SetMapIndex(key, srcElement)
+			}
+		}
+	case reflect.Interface:
+		if err := deepMerge(dst.Elem(), src.Elem(), visited, depth + 1); err != nil {
+			return err
 		}
 	default:
 		if dst.CanSet() && isEmptyValue(dst) {
