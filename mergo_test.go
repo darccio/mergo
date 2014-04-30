@@ -26,6 +26,10 @@ type pointerTest struct {
 	C *simpleTest
 }
 
+type sliceTest struct {
+	S []int
+}
+
 func TestNil(t *testing.T) {
 	if err := Merge(nil, nil); err != NilArgumentsErr {
 		t.Fail()
@@ -67,8 +71,8 @@ func TestComplexStruct(t *testing.T) {
 	if a.sz == 1 {
 		t.Fatalf("a's private field sz not preserved from merge: a.sz(%d) == b.sz(%d)", a.sz, b.sz)
 	}
-	if a.Id == b.Id {
-		t.Fatalf("a's field Id not preserved from merge: a.Id(%s) == b.Id(%s)", a.Id, b.Id)
+	if a.Id != b.Id {
+		t.Fatalf("a's field Id not merged properly: a.Id(%s) != b.Id(%s)", a.Id, b.Id)
 	}
 }
 
@@ -93,6 +97,32 @@ func TestPointerStructNil(t *testing.T) {
 	}
 	if a.C.Value != b.C.Value {
 		t.Fatalf("b not merged in a properly: a.C.Value(%d) != b.C.Value(%d)", a.C.Value, b.C.Value)
+	}
+}
+
+func TestSliceStruct(t *testing.T) {
+	a := sliceTest{}
+	b := sliceTest{[]int{1, 2, 3}}
+	if err := Merge(&a, b); err != nil {
+		t.FailNow()
+	}
+	if len(b.S) != 3 {
+		t.FailNow()
+	}
+	if len(a.S) != len(b.S) {
+		t.Fatalf("b not merged in a properly %d != %d", len(a.S), len(b.S))
+	}
+
+	a = sliceTest{[]int{1}}
+	b = sliceTest{[]int{1, 2, 3}}
+	if err := Merge(&a, b); err != nil {
+		t.FailNow()
+	}
+	if len(b.S) != 3 {
+		t.FailNow()
+	}
+	if len(a.S) != len(b.S) {
+		t.Fatalf("b not merged in a properly %d != %d", len(a.S), len(b.S))
 	}
 }
 
