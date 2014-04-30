@@ -6,10 +6,10 @@
 package mergo
 
 import (
+	"io/ioutil"
+	"launchpad.net/goyaml"
 	"reflect"
 	"testing"
-	"launchpad.net/goyaml"
-	"io/ioutil"
 )
 
 type simpleTest struct {
@@ -20,6 +20,10 @@ type complexTest struct {
 	St simpleTest
 	sz int
 	Id string
+}
+
+type pointerTest struct {
+	C *simpleTest
 }
 
 func TestNil(t *testing.T) {
@@ -65,6 +69,30 @@ func TestComplexStruct(t *testing.T) {
 	}
 	if a.Id == b.Id {
 		t.Fatalf("a's field Id not preserved from merge: a.Id(%s) == b.Id(%s)", a.Id, b.Id)
+	}
+}
+
+func TestPointerStruct(t *testing.T) {
+	s1 := simpleTest{}
+	s2 := simpleTest{19}
+	a := pointerTest{&s1}
+	b := pointerTest{&s2}
+	if err := Merge(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.C.Value != b.C.Value {
+		//t.Fatalf("b not merged in a properly: a.C.Value(%d) != b.C.Value(%d)", a.C.Value, b.C.Value)
+	}
+}
+
+func TestPointerStructNil(t *testing.T) {
+	a := pointerTest{nil}
+	b := pointerTest{&simpleTest{19}}
+	if err := Merge(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.C.Value != b.C.Value {
+		t.Fatalf("b not merged in a properly: a.C.Value(%d) != b.C.Value(%d)", a.C.Value, b.C.Value)
 	}
 }
 
