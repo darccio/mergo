@@ -72,7 +72,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 	switch dst.Kind() {
 	case reflect.Struct:
 		for i, n := 0, dst.NumField(); i < n; i++ {
-			if err := deepMerge(dst.Field(i), src.Field(i), visited, depth + 1); err != nil {
+			if err := deepMerge(dst.Field(i), src.Field(i), visited, depth+1); err != nil {
 				return err
 			}
 		}
@@ -87,7 +87,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 			case reflect.Struct:
 				fallthrough
 			case reflect.Map:
-				if err := deepMerge(dstElement, srcElement, visited, depth + 1); err != nil {
+				if err := deepMerge(dstElement, srcElement, visited, depth+1); err != nil {
 					return err
 				}
 			}
@@ -95,12 +95,20 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 				dst.SetMapIndex(key, srcElement)
 			}
 		}
+	case reflect.Ptr:
+		fallthrough
 	case reflect.Interface:
-		if err := deepMerge(dst.Elem(), src.Elem(), visited, depth + 1); err != nil {
+		if src.IsNil() {
+			break
+		} else if dst.IsNil() {
+			if dst.CanSet() && isEmptyValue(dst) {
+				dst.Set(src)
+			}
+		} else if err := deepMerge(dst.Elem(), src.Elem(), visited, depth+1); err != nil {
 			return err
 		}
 	default:
-		if dst.CanSet() && isEmptyValue(dst) {
+		if dst.CanSet() && !isEmptyValue(src) {
 			dst.Set(src)
 		}
 	}
