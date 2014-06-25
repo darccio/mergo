@@ -15,9 +15,9 @@ import (
 
 // Errors reported by Mergo when it finds invalid arguments.
 var (
-	NilArgumentsErr            = errors.New("src and dst must not be nil")
-	DifferentArgumentsTypesErr = errors.New("src and dst must be of same type")
-	NotSupportedErr            = errors.New("only structs and maps are supported")
+	ErrNilArguments            = errors.New("src and dst must not be nil")
+	ErrDifferentArgumentsTypes = errors.New("src and dst must be of same type")
+	ErrNotSupported            = errors.New("only structs and maps are supported")
 )
 
 // During deepMerge, must keep track of checks that are
@@ -115,15 +115,15 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 // any exported field.
 func Merge(dst interface{}, src interface{}) error {
 	if dst == nil || src == nil {
-		return NilArgumentsErr
+		return ErrNilArguments
 	}
 	vDst := reflect.ValueOf(dst).Elem()
 	vSrc := reflect.ValueOf(src)
 	if vDst.Type() != vSrc.Type() {
-		return DifferentArgumentsTypesErr
+		return ErrDifferentArgumentsTypes
 	}
 	if vDst.Kind() != reflect.Struct && vDst.Kind() != reflect.Map {
-		return NotSupportedErr
+		return ErrNotSupported
 	}
 	return deepMerge(vDst, vSrc, make(map[uintptr]*visit), 0)
 }

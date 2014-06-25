@@ -23,7 +23,7 @@ type complexTest struct {
 }
 
 func TestNil(t *testing.T) {
-	if err := Merge(nil, nil); err != NilArgumentsErr {
+	if err := Merge(nil, nil); err != ErrNilArguments {
 		t.Fail()
 	}
 }
@@ -31,7 +31,7 @@ func TestNil(t *testing.T) {
 func TestDifferentTypes(t *testing.T) {
 	a := simpleTest{42}
 	b := 42
-	if err := Merge(&a, b); err != DifferentArgumentsTypesErr {
+	if err := Merge(&a, b); err != ErrDifferentArgumentsTypes {
 		t.Fail()
 	}
 }
