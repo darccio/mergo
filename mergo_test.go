@@ -6,10 +6,10 @@
 package mergo
 
 import (
+	"gopkg.in/yaml.v1"
+	"io/ioutil"
 	"reflect"
 	"testing"
-	"launchpad.net/goyaml"
-	"io/ioutil"
 )
 
 type simpleTest struct {
@@ -117,6 +117,6 @@ func TestYAMLMaps(t *testing.T) {
 func loadYAML(path string) (m map[string]interface{}) {
 	m = make(map[string]interface{})
 	raw, _ := ioutil.ReadFile(path)
-	_ = goyaml.Unmarshal(raw, &m)
+	_ = yaml.Unmarshal(raw, &m)
 	return
 }
