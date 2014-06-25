@@ -114,6 +114,14 @@ func TestYAMLMaps(t *testing.T) {
 	}
 }
 
+func TestTwoPointerValues(t *testing.T) {
+	a := &simpleTest{}
+	b := &simpleTest{42}
+	if err := Merge(a, b); err != nil {
+		t.Fatalf(`Boom. You crossed the streams: %s`, err)
+	}
+}
+
 func loadYAML(path string) (m map[string]interface{}) {
 	m = make(map[string]interface{})
 	raw, _ := ioutil.ReadFile(path)
