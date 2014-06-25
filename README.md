@@ -34,6 +34,10 @@ You can only merge same-type structs with exported fields initialized as zero va
 
 More information and examples in [godoc documentation](http://godoc.org/github.com/imdario/mergo).
 
+Note: if test are failing due missing package, please execute:
+
+    go get gopkg.in/yaml.v1
+
 ## Contact me
 
 If I can help you, you have an idea or you are using Mergo in your projects, don't hesitate to drop me a line (or a pull request): [@im_dario](https://twitter.com/im_dario)
