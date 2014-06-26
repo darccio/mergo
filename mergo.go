@@ -127,6 +127,9 @@ func Merge(dst interface{}, src interface{}) error {
 	}
 	vDst := reflect.ValueOf(dst).Elem()
 	vSrc := reflect.ValueOf(src)
+	if vSrc.Kind() == reflect.Ptr {
+		vSrc = vSrc.Elem()
+	}
 	if vDst.Type() != vSrc.Type() {
 		return ErrDifferentArgumentsTypes
 	}
