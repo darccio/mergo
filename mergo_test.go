@@ -22,6 +22,12 @@ type complexTest struct {
 	Id string
 }
 
+type moreComplextText struct {
+	Ct complexTest
+	St simpleTest
+	Nt simpleTest
+}
+
 type pointerTest struct {
 	C *simpleTest
 }
@@ -177,6 +183,59 @@ func TestTwoPointerValues(t *testing.T) {
 	b := &simpleTest{42}
 	if err := Merge(a, b); err != nil {
 		t.Fatalf(`Boom. You crossed the streams: %s`, err)
+	}
+}
+
+func TestMap(t *testing.T) {
+	a := complexTest{}
+	a.Id = "athing"
+	c := moreComplextText{a, simpleTest{}, simpleTest{}}
+	b := map[string]interface{}{
+		"ct": map[string]interface{}{
+			"st": map[string]interface{}{
+				"value": 42,
+			},
+			"sz": 1,
+			"id": "bthing",
+		},
+		"st": &simpleTest{144}, // Mapping a reference
+		"zt": simpleTest{299}, // Mapping a missing field (zt doesn't exist)
+		"nt": simpleTest{3},
+	}
+	if err := Map(&c, b); err != nil {
+		t.FailNow()
+	}
+	m := b["ct"].(map[string]interface{})
+	n := m["st"].(map[string]interface{})
+	o := b["st"].(*simpleTest)
+	p := b["nt"].(simpleTest)
+	if c.Ct.St.Value != 42 {
+		t.Fatalf("b not merged in a properly: c.Ct.St.Value(%d) != b.Ct.St.Value(%d)", c.Ct.St.Value, n["value"])
+	}
+	if c.St.Value != 144 {
+		t.Fatalf("b not merged in a properly: c.St.Value(%d) != b.St.Value(%d)", c.St.Value, o.Value)
+	}
+	if c.Nt.Value != 3 {
+		t.Fatalf("b not merged in a properly: c.Nt.Value(%d) != b.Nt.Value(%d)", c.St.Value, p.Value)
+	}
+	if c.Ct.sz == 1 {
+		t.Fatalf("a's private field sz not preserved from merge: c.Ct.sz(%d) == b.Ct.sz(%d)", c.Ct.sz, m["sz"])
+	}
+	if c.Ct.Id != m["id"] {
+		t.Fatalf("a's field Id not merged properly: c.Ct.Id(%s) != b.Ct.Id(%s)", c.Ct.Id, m["id"])
+	}
+}
+
+func TestSimpleMap(t *testing.T) {
+	a := simpleTest{}
+	b := map[string]interface{}{
+		"value": 42,
+	}
+	if err := Map(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.Value != 42 {
+		t.Fatalf("b not merged in a properly: a.Value(%d) != b.Value(%v)", a.Value, b["value"])
 	}
 }
 
