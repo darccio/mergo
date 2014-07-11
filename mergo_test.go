@@ -199,7 +199,7 @@ func TestMap(t *testing.T) {
 			"id": "bthing",
 		},
 		"st": &simpleTest{144}, // Mapping a reference
-		"zt": simpleTest{299}, // Mapping a missing field (zt doesn't exist)
+		"zt": simpleTest{299},  // Mapping a missing field (zt doesn't exist)
 		"nt": simpleTest{3},
 	}
 	if err := Map(&c, b); err != nil {
@@ -240,9 +240,9 @@ func TestSimpleMap(t *testing.T) {
 }
 
 type pointerMapTest struct {
-	A int
+	A      int
 	hidden int
-	B *simpleTest
+	B      *simpleTest
 }
 
 func TestBackAndForth(t *testing.T) {
@@ -252,7 +252,7 @@ func TestBackAndForth(t *testing.T) {
 		t.FailNow()
 	}
 	var (
-		v interface{}
+		v  interface{}
 		ok bool
 	)
 	if v, ok = m["a"]; v.(int) != pt.A || !ok {

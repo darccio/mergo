@@ -15,10 +15,10 @@ import (
 
 // Errors reported by Mergo when it finds invalid arguments.
 var (
-	ErrNilArguments             = errors.New("src and dst must not be nil")
-	ErrDifferentArgumentsTypes  = errors.New("src and dst must be of same type")
-	ErrNotSupported             = errors.New("only structs and maps are supported")
-	ErrExpectedMapAsDestination = errors.New("dst was expected to be a map")
+	ErrNilArguments                = errors.New("src and dst must not be nil")
+	ErrDifferentArgumentsTypes     = errors.New("src and dst must be of same type")
+	ErrNotSupported                = errors.New("only structs and maps are supported")
+	ErrExpectedMapAsDestination    = errors.New("dst was expected to be a map")
 	ErrExpectedStructAsDestination = errors.New("dst was expected to be a struct")
 )
 

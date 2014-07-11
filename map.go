@@ -67,7 +67,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int) (err
 			srcValue := srcMap[key]
 			fieldName := changeInitialCase(key, unicode.ToUpper)
 			dstElement := dst.FieldByName(fieldName)
-			if (dstElement == zeroValue) {
+			if dstElement == zeroValue {
 				// We discard it because the field doesn't exist.
 				continue
 			}
@@ -120,7 +120,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int) (err
 func Map(dst, src interface{}) error {
 	var (
 		vDst, vSrc reflect.Value
-		err error
+		err        error
 	)
 	if vDst, vSrc, err = resolveValues(dst, src); err != nil {
 		return err

@@ -85,10 +85,10 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) (e
 // It won't merge unexported (private) fields and will do recursively
 // any exported field.
 func Merge(dst, src interface{}) error {
-        var (
-                vDst, vSrc reflect.Value
-                err error
-        )
+	var (
+		vDst, vSrc reflect.Value
+		err        error
+	)
 	if vDst, vSrc, err = resolveValues(dst, src); err != nil {
 		return err
 	}
