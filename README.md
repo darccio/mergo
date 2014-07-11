@@ -36,11 +36,13 @@ You can only merge same-type structs with exported fields initialized as zero va
         // ...
     }
 
-Additionally, you can map a map[string]interface{} to a struct, following the same restrictions as in Merge(). Keys are capitalized to find each corresponding exported field.
+Additionally, you can map a map[string]interface{} to a struct (and otherwise, from struct to map), following the same restrictions as in Merge(). Keys are capitalized to find each corresponding exported field.
 
     if err := mergo.Map(&dst, srcMap); err != nil {
         // ...
     }
+
+Warning: if you map a struct to map, it won't do it recursively. Don't expect Mergo to map struct members of your struct as map[string]interface{}. They will be just assigned as values.
 
 More information and examples in [godoc documentation](http://godoc.org/github.com/imdario/mergo).
 
