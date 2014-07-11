@@ -15,9 +15,9 @@ import (
 // Traverses recursively both values, assigning src's fields values to dst.
 // The map argument tracks comparisons that have already been seen, which allows
 // short circuiting on recursive types.
-func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) error {
+func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) (err error) {
 	if !src.IsValid() {
-		return nil
+		return
 	}
 	if dst.CanAddr() {
 		addr := dst.UnsafeAddr()
@@ -35,8 +35,8 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 	switch dst.Kind() {
 	case reflect.Struct:
 		for i, n := 0, dst.NumField(); i < n; i++ {
-			if err := deepMerge(dst.Field(i), src.Field(i), visited, depth+1); err != nil {
-				return err
+			if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1); err != nil {
+				return
 			}
 		}
 	case reflect.Map:
@@ -50,8 +50,8 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 			case reflect.Struct:
 				fallthrough
 			case reflect.Map:
-				if err := deepMerge(dstElement, srcElement, visited, depth+1); err != nil {
-					return err
+				if err = deepMerge(dstElement, srcElement, visited, depth+1); err != nil {
+					return
 				}
 			}
 			if !dstElement.IsValid() {
@@ -67,15 +67,15 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 			if dst.CanSet() && isEmptyValue(dst) {
 				dst.Set(src)
 			}
-		} else if err := deepMerge(dst.Elem(), src.Elem(), visited, depth+1); err != nil {
-			return err
+		} else if err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1); err != nil {
+			return
 		}
 	default:
 		if dst.CanSet() && !isEmptyValue(src) {
 			dst.Set(src)
 		}
 	}
-	return nil
+	return
 }
 
 // Merge sets fields' values in dst from src if they have a zero
@@ -84,20 +84,16 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) er
 // a pointer to struct.
 // It won't merge unexported (private) fields and will do recursively
 // any exported field.
-func Merge(dst interface{}, src interface{}) error {
-	if dst == nil || src == nil {
-		return ErrNilArguments
-	}
-	vDst := reflect.ValueOf(dst).Elem()
-	vSrc := reflect.ValueOf(src)
-	if vSrc.Kind() == reflect.Ptr {
-		vSrc = vSrc.Elem()
+func Merge(dst, src interface{}) error {
+        var (
+                vDst, vSrc reflect.Value
+                err error
+        )
+	if vDst, vSrc, err = resolveValues(dst, src); err != nil {
+		return err
 	}
 	if vDst.Type() != vSrc.Type() {
 		return ErrDifferentArgumentsTypes
-	}
-	if vDst.Kind() != reflect.Struct && vDst.Kind() != reflect.Map {
-		return ErrNotSupported
 	}
 	return deepMerge(vDst, vSrc, make(map[uintptr]*visit), 0)
 }

@@ -15,18 +15,23 @@ import (
 	"unicode/utf8"
 )
 
-func capitalize(s string) string {
+func changeInitialCase(s string, mapper func(rune) rune) string {
 	if s == "" {
 		return s
 	}
 	r, n := utf8.DecodeRuneInString(s)
-	return string(unicode.ToUpper(r)) + s[n:]
+	return string(mapper(r)) + s[n:]
+}
+
+func isExported(field reflect.StructField) bool {
+	r, _ := utf8.DecodeRuneInString(field.Name)
+	return r >= 'A' && r <= 'Z'
 }
 
 // Traverses recursively both values, assigning src's fields values to dst.
 // The map argument tracks comparisons that have already been seen, which allows
 // short circuiting on recursive types.
-func deepMap(dst reflect.Value, src map[string]interface{}, visited map[uintptr]*visit, depth int) (err error) {
+func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int) (err error) {
 	if dst.CanAddr() {
 		addr := dst.UnsafeAddr()
 		h := 17 * addr
@@ -41,36 +46,60 @@ func deepMap(dst reflect.Value, src map[string]interface{}, visited map[uintptr]
 		visited[h] = &visit{addr, typ, seen}
 	}
 	zeroValue := reflect.Value{}
-	for key := range src {
-		srcValue := src[key]
-		fieldName := capitalize(key)
-		dstElement := dst.FieldByName(fieldName)
-		if (dstElement == zeroValue) {
-			// We discard it because the field doesn't exist.
-			continue
-		}
-	        srcElement := reflect.ValueOf(srcValue)
-		dstKind := reflect.TypeOf(dstElement.Interface()).Kind()
-		srcKind := reflect.TypeOf(srcElement.Interface()).Kind()
-		// TODO What happens if dstElements is a pointer and srcElement isn't?
-		if srcKind == reflect.Ptr && dstKind != reflect.Ptr {
-		        srcElement = srcElement.Elem()
-			srcKind = reflect.TypeOf(srcElement.Interface()).Kind()
-		}
-		if !srcElement.IsValid() {
-			continue
-		}
-		if srcKind == dstKind {
-			if err = deepMerge(dstElement, srcElement, visited, depth+1); err != nil {
-				return
+	switch dst.Kind() {
+	case reflect.Map:
+		dstMap := dst.Interface().(map[string]interface{})
+		for i, n := 0, src.NumField(); i < n; i++ {
+			srcType := src.Type()
+			field := srcType.Field(i)
+			if !isExported(field) {
+				continue
 			}
-		} else {
-			if srcKind == reflect.Map {
-				if err = deepMap(dstElement, srcValue.(map[string]interface{}), visited, depth+1); err != nil {
+			fieldName := field.Name
+			fieldName = changeInitialCase(fieldName, unicode.ToLower)
+			if v, ok := dstMap[fieldName]; !ok || isEmptyValue(reflect.ValueOf(v)) {
+				dstMap[fieldName] = src.Field(i).Interface()
+			}
+		}
+	case reflect.Struct:
+		srcMap := src.Interface().(map[string]interface{})
+		for key := range srcMap {
+			srcValue := srcMap[key]
+			fieldName := changeInitialCase(key, unicode.ToUpper)
+			dstElement := dst.FieldByName(fieldName)
+			if (dstElement == zeroValue) {
+				// We discard it because the field doesn't exist.
+				continue
+			}
+			srcElement := reflect.ValueOf(srcValue)
+			dstKind := dstElement.Kind()
+			srcKind := srcElement.Kind()
+			if srcKind == reflect.Ptr && dstKind != reflect.Ptr {
+				srcElement = srcElement.Elem()
+				srcKind = reflect.TypeOf(srcElement.Interface()).Kind()
+			} else if dstKind == reflect.Ptr {
+				// Can this work? I guess it can't.
+				if srcKind != reflect.Ptr && srcElement.CanAddr() {
+					srcPtr := srcElement.Addr()
+					srcElement = reflect.ValueOf(srcPtr)
+					srcKind = reflect.Ptr
+				}
+			}
+			if !srcElement.IsValid() {
+				continue
+			}
+			if srcKind == dstKind {
+				if err = deepMerge(dstElement, srcElement, visited, depth+1); err != nil {
 					return
 				}
 			} else {
-				return fmt.Errorf("Type mismatch on %s field: found %v, expected %v", fieldName, dstKind, srcKind)
+				if srcKind == reflect.Map {
+					if err = deepMap(dstElement, srcElement, visited, depth+1); err != nil {
+						return
+					}
+				} else {
+					return fmt.Errorf("Type mismatch on %s field: found %v, expected %v", fieldName, srcKind, dstKind)
+				}
 			}
 		}
 	}
@@ -78,19 +107,40 @@ func deepMap(dst reflect.Value, src map[string]interface{}, visited map[uintptr]
 }
 
 // Map sets fields' values in dst from src.
-// src must be a map with string keys, usually coming from a third
-// party: HTTP request, database query result, etc.
-// dst must be a valid pointer to struct.
+// src can be a map with string keys or a struct. dst must be the opposite:
+// if src is a map, dst must be a valid pointer to struct. If src is a struct,
+// dst must be map[string]interface{}.
 // It won't merge unexported (private) fields and will do recursively
 // any exported field.
-// Missing fields in dst from src's keys will be skipped.
-func Map(dst interface{}, src map[string]interface{}) error {
-	if dst == nil || src == nil {
-		return ErrNilArguments
+// If dst is a map, keys will be src fields' names in lower camel case.
+// Missing key in src that doesn't match a field in dst will be skipped. This
+// doesn't apply if dst is a map.
+// This is separated method from Merge because it is cleaner and it keeps sane
+// semantics: merging equal types, mapping different (restricted) types.
+func Map(dst, src interface{}) error {
+	var (
+		vDst, vSrc reflect.Value
+		err error
+	)
+	if vDst, vSrc, err = resolveValues(dst, src); err != nil {
+		return err
 	}
-	vDst := reflect.ValueOf(dst).Elem()
-	if vDst.Kind() != reflect.Struct {
+	// To be friction-less, we redirect equal-type arguments
+	// to deepMerge. Only because arguments can be anything.
+	if vSrc.Kind() == vDst.Kind() {
+		return deepMerge(vDst, vSrc, make(map[uintptr]*visit), 0)
+	}
+	switch vSrc.Kind() {
+	case reflect.Struct:
+		if vDst.Kind() != reflect.Map {
+			return ErrExpectedMapAsDestination
+		}
+	case reflect.Map:
+		if vDst.Kind() != reflect.Struct {
+			return ErrExpectedStructAsDestination
+		}
+	default:
 		return ErrNotSupported
 	}
-	return deepMap(vDst, src, make(map[uintptr]*visit), 0)
+	return deepMap(vDst, vSrc, make(map[uintptr]*visit), 0)
 }

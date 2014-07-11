@@ -239,6 +239,47 @@ func TestSimpleMap(t *testing.T) {
 	}
 }
 
+type pointerMapTest struct {
+	A int
+	hidden int
+	B *simpleTest
+}
+
+func TestBackAndForth(t *testing.T) {
+	pt := pointerMapTest{42, 1, &simpleTest{66}}
+	m := make(map[string]interface{})
+	if err := Map(&m, pt); err != nil {
+		t.FailNow()
+	}
+	var (
+		v interface{}
+		ok bool
+	)
+	if v, ok = m["a"]; v.(int) != pt.A || !ok {
+		t.Fatalf("pt not merged properly: m[`a`](%d) != pt.A(%d)", v, pt.A)
+	}
+	if v, ok = m["b"]; !ok {
+		t.Fatalf("pt not merged properly: B is missing in m")
+	}
+	var st *simpleTest
+	if st = v.(*simpleTest); st.Value != 66 {
+		t.Fatalf("something went wrong while mapping pt on m, B wasn't copied")
+	}
+	bpt := pointerMapTest{}
+	if err := Map(&bpt, m); err != nil {
+		t.Fatal(err)
+	}
+	if bpt.A != pt.A {
+		t.Fatalf("pt not merged properly: bpt.A(%d) != pt.A(%d)", bpt.A, pt.A)
+	}
+	if bpt.hidden == pt.hidden {
+		t.Fatalf("pt unexpectedly merged: bpt.hidden(%d) == pt.hidden(%d)", bpt.hidden, pt.hidden)
+	}
+	if bpt.B.Value != pt.B.Value {
+		t.Fatalf("pt not merged properly: bpt.B.Value(%d) != pt.B.Value(%d)", bpt.B.Value, pt.B.Value)
+	}
+}
+
 func loadYAML(path string) (m map[string]interface{}) {
 	m = make(map[string]interface{})
 	raw, _ := ioutil.ReadFile(path)
