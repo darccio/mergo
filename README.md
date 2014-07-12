@@ -15,6 +15,7 @@ It is ready for production use. It works fine although it may use more of testin
 - [rdegges/cryptly-api](https://github.com/rdegges/cryptly-api)
 
 [![Build Status][1]][2]
+[![GoDoc](https://godoc.org/github.com/imdario/mergo?status.svg)](https://godoc.org/github.com/imdario/mergo)
 
 [1]: https://travis-ci.org/imdario/mergo.png
 [2]: https://travis-ci.org/imdario/mergo

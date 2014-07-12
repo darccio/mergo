@@ -98,7 +98,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int) (err
 						return
 					}
 				} else {
-					return fmt.Errorf("Type mismatch on %s field: found %v, expected %v", fieldName, srcKind, dstKind)
+					return fmt.Errorf("type mismatch on %s field: found %v, expected %v", fieldName, srcKind, dstKind)
 				}
 			}
 		}

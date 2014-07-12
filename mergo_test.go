@@ -164,13 +164,13 @@ func TestYAMLMaps(t *testing.T) {
 	license := loadYAML("testdata/license.yml")
 	ft := thing["fields"].(map[interface{}]interface{})
 	fl := license["fields"].(map[interface{}]interface{})
-	expected_length := len(ft) + len(fl)
+	expectedLength := len(ft) + len(fl)
 	if err := Merge(&license, thing); err != nil {
 		t.Fatal(err.Error())
 	}
-	current_length := len(license["fields"].(map[interface{}]interface{}))
-	if current_length != expected_length {
-		t.Fatalf(`thing not merged in license properly, license must have %d elements instead of %d`, expected_length, current_length)
+	currentLength := len(license["fields"].(map[interface{}]interface{}))
+	if currentLength != expectedLength {
+		t.Fatalf(`thing not merged in license properly, license must have %d elements instead of %d`, expectedLength, currentLength)
 	}
 	fields := license["fields"].(map[interface{}]interface{})
 	if _, ok := fields["id"]; !ok {
