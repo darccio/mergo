@@ -8,11 +8,15 @@ Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the
 
 ## Status
 
-It is ready for production use. It works fine although it may use more of testing. Some projects in the wild started using Mergo:
+It is ready for production use. It works fine although it may use more of testing. Here some projects in the wild using Mergo:
 
+- [EagerIO/Stout](https://github.com/EagerIO/Stout)
 - [lynndylanhurley/defsynth-api](https://github.com/lynndylanhurley/defsynth-api)
 - [russross/canvasassignments](https://github.com/russross/canvasassignments)
 - [rdegges/cryptly-api](https://github.com/rdegges/cryptly-api)
+- [casualjim/exeggutor](https://github.com/casualjim/exeggutor)
+- [divshot/gitling](https://github.com/divshot/gitling)
+- [RWJMurphy/gorl](https://github.com/RWJMurphy/gorl)
 
 [![Build Status][1]][2]
 [![GoDoc](https://godoc.org/github.com/imdario/mergo?status.svg)](https://godoc.org/github.com/imdario/mergo)
