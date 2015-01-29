@@ -53,8 +53,10 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int) (e
 				if err = deepMerge(dstElement, srcElement, visited, depth+1); err != nil {
 					return
 				}
-			}
-			if !dstElement.IsValid() {
+				if !dstElement.IsValid() {
+					dst.SetMapIndex(key, srcElement)
+				}
+			default:
 				dst.SetMapIndex(key, srcElement)
 			}
 		}
