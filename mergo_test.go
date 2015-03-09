@@ -6,10 +6,11 @@
 package mergo
 
 import (
-	"gopkg.in/yaml.v1"
 	"io/ioutil"
 	"reflect"
 	"testing"
+
+	"gopkg.in/yaml.v1"
 )
 
 type simpleTest struct {
@@ -34,6 +35,41 @@ type pointerTest struct {
 
 type sliceTest struct {
 	S []int
+}
+
+func TestKb(t *testing.T) {
+	type testStruct struct {
+		Name     string
+		KeyValue map[string]interface{}
+	}
+
+	akv := make(map[string]interface{})
+	akv["Key1"] = "not value 1"
+	akv["Key2"] = "value2"
+	a := testStruct{}
+	a.Name = "A"
+	a.KeyValue = akv
+
+	bkv := make(map[string]interface{})
+	bkv["Key1"] = "value1"
+	bkv["Key3"] = "value3"
+	b := testStruct{}
+	b.Name = "B"
+	b.KeyValue = bkv
+
+	ekv := make(map[string]interface{})
+	ekv["Key1"] = "not value 1"
+	ekv["Key2"] = "value2"
+	ekv["Key3"] = "value3"
+	expected := testStruct{}
+	expected.Name = "A"
+	expected.KeyValue = ekv
+
+	Merge(&b, a)
+
+	if !reflect.DeepEqual(b, expected) {
+		t.Errorf("Actual: %#v did not match \nExpected: %#v", b, expected)
+	}
 }
 
 func TestNil(t *testing.T) {
