@@ -53,6 +53,39 @@ Warning: if you map a struct to map, it won't do it recursively. Don't expect Me
 
 More information and examples in [godoc documentation](http://godoc.org/github.com/imdario/mergo).
 
+### Nice example
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/imdario/mergo"
+)
+
+type Foo struct {
+	A string
+	B int64
+}
+
+func main() {
+	src := Foo{
+		A: "one",
+	}
+
+	dest := Foo{
+		A: "two",
+		B: 2,
+	}
+
+	mergo.Merge(&dest, src)
+
+	fmt.Println(dest)
+	// Will print
+	// {one 2}
+}
+```
+
 Note: if test are failing due missing package, please execute:
 
     go get gopkg.in/yaml.v1
