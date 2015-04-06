@@ -18,7 +18,7 @@ It is ready for production use. It works fine after extensive use in the wild.
 
 ### Important note
 
-Mergo is intended to merge **only** zero value fields on destination. Since April 6th it works like this. Before it didn't work properly, causing some random overwrites. After some issues and PRs I found it didn't merge as I designed it. Thanks to [imdario/mergo#8](https://github.com/imdario/mergo/pull/8) overwriting functions were added and the wrong behavior was clearly detected.
+Mergo is intended to assign **only** zero value fields on destination with source value. Since April 6th it works like this. Before it didn't work properly, causing some random overwrites. After some issues and PRs I found it didn't merge as I designed it. Thanks to [imdario/mergo#8](https://github.com/imdario/mergo/pull/8) overwriting functions were added and the wrong behavior was clearly detected.
 
 If you were using Mergo **before** April 6th 2015, please check your project works as intended after updating your local copy with ```go get -u github.com/imdario/mergo```. I apologize for any issue caused by its previous behavior and any future bug that Mergo could cause (I hope it won't!) in existing projects after the change (release 0.2.0).
 
