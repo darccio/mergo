@@ -54,7 +54,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 					return
 				}
 			}
-			if !isEmptyValue(srcElement) && (overwrite || !dstElement.IsValid()) {
+			if !isEmptyValue(srcElement) && (overwrite || (!dstElement.IsValid() || isEmptyValue(dst))) {
 				dst.SetMapIndex(key, srcElement)
 			}
 		}
@@ -64,14 +64,14 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 		if src.IsNil() {
 			break
 		} else if dst.IsNil() {
-			if dst.CanSet() && (isEmptyValue(dst) || overwrite) {
+			if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
 				dst.Set(src)
 			}
 		} else if err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, overwrite); err != nil {
 			return
 		}
 	default:
-		if dst.CanSet() && !isEmptyValue(src) {
+		if dst.CanSet() && !isEmptyValue(src) && (overwrite || isEmptyValue(dst)) {
 			dst.Set(src)
 		}
 	}
