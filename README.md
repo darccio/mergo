@@ -8,7 +8,21 @@ Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the
 
 ## Status
 
-It is ready for production use. It works fine although it may use more of testing. Here some projects in the wild using Mergo:
+It is ready for production use. It works fine after extensive use in the wild.
+
+[![Build Status][1]][2]
+[![GoDoc](https://godoc.org/github.com/imdario/mergo?status.svg)](https://godoc.org/github.com/imdario/mergo)
+
+[1]: https://travis-ci.org/imdario/mergo.png
+[2]: https://travis-ci.org/imdario/mergo
+
+### Important note
+
+Mergo is intended to merge **only** zero value fields on destination. Since April 6th it works like this. Before it didn't work properly, causing some random overwrites. After some issues and PRs I found it didn't merge as I designed it. Thanks to [imdario/mergo#8](https://github.com/imdario/mergo/pull/8) overwriting functions were added and the wrong behavior was clearly detected.
+
+If you were using Mergo **before** April 6th 2015, please check your project works as intended after updating your local copy with ```go get -u github.com/imdario/mergo```. I apologize for any issue caused by its previous behavior and any future bug that Mergo could cause (I hope it won't!) in existing projects after the change (release 0.2.0).
+
+### Mergo in the wild
 
 - [GoogleCloudPlatform/kubernetes](https://github.com/GoogleCloudPlatform/kubernetes)
 - [soniah/dnsmadeeasy](https://github.com/soniah/dnsmadeeasy)
@@ -19,12 +33,6 @@ It is ready for production use. It works fine although it may use more of testin
 - [casualjim/exeggutor](https://github.com/casualjim/exeggutor)
 - [divshot/gitling](https://github.com/divshot/gitling)
 - [RWJMurphy/gorl](https://github.com/RWJMurphy/gorl)
-
-[![Build Status][1]][2]
-[![GoDoc](https://godoc.org/github.com/imdario/mergo?status.svg)](https://godoc.org/github.com/imdario/mergo)
-
-[1]: https://travis-ci.org/imdario/mergo.png
-[2]: https://travis-ci.org/imdario/mergo
 
 ## Installation
 
