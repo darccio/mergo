@@ -82,6 +82,20 @@ func TestComplexStruct(t *testing.T) {
 	}
 }
 
+func TestComplexStructWithOverwrite(t *testing.T) {
+	a := complexTest{simpleTest{1}, 1, "do-not-overwrite-with-empty-value"}
+	b := complexTest{simpleTest{42}, 2, ""}
+
+	expect := complexTest{simpleTest{42}, 1, "do-not-overwrite-with-empty-value"}
+	if err := MergeWithOverwrite(&a, b); err != nil {
+		t.FailNow()
+	}
+
+	if !reflect.DeepEqual(a, expect) {
+		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", a, expect)
+	}
+}
+
 func TestPointerStruct(t *testing.T) {
 	s1 := simpleTest{}
 	s2 := simpleTest{19}
@@ -132,21 +146,63 @@ func TestSliceStruct(t *testing.T) {
 	}
 }
 
-func TestMaps(t *testing.T) {
+func TestMapsWithOverwrite(t *testing.T) {
 	m := map[string]simpleTest{
-		"a": simpleTest{},
-		"b": simpleTest{42},
+		"a": simpleTest{},   // overwritten by 16
+		"b": simpleTest{42}, // not overwritten by empty value
+		"c": simpleTest{13}, // overwritten by 12
+		"d": simpleTest{61},
 	}
 	n := map[string]simpleTest{
 		"a": simpleTest{16},
 		"b": simpleTest{},
 		"c": simpleTest{12},
+		"e": simpleTest{14},
 	}
+	expect := map[string]simpleTest{
+		"a": simpleTest{16},
+		"b": simpleTest{},
+		"c": simpleTest{12},
+		"d": simpleTest{61},
+		"e": simpleTest{14},
+	}
+
+	if err := MergeWithOverwrite(&m, n); err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	if !reflect.DeepEqual(m, expect) {
+		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", m, expect)
+	}
+}
+
+func TestMaps(t *testing.T) {
+	m := map[string]simpleTest{
+		"a": simpleTest{},
+		"b": simpleTest{42},
+		"c": simpleTest{13},
+		"d": simpleTest{61},
+	}
+	n := map[string]simpleTest{
+		"a": simpleTest{16},
+		"b": simpleTest{},
+		"c": simpleTest{12},
+		"e": simpleTest{14},
+	}
+	expect := map[string]simpleTest{
+		"a": simpleTest{0},
+		"b": simpleTest{42},
+		"c": simpleTest{13},
+		"d": simpleTest{61},
+		"e": simpleTest{14},
+	}
+
 	if err := Merge(&m, n); err != nil {
 		t.Fatalf(err.Error())
 	}
-	if len(m) != 3 {
-		t.Fatalf(`n not merged in m properly, m must have 3 elements instead of %d`, len(m))
+
+	if !reflect.DeepEqual(m, expect) {
+		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", m, expect)
 	}
 	if m["a"].Value != 0 {
 		t.Fatalf(`n merged in m because I solved non-addressable map values TODO: m["a"].Value(%d) != n["a"].Value(%d)`, m["a"].Value, n["a"].Value)
@@ -154,8 +210,8 @@ func TestMaps(t *testing.T) {
 	if m["b"].Value != 42 {
 		t.Fatalf(`n wrongly merged in m: m["b"].Value(%d) != n["b"].Value(%d)`, m["b"].Value, n["b"].Value)
 	}
-	if m["c"].Value != 12 {
-		t.Fatalf(`n not merged in m: m["c"].Value(%d) != n["c"].Value(%d)`, m["c"].Value, n["c"].Value)
+	if m["c"].Value != 13 {
+		t.Fatalf(`n overwritten in m: m["c"].Value(%d) != n["c"].Value(%d)`, m["c"].Value, n["c"].Value)
 	}
 }
 
