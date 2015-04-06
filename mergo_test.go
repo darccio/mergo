@@ -153,7 +153,7 @@ func TestEmbeddedStruct(t *testing.T) {
 				embeddedStruct{"bar"},
 			},
 			expected: embeddingStruct{
-				embeddedStruct{"bar"},
+				embeddedStruct{"foo"},
 			},
 		},
 	}
