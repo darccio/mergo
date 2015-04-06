@@ -24,6 +24,7 @@ If you were using Mergo **before** April 6th 2015, please check your project wor
 
 ### Mergo in the wild
 
+- [imdario/zas](https://github.com/imdario/zas)
 - [GoogleCloudPlatform/kubernetes](https://github.com/GoogleCloudPlatform/kubernetes)
 - [soniah/dnsmadeeasy](https://github.com/soniah/dnsmadeeasy)
 - [EagerIO/Stout](https://github.com/EagerIO/Stout)
@@ -33,6 +34,16 @@ If you were using Mergo **before** April 6th 2015, please check your project wor
 - [casualjim/exeggutor](https://github.com/casualjim/exeggutor)
 - [divshot/gitling](https://github.com/divshot/gitling)
 - [RWJMurphy/gorl](https://github.com/RWJMurphy/gorl)
+- [andrerocker/deploy42](https://github.com/andrerocker/deploy42)
+- [elwinar/rambler](https://github.com/elwinar/rambler)
+- [tmaiaroto/gopartman](https://github.com/tmaiaroto/gopartman)
+- [jfbus/impressionist](https://github.com/jfbus/impressionist)
+- [Jmeyering/zealot](https://github.com/Jmeyering/zealot)
+- [godep-migrator/rigger-host](https://github.com/godep-migrator/rigger-host)
+- [Dronevery/MultiwaySwitch-Go](https://github.com/Dronevery/MultiwaySwitch-Go)
+- [thoas/picfit](https://github.com/thoas/picfit)
+- [mantasmatelis/whooplist-server](https://github.com/mantasmatelis/whooplist-server)
+- [jnuthong/item_search](https://github.com/jnuthong/item_search)
 
 ## Installation
 
