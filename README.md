@@ -101,7 +101,7 @@ func main() {
 
 	fmt.Println(dest)
 	// Will print
-	// {one 2}
+	// {two 2}
 }
 ```
 
