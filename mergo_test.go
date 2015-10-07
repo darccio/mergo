@@ -312,12 +312,37 @@ func TestMaps(t *testing.T) {
 	}
 }
 
+func TestYAMLMapsWithOverwrite(t *testing.T) {
+	thing := loadYAML("testdata/thing.yml")
+	license := loadYAML("testdata/license.yml")
+	ft := thing["fields"].(map[interface{}]interface{})
+	fl := license["fields"].(map[interface{}]interface{})
+	expectedLength := len(ft) + len(fl) - 1
+	if err := MergeWithOverwrite(&license, thing); err != nil {
+		t.Fatal(err.Error())
+	}
+	currentLength := len(license["fields"].(map[interface{}]interface{}))
+	if currentLength != expectedLength {
+		t.Fatalf(`thing not merged in license properly, license must have %d elements instead of %d`, expectedLength, currentLength)
+	}
+	fields := license["fields"].(map[interface{}]interface{})
+	if _, ok := fields["site"]; !ok {
+		t.Fatalf(`thing not merged in license properly, license must keep a site field`)
+	}
+	if _, ok := fields["id"]; !ok {
+		t.Fatalf(`thing not merged in license properly, license must have a new id field from thing`)
+	}
+	if f, ok := fields["author"]; !ok || f != "updater" {
+		t.Fatalf(`thing not merged in license properly, license must have a author field with updated value from thing`)
+	}
+}
+
 func TestYAMLMaps(t *testing.T) {
 	thing := loadYAML("testdata/thing.yml")
 	license := loadYAML("testdata/license.yml")
 	ft := thing["fields"].(map[interface{}]interface{})
 	fl := license["fields"].(map[interface{}]interface{})
-	expectedLength := len(ft) + len(fl)
+	expectedLength := len(ft) + len(fl) - 1
 	if err := Merge(&license, thing); err != nil {
 		t.Fatal(err.Error())
 	}
@@ -328,6 +353,9 @@ func TestYAMLMaps(t *testing.T) {
 	fields := license["fields"].(map[interface{}]interface{})
 	if _, ok := fields["id"]; !ok {
 		t.Fatalf(`thing not merged in license properly, license must have a new id field from thing`)
+	}
+	if f, ok := fields["author"]; !ok || f != "root" {
+		t.Fatalf(`thing not merged in license properly, license must keep a author field with original value`)
 	}
 }
 
