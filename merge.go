@@ -46,7 +46,13 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 				continue
 			}
 			dstElement := dst.MapIndex(key)
-			if !srcElement.IsNil() {
+			switch srcElement.Kind() {
+			case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
+				if srcElement.IsNil() {
+					continue
+				}
+				fallthrough
+			default:
 				switch reflect.TypeOf(srcElement.Interface()).Kind() {
 				case reflect.Struct:
 					fallthrough
