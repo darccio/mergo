@@ -6,11 +6,11 @@
 package mergo
 
 import (
+	"gopkg.in/yaml.v1"
 	"io/ioutil"
 	"reflect"
 	"testing"
-
-	"gopkg.in/yaml.v1"
+	"time"
 )
 
 type simpleTest struct {
@@ -430,6 +430,37 @@ func TestBackAndForth(t *testing.T) {
 	}
 	if bpt.B.Value != pt.B.Value {
 		t.Fatalf("pt not merged in properly: bpt.B.Value(%d) != pt.B.Value(%d)", bpt.B.Value, pt.B.Value)
+	}
+}
+
+type structWithTimePointer struct {
+	Birth *time.Time
+}
+
+func TestTime(t *testing.T) {
+	now := time.Now()
+	dataStruct := structWithTimePointer{
+		Birth: &now,
+	}
+	dataMap := map[string]interface{}{
+		"Birth": &now,
+	}
+	b := structWithTimePointer{}
+	if err := Merge(&b, dataStruct); err != nil {
+		t.FailNow()
+	}
+	if b.Birth.IsZero() {
+		t.Fatalf("time.Time not merged in properly: b.Birth(%v) != dataStruct['Birth'](%v)", b.Birth, dataStruct.Birth)
+	}
+	if b.Birth != dataStruct.Birth {
+		t.Fatalf("time.Time not merged in properly: b.Birth(%v) != dataStruct['Birth'](%v)", b.Birth, dataStruct.Birth)
+	}
+	b = structWithTimePointer{}
+	if err := Map(&b, dataMap); err != nil {
+		t.FailNow()
+	}
+	if b.Birth.IsZero() {
+		t.Fatalf("time.Time not merged in properly: b.Birth(%v) != dataMap['Birth'](%v)", b.Birth, dataMap["Birth"])
 	}
 }
 
