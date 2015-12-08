@@ -492,6 +492,45 @@ func TestTime(t *testing.T) {
 	}
 }
 
+func TestMapWithoutField(t *testing.T) {
+	m := map[string]map[string]string{
+		"parent1": {
+			"child1_1": "value1_1",
+			"child1_2": "value1_2",
+		},
+	}
+
+	n := map[string]map[string]string{
+		"parent1": {
+			"child1_1": "updated1_1",
+
+			"child1_3": "updated1_3",
+		},
+		"parent2": {
+			"child2_1": "updated2_1",
+		},
+	}
+
+	expect := map[string]map[string]string{
+		"parent1": {
+			"child1_1": "updated1_1",
+			"child1_2": "value1_2",
+			"child1_3": "updated1_3",
+		},
+		"parent2": {
+			"child2_1": "updated2_1",
+		},
+	}
+
+	if err := MergeWithOverwrite(&m, n); err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	if !reflect.DeepEqual(m, expect) {
+		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", m, expect)
+	}
+}
+
 func loadYAML(path string) (m map[string]interface{}) {
 	m = make(map[string]interface{})
 	raw, _ := ioutil.ReadFile(path)

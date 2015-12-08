@@ -62,7 +62,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 					}
 				}
 			}
-			if reflect.TypeOf(srcElement.Interface()).Kind() == reflect.Map {
+			if dstElement.IsValid() && reflect.TypeOf(srcElement.Interface()).Kind() == reflect.Map {
 				continue
 			}
 
