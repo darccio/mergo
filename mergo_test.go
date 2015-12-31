@@ -464,6 +464,36 @@ func TestTime(t *testing.T) {
 	}
 }
 
+type simpleNested struct {
+	A int
+}
+
+type structWithNestedPtrValueMap struct {
+	NestedPtrValue map[string]*simpleNested
+}
+
+func TestNestedPtrValueInMap(t *testing.T) {
+	src := &structWithNestedPtrValueMap{
+		NestedPtrValue: map[string]*simpleNested{
+			"x": &simpleNested{
+				A: 1,
+			},
+		},
+	}
+	dst := &structWithNestedPtrValueMap{
+		NestedPtrValue: map[string]*simpleNested{
+			"x": &simpleNested{
+			},
+		},
+	}
+	if err := Map(dst, src); err != nil {
+		t.FailNow()
+	}
+	if dst.NestedPtrValue["x"].A == 0 {
+		t.Fatalf("Nested Ptr value not merged in properly: dst.NestedPtrValue[\"x\"].A(%v) != src.NestedPtrValue[\"x\"].A(%v)", dst.NestedPtrValue["x"].A, src.NestedPtrValue["x"].A)
+	}
+}
+
 func loadYAML(path string) (m map[string]interface{}) {
 	m = make(map[string]interface{})
 	raw, _ := ioutil.ReadFile(path)
