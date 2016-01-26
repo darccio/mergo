@@ -91,12 +91,10 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 	return
 }
 
-// Merge sets attribute values for dst using src values for each dst attribute
-// if it is currently an empty value for it's given type and the src version
-// of the attribute is also not empty. dst and src must be valid same-type structs
+// Merge will fill any empty for value type attributes on the dst struct using corresponding
+// src attributes if they themselves are not empty. dst and src must be valid same-type structs
 // and dst must be a pointer to struct.
-// It won't merge unexported (private) fields and will do recursively
-// any exported field.
+// It won't merge unexported (private) fields and will do recursively any exported field.
 func Merge(dst, src interface{}) error {
 	return merge(dst, src, false)
 }
