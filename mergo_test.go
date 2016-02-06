@@ -245,23 +245,23 @@ func TestSliceStruct(t *testing.T) {
 
 func TestMapsWithOverwrite(t *testing.T) {
 	m := map[string]simpleTest{
-		"a": simpleTest{},   // overwritten by 16
-		"b": simpleTest{42}, // not overwritten by empty value
-		"c": simpleTest{13}, // overwritten by 12
-		"d": simpleTest{61},
+		"a": {},   // overwritten by 16
+		"b": {42}, // not overwritten by empty value
+		"c": {13}, // overwritten by 12
+		"d": {61},
 	}
 	n := map[string]simpleTest{
-		"a": simpleTest{16},
-		"b": simpleTest{},
-		"c": simpleTest{12},
-		"e": simpleTest{14},
+		"a": {16},
+		"b": {},
+		"c": {12},
+		"e": {14},
 	}
 	expect := map[string]simpleTest{
-		"a": simpleTest{16},
-		"b": simpleTest{},
-		"c": simpleTest{12},
-		"d": simpleTest{61},
-		"e": simpleTest{14},
+		"a": {16},
+		"b": {},
+		"c": {12},
+		"d": {61},
+		"e": {14},
 	}
 
 	if err := MergeWithOverwrite(&m, n); err != nil {
@@ -275,23 +275,23 @@ func TestMapsWithOverwrite(t *testing.T) {
 
 func TestMaps(t *testing.T) {
 	m := map[string]simpleTest{
-		"a": simpleTest{},
-		"b": simpleTest{42},
-		"c": simpleTest{13},
-		"d": simpleTest{61},
+		"a": {},
+		"b": {42},
+		"c": {13},
+		"d": {61},
 	}
 	n := map[string]simpleTest{
-		"a": simpleTest{16},
-		"b": simpleTest{},
-		"c": simpleTest{12},
-		"e": simpleTest{14},
+		"a": {16},
+		"b": {},
+		"c": {12},
+		"e": {14},
 	}
 	expect := map[string]simpleTest{
-		"a": simpleTest{0},
-		"b": simpleTest{42},
-		"c": simpleTest{13},
-		"d": simpleTest{61},
-		"e": simpleTest{14},
+		"a": {0},
+		"b": {42},
+		"c": {13},
+		"d": {61},
+		"e": {14},
 	}
 
 	if err := Merge(&m, n); err != nil {
@@ -475,14 +475,14 @@ type structWithNestedPtrValueMap struct {
 func TestNestedPtrValueInMap(t *testing.T) {
 	src := &structWithNestedPtrValueMap{
 		NestedPtrValue: map[string]*simpleNested{
-			"x": &simpleNested{
+			"x": {
 				A: 1,
 			},
 		},
 	}
 	dst := &structWithNestedPtrValueMap{
 		NestedPtrValue: map[string]*simpleNested{
-			"x": &simpleNested{},
+			"x": {},
 		},
 	}
 	if err := Map(dst, src); err != nil {
