@@ -20,7 +20,7 @@ type simpleTest struct {
 type complexTest struct {
 	St simpleTest
 	sz int
-	Id string
+	ID string
 }
 
 type moreComplextText struct {
@@ -102,7 +102,7 @@ func TestSimpleStruct(t *testing.T) {
 
 func TestComplexStruct(t *testing.T) {
 	a := complexTest{}
-	a.Id = "athing"
+	a.ID = "athing"
 	b := complexTest{simpleTest{42}, 1, "bthing"}
 	if err := Merge(&a, b); err != nil {
 		t.FailNow()
@@ -113,8 +113,8 @@ func TestComplexStruct(t *testing.T) {
 	if a.sz == 1 {
 		t.Fatalf("a's private field sz not preserved from merge: a.sz(%d) == b.sz(%d)", a.sz, b.sz)
 	}
-	if a.Id == b.Id {
-		t.Fatalf("a's field Id merged unexpectedly: a.Id(%s) == b.Id(%s)", a.Id, b.Id)
+	if a.ID == b.ID {
+		t.Fatalf("a's field ID merged unexpectedly: a.ID(%s) == b.ID(%s)", a.ID, b.ID)
 	}
 }
 
@@ -341,7 +341,7 @@ func TestTwoPointerValues(t *testing.T) {
 
 func TestMap(t *testing.T) {
 	a := complexTest{}
-	a.Id = "athing"
+	a.ID = "athing"
 	c := moreComplextText{a, simpleTest{}, simpleTest{}}
 	b := map[string]interface{}{
 		"ct": map[string]interface{}{
@@ -374,8 +374,8 @@ func TestMap(t *testing.T) {
 	if c.Ct.sz == 1 {
 		t.Fatalf("a's private field sz not preserved from merge: c.Ct.sz(%d) == b.Ct.sz(%d)", c.Ct.sz, m["sz"])
 	}
-	if c.Ct.Id == m["id"] {
-		t.Fatalf("a's field Id merged unexpectedly: c.Ct.Id(%s) == b.Ct.Id(%s)", c.Ct.Id, m["id"])
+	if c.Ct.ID == m["id"] {
+		t.Fatalf("a's field ID merged unexpectedly: c.Ct.ID(%s) == b.Ct.ID(%s)", c.Ct.ID, m["id"])
 	}
 }
 

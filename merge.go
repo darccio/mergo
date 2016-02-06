@@ -99,7 +99,7 @@ func Merge(dst, src interface{}) error {
 	return merge(dst, src, false)
 }
 
-// The same as Merge except that non-empty dst attributes will be overriden by
+// MergeWithOverwrite will do the same as Merge except that non-empty dst attributes will be overriden by
 // non-empty src attribute values.
 func MergeWithOverwrite(dst, src interface{}) error {
 	return merge(dst, src, true)
