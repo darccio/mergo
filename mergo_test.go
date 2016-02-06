@@ -482,8 +482,7 @@ func TestNestedPtrValueInMap(t *testing.T) {
 	}
 	dst := &structWithNestedPtrValueMap{
 		NestedPtrValue: map[string]*simpleNested{
-			"x": &simpleNested{
-			},
+			"x": &simpleNested{},
 		},
 	}
 	if err := Map(dst, src); err != nil {
