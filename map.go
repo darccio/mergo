@@ -57,7 +57,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 			}
 			fieldName := field.Name
 			fieldName = changeInitialCase(fieldName, unicode.ToLower)
-			if v, ok := dstMap[fieldName]; !ok || (isEmptyValue(reflect.ValueOf(v)) || overwrite) {
+			if v, ok := dstMap[fieldName]; !ok || (isEmptyValue(reflect.ValueOf(v), nil) || overwrite) {
 				dstMap[fieldName] = src.Field(i).Interface()
 			}
 		}
@@ -89,7 +89,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 				continue
 			}
 			if srcKind == dstKind {
-				if err = deepMerge(dstElement, srcElement, visited, depth+1, overwrite); err != nil {
+				if err = deepMerge(dstElement, srcElement, "", visited, depth+1, overwrite); err != nil {
 					return
 				}
 			} else {
@@ -138,7 +138,7 @@ func _map(dst, src interface{}, overwrite bool) error {
 	// To be friction-less, we redirect equal-type arguments
 	// to deepMerge. Only because arguments can be anything.
 	if vSrc.Kind() == vDst.Kind() {
-		return deepMerge(vDst, vSrc, make(map[uintptr]*visit), 0, overwrite)
+		return deepMerge(vDst, vSrc, "", make(map[uintptr]*visit), 0, overwrite)
 	}
 	switch vSrc.Kind() {
 	case reflect.Struct:

@@ -11,6 +11,11 @@ package mergo
 import (
 	"errors"
 	"reflect"
+	"strconv"
+)
+
+const (
+	TagName = "default_value"
 )
 
 // Errors reported by Mergo when it finds invalid arguments.
@@ -33,18 +38,45 @@ type visit struct {
 }
 
 // From src/pkg/encoding/json.
-func isEmptyValue(v reflect.Value) bool {
+func isEmptyValue(v reflect.Value, defaultValue interface{}) bool {
+	strDefaultValue := reflect.ValueOf(defaultValue).String()
 	switch v.Kind() {
-	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
-		return v.Len() == 0
+	case reflect.String:
+		if strDefaultValue == "" {
+			return v.Len() == 0
+		} else {
+			return v.String() == strDefaultValue
+		}
+	case reflect.Array, reflect.Map, reflect.Slice:
+		if value, err := strconv.ParseInt(strDefaultValue, 10, 32); err != nil || strDefaultValue == "" {
+			return v.Len() == 0
+		} else {
+			return int64(v.Len()) == value
+		}
 	case reflect.Bool:
-		return !v.Bool()
+		if value, err := strconv.ParseBool(strDefaultValue); err != nil || strDefaultValue == "" {
+			return !v.Bool()
+		} else {
+			return v.Bool() == value
+		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Int() == 0
+		if value, err := strconv.ParseInt(strDefaultValue, 10, 64); err != nil || strDefaultValue == "" {
+			return v.Int() == 0
+		} else {
+			return v.Int() == value
+		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		return v.Uint() == 0
+		if value, err := strconv.ParseUint(strDefaultValue, 10, 64); err != nil || strDefaultValue == "" {
+			return v.Uint() == 0
+		} else {
+			return v.Uint() == value
+		}
 	case reflect.Float32, reflect.Float64:
-		return v.Float() == 0
+		if value, err := strconv.ParseFloat(strDefaultValue, 64); err != nil || strDefaultValue == "" {
+			return v.Float() == 0
+		} else {
+			return v.Float() == value
+		}
 	case reflect.Interface, reflect.Ptr:
 		return v.IsNil()
 	}

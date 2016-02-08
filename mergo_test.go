@@ -499,3 +499,73 @@ func loadYAML(path string) (m map[string]interface{}) {
 	_ = yaml.Unmarshal(raw, &m)
 	return
 }
+
+type simpleTestTag struct {
+	Value int `default_value:"50"`
+}
+
+type complexTestTag struct {
+	St   simpleTestTag
+	sz   int    `default_value:"100"`
+	Id   string `default_value:"foo"`
+	Flag bool   `default_value:"true"`
+}
+
+type moreComplextTextTag struct {
+	Ct complexTestTag
+	St simpleTestTag
+	Nt simpleTestTag
+}
+
+type pointerTestTag struct {
+	C *simpleTestTag
+}
+
+type sliceTestTag struct {
+	S []int
+}
+
+func TestComplexStructTag(t *testing.T) {
+	a := complexTestTag{St: simpleTestTag{Value: 50}}
+	a.Id = "athing"
+	b := complexTestTag{simpleTestTag{42}, 1, "bthing", false}
+	if err := Merge(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.St.Value != 42 {
+		t.Fatalf("b not merged in properly: a.St.Value(%d) != b.St.Value(%d)", a.St.Value, b.St.Value)
+	}
+	if a.sz == 1 {
+		t.Fatalf("a's private field sz not preserved from merge: a.sz(%d) == b.sz(%d)", a.sz, b.sz)
+	}
+	if a.Id == b.Id {
+		t.Fatalf("a's field Id merged unexpectedly: a.Id(%s) == b.Id(%s)", a.Id, b.Id)
+	}
+}
+
+func TestComplexStructWithOverwriteTag(t *testing.T) {
+	a := complexTestTag{simpleTestTag{50}, 100, "foo", false}
+	b := complexTestTag{simpleTestTag{0}, 2, "", true}
+
+	expect := complexTestTag{simpleTestTag{0}, 100, "", false}
+	if err := MergeWithOverwrite(&a, b); err != nil {
+		t.FailNow()
+	}
+
+	if !reflect.DeepEqual(a, expect) {
+		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", a, expect)
+	}
+}
+
+func TestPointerStructTag(t *testing.T) {
+	s1 := simpleTestTag{50}
+	s2 := simpleTestTag{19}
+	a := pointerTestTag{&s1}
+	b := pointerTestTag{&s2}
+	if err := Merge(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.C.Value != b.C.Value {
+		t.Fatalf("b not merged in properly: a.C.Value(%d) != b.C.Value(%d)", a.C.Value, b.C.Value)
+	}
+}
