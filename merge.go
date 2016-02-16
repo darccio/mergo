@@ -53,6 +53,9 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 				}
 				fallthrough
 			default:
+				if !srcElement.CanInterface() {
+					continue
+				}
 				switch reflect.TypeOf(srcElement.Interface()).Kind() {
 				case reflect.Struct:
 					fallthrough

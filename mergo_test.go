@@ -6,11 +6,12 @@
 package mergo
 
 import (
-	"gopkg.in/yaml.v1"
 	"io/ioutil"
 	"reflect"
 	"testing"
 	"time"
+
+	"gopkg.in/yaml.v1"
 )
 
 type simpleTest struct {
@@ -498,4 +499,27 @@ func loadYAML(path string) (m map[string]interface{}) {
 	raw, _ := ioutil.ReadFile(path)
 	_ = yaml.Unmarshal(raw, &m)
 	return
+}
+
+type structWithMap struct {
+	m map[string]structWithUnexportedProperty
+}
+
+type structWithUnexportedProperty struct {
+	s string
+}
+
+func TestUnexportedProperty(t *testing.T) {
+	a := structWithMap{map[string]structWithUnexportedProperty{
+		"key": structWithUnexportedProperty{"hello"},
+	}}
+	b := structWithMap{map[string]structWithUnexportedProperty{
+		"key": structWithUnexportedProperty{"hi"},
+	}}
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("Should not have panicked")
+		}
+	}()
+	Merge(&a, b)
 }
