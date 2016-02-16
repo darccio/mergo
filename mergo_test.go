@@ -502,19 +502,19 @@ func loadYAML(path string) (m map[string]interface{}) {
 }
 
 type structWithMap struct {
-	m map[string]mapWithPrivateProperty
+	m map[string]structWithUnexportedProperty
 }
 
-type mapWithPrivateProperty struct {
-	a string
+type structWithUnexportedProperty struct {
+	s string
 }
 
-func TestUnexportedField(t *testing.T) {
-	a := structWithMap{map[string]mapWithPrivateProperty{
-		"something": mapWithPrivateProperty{"ciao"},
+func TestUnexportedProperty(t *testing.T) {
+	a := structWithMap{map[string]structWithUnexportedProperty{
+		"key": structWithUnexportedProperty{"hello"},
 	}}
-	b := structWithMap{map[string]mapWithPrivateProperty{
-		"something": mapWithPrivateProperty{"mondo"},
+	b := structWithMap{map[string]structWithUnexportedProperty{
+		"key": structWithUnexportedProperty{"hi"},
 	}}
 	defer func() {
 		if r := recover(); r != nil {
