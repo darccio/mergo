@@ -13,7 +13,19 @@ import (
 	"reflect"
 	"unicode"
 	"unicode/utf8"
+	"regexp"
+	"bytes"
 )
+
+func toCamelCase(s string) string {
+	byteSrc := []byte(s)
+	parts := regexp.MustCompile("[0-9A-Za-z]+").FindAll(byteSrc, -1)
+	for i, part := range parts {
+		parts[i] = bytes.Title(part)
+	}
+
+	return string(bytes.Join(parts, nil))
+}
 
 func changeInitialCase(s string, mapper func(rune) rune) string {
 	if s == "" {
@@ -65,7 +77,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 		srcMap := src.Interface().(map[string]interface{})
 		for key := range srcMap {
 			srcValue := srcMap[key]
-			fieldName := changeInitialCase(key, unicode.ToUpper)
+			fieldName := toCamelCase(key)
 			dstElement := dst.FieldByName(fieldName)
 			if dstElement == zeroValue {
 				// We discard it because the field doesn't exist.
