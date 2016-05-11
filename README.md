@@ -30,7 +30,7 @@ If you were using Mergo **before** April 6th 2015, please check your project wor
 ### Mergo in the wild
 
 - [docker/docker](https://github.com/docker/docker/)
-- [GoogleCloudPlatform/kubernetes](https://github.com/GoogleCloudPlatform/kubernetes)
+- [kubernetes/kubernetes](https://github.com/kubernetes/kubernetes)
 - [imdario/zas](https://github.com/imdario/zas)
 - [soniah/dnsmadeeasy](https://github.com/soniah/dnsmadeeasy)
 - [EagerIO/Stout](https://github.com/EagerIO/Stout)
