@@ -50,6 +50,7 @@ If you were using Mergo **before** April 6th 2015, please check your project wor
 - [thoas/picfit](https://github.com/thoas/picfit)
 - [mantasmatelis/whooplist-server](https://github.com/mantasmatelis/whooplist-server)
 - [jnuthong/item_search](https://github.com/jnuthong/item_search)
+- [Iris Web Framework](https://github.com/kataras/iris)
 
 ## Installation
 
