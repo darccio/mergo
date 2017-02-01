@@ -40,6 +40,10 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 			}
 		}
 	case reflect.Map:
+		if len(src.MapKeys()) == 0 {
+			dst.Set(reflect.MakeMap(dst.Type()))
+			return
+		}
 		for _, key := range src.MapKeys() {
 			srcElement := src.MapIndex(key)
 			if !srcElement.IsValid() {
