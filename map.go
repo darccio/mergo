@@ -39,7 +39,9 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 		typ := dst.Type()
 		for p := seen; p != nil; p = p.next {
 			if p.ptr == addr && p.typ == typ {
-				return nil
+				if typ.Kind() != reflect.Interface {
+					return nil
+				}
 			}
 		}
 		// Remember, remember...
@@ -96,6 +98,11 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 				if srcKind == reflect.Map {
 					if err = deepMap(dstElement, srcElement, visited, depth+1, overwrite); err != nil {
 						return
+					}
+					if dstKind == reflect.Interface {
+						if err = deepMerge(dstElement, srcElement, visited, depth + 1, overwrite); err != nil {
+							return
+						}
 					}
 				} else {
 					return fmt.Errorf("type mismatch on %s field: found %v, expected %v", fieldName, srcKind, dstKind)
