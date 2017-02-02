@@ -39,9 +39,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 		typ := dst.Type()
 		for p := seen; p != nil; p = p.next {
 			if p.ptr == addr && p.typ == typ {
-				if typ.Kind() != reflect.Interface {
 					return nil
-				}
 			}
 		}
 		// Remember, remember...
