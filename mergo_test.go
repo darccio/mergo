@@ -23,6 +23,14 @@ type complexTest struct {
 	ID string
 }
 
+type mapTest struct {
+	M map[int]int
+}
+
+type ifcTest struct {
+	I interface{}
+}
+
 type moreComplextText struct {
 	Ct complexTest
 	St simpleTest
@@ -243,6 +251,19 @@ func TestSliceStruct(t *testing.T) {
 	}
 }
 
+func TestEmptyMaps(t *testing.T) {
+	a := mapTest{}
+	b := mapTest{
+		map[int]int{},
+	}
+	if err := Merge(&a, b); err != nil {
+		t.Fail()
+	}
+	if !reflect.DeepEqual(a, b) {
+		t.FailNow()
+	}
+}
+
 func TestMapsWithOverwrite(t *testing.T) {
 	m := map[string]simpleTest{
 		"a": {},   // overwritten by 16
@@ -389,6 +410,45 @@ func TestSimpleMap(t *testing.T) {
 	}
 	if a.Value != 42 {
 		t.Fatalf("b not merged in properly: a.Value(%d) != b.Value(%v)", a.Value, b["value"])
+	}
+}
+
+func TestIfcMap(t *testing.T) {
+	a := ifcTest{}
+	b := ifcTest{42}
+	if err := Map(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.I != 42 {
+		t.Fatalf("b not merged in properly: a.I(%d) != b.I(%d)", a.I, b.I)
+	}
+	if !reflect.DeepEqual(a, b) {
+		t.FailNow()
+	}
+}
+
+func TestIfcMapNoOverwrite(t *testing.T) {
+	a := ifcTest{13}
+	b := ifcTest{42}
+	if err := Map(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.I != 13 {
+		t.Fatalf("a not left alone: a.I(%d) == b.I(%d)", a.I, b.I)
+	}
+}
+
+func TestIfcMapWithOverwrite(t *testing.T) {
+	a := ifcTest{13}
+	b := ifcTest{42}
+	if err := MapWithOverwrite(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.I != 42 {
+		t.Fatalf("b not merged in properly: a.I(%d) != b.I(%d)", a.I, b.I)
+	}
+	if !reflect.DeepEqual(a, b) {
+		t.FailNow()
 	}
 }
 

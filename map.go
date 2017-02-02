@@ -91,22 +91,19 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 				continue
 			}
 			if srcKind == dstKind {
-				if err = deepMerge(dstElement, srcElement, visited, depth+1, overwrite); err != nil {
+				if err = deepMerge(dstElement, srcElement, visited, depth + 1, overwrite); err != nil {
+					return
+				}
+			} else if dstKind == reflect.Interface && dstElement.Kind() == reflect.Interface {
+				if err = deepMerge(dstElement, srcElement, visited, depth + 1, overwrite); err != nil {
+					return
+				}
+			} else if srcKind == reflect.Map {
+				if err = deepMap(dstElement, srcElement, visited, depth + 1, overwrite); err != nil {
 					return
 				}
 			} else {
-				if srcKind == reflect.Map {
-					if err = deepMap(dstElement, srcElement, visited, depth+1, overwrite); err != nil {
-						return
-					}
-					if dstKind == reflect.Interface {
-						if err = deepMerge(dstElement, srcElement, visited, depth + 1, overwrite); err != nil {
-							return
-						}
-					}
-				} else {
-					return fmt.Errorf("type mismatch on %s field: found %v, expected %v", fieldName, srcKind, dstKind)
-				}
+				return fmt.Errorf("type mismatch on %s field: found %v, expected %v", fieldName, srcKind, dstKind)
 			}
 		}
 	}
@@ -137,7 +134,7 @@ func MapWithOverwrite(dst, src interface{}) error {
 func _map(dst, src interface{}, overwrite bool) error {
 	var (
 		vDst, vSrc reflect.Value
-		err        error
+		err error
 	)
 	if vDst, vSrc, err = resolveValues(dst, src); err != nil {
 		return err
