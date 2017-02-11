@@ -269,13 +269,17 @@ func TestEmptyToNotEmptyMaps(t *testing.T) {
 		1 : 2,
 		3 : 4,
 	}}
+	aa := mapTest{map[int]int{
+		1 : 2,
+		3 : 4,
+	}}
 	b := mapTest{
 		map[int]int{},
 	}
 	if err := Merge(&a, b); err != nil {
 		t.Fail()
 	}
-	if !reflect.DeepEqual(a, b) {
+	if !reflect.DeepEqual(a, aa) {
 		t.FailNow()
 	}
 }
