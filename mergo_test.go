@@ -264,6 +264,22 @@ func TestEmptyMaps(t *testing.T) {
 	}
 }
 
+func TestEmptyToNotEmptyMaps(t *testing.T) {
+	a := mapTest{map[int]int{
+		1 : 2,
+		3 : 4,
+	}}
+	b := mapTest{
+		map[int]int{},
+	}
+	if err := Merge(&a, b); err != nil {
+		t.Fail()
+	}
+	if !reflect.DeepEqual(a, b) {
+		t.FailNow()
+	}
+}
+
 func TestMapsWithOverwrite(t *testing.T) {
 	m := map[string]simpleTest{
 		"a": {},   // overwritten by 16
