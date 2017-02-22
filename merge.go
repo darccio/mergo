@@ -34,9 +34,19 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 	}
 	switch dst.Kind() {
 	case reflect.Struct:
+		allFieldExported := true
 		for i, n := 0, dst.NumField(); i < n; i++ {
-			if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, overwrite); err != nil {
-				return
+			allFieldExported = allFieldExported && len(dst.Type().Field(i).PkgPath) == 0
+		}
+		if allFieldExported {
+			for i, n := 0, dst.NumField(); i < n; i++ {
+				if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, overwrite); err != nil {
+					return
+				}
+			}
+		} else {
+			if dst.CanSet() && !isEmptyValue(src) && (overwrite || isEmptyValue(dst)) {
+				dst.Set(src)
 			}
 		}
 	case reflect.Map:
