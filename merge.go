@@ -12,6 +12,18 @@ import (
 	"reflect"
 )
 
+func hasExportedField(dst reflect.Value) (exported bool) {
+	for i, n := 0, dst.NumField(); i < n; i++ {
+		field := dst.Type().Field(i)
+		if field.Anonymous {
+			exported = exported || hasExportedField(dst.Field(i))
+		} else {
+			exported = exported || len(field.PkgPath) == 0
+		}
+	}
+	return
+}
+
 // Traverses recursively both values, assigning src's fields values to dst.
 // The map argument tracks comparisons that have already been seen, which allows
 // short circuiting on recursive types.
@@ -34,11 +46,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 	}
 	switch dst.Kind() {
 	case reflect.Struct:
-		allFieldExported := true
-		for i, n := 0, dst.NumField(); i < n; i++ {
-			allFieldExported = allFieldExported && len(dst.Type().Field(i).PkgPath) == 0
-		}
-		if allFieldExported {
+		if hasExportedField(dst) {
 			for i, n := 0, dst.NumField(); i < n; i++ {
 				if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, overwrite); err != nil {
 					return
