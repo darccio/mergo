@@ -97,11 +97,11 @@ type Foo struct {
 func main() {
 	src := Foo{
 		A: "one",
+		B: 2,
 	}
 
 	dest := Foo{
 		A: "two",
-		B: 2,
 	}
 
 	mergo.Merge(&dest, src)
