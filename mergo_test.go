@@ -206,6 +206,67 @@ func TestEmbeddedStruct(t *testing.T) {
 	}
 }
 
+type embeddingStruct struct {
+	embeddedStruct
+}
+
+type embeddedStruct struct {
+	A string
+}
+
+func TestEmbeddedStruct(t *testing.T) {
+	tests := []struct {
+		src      embeddingStruct
+		dst      embeddingStruct
+		expected embeddingStruct
+	}{
+		{
+			src: embeddingStruct{
+				embeddedStruct{"foo"},
+			},
+			dst: embeddingStruct{
+				embeddedStruct{""},
+			},
+			expected: embeddingStruct{
+				embeddedStruct{"foo"},
+			},
+		},
+		{
+			src: embeddingStruct{
+				embeddedStruct{""},
+			},
+			dst: embeddingStruct{
+				embeddedStruct{"bar"},
+			},
+			expected: embeddingStruct{
+				embeddedStruct{"bar"},
+			},
+		},
+		{
+			src: embeddingStruct{
+				embeddedStruct{"foo"},
+			},
+			dst: embeddingStruct{
+				embeddedStruct{"bar"},
+			},
+			expected: embeddingStruct{
+				embeddedStruct{"bar"},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		err := Merge(&test.dst, test.src)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+			continue
+		}
+		if !reflect.DeepEqual(test.dst, test.expected) {
+			t.Errorf("unexpected output\nexpected:\n%+v\nsaw:\n%+v\n", test.expected, test.dst)
+		}
+	}
+}
+
 func TestPointerStructNil(t *testing.T) {
 	a := pointerTest{nil}
 	b := pointerTest{&simpleTest{19}}
