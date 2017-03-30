@@ -61,6 +61,13 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 				dstMap[fieldName] = src.Field(i).Interface()
 			}
 		}
+	case reflect.Ptr:
+		if dst.IsNil() {
+			v := reflect.New(dst.Type().Elem())
+			dst.Set(v)
+		}
+		dst = dst.Elem()
+		fallthrough
 	case reflect.Struct:
 		srcMap := src.Interface().(map[string]interface{})
 		for key := range srcMap {
@@ -85,6 +92,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 					srcKind = reflect.Ptr
 				}
 			}
+
 			if !srcElement.IsValid() {
 				continue
 			}
