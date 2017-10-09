@@ -17,6 +17,10 @@ type simpleTest struct {
 	Value int
 }
 
+type simpleCamelCaseTest struct {
+	ValueWithCamelCase int
+}
+
 type complexTest struct {
 	St simpleTest
 	sz int
@@ -389,6 +393,19 @@ func TestSimpleMap(t *testing.T) {
 	}
 	if a.Value != 42 {
 		t.Fatalf("b not merged in properly: a.Value(%d) != b.Value(%v)", a.Value, b["value"])
+	}
+}
+
+func TestSimpleMapWithCamelCase(t *testing.T) {
+	a := simpleCamelCaseTest{}
+	b := map[string]interface{}{
+		"value_with_camel_case": 42,
+	}
+	if err := Map(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.ValueWithCamelCase != 42 {
+		t.Fatalf("b not merged in properly: a.Value(%d) != b.Value(%v)", a.ValueWithCamelCase, b["value_with_camel_case"])
 	}
 }
 
