@@ -433,6 +433,29 @@ func TestBackAndForth(t *testing.T) {
 	}
 }
 
+func TestEmbeddedPointerUnpacking(t *testing.T) {
+	tests := []struct{ input pointerMapTest }{
+		{pointerMapTest{42, 1, nil}},
+		{pointerMapTest{42, 1, &simpleTest{66}}},
+	}
+	newValue := 77
+	m := map[string]interface{}{
+		"b": map[string]interface{}{
+			"value": newValue,
+		},
+	}
+	for _, test := range tests {
+		pt := test.input
+		if err := MapWithOverwrite(&pt, m); err != nil {
+			t.FailNow()
+		}
+		if pt.B.Value != newValue {
+			t.Fatalf("pt not mapped properly: pt.A.Value(%d) != m[`b`][`value`](%d)", pt.B.Value, newValue)
+		}
+
+	}
+}
+
 type structWithTimePointer struct {
 	Birth *time.Time
 }
