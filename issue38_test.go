@@ -27,8 +27,7 @@ func TestIssue38Merge(t *testing.T) {
 }
 
 func TestIssue38MergeEmptyStruct(t *testing.T) {
-	dst := structWithoutTimePointer{
-	}
+	dst := structWithoutTimePointer{}
 
 	expected := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
 	src := structWithoutTimePointer{

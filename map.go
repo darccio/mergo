@@ -39,7 +39,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 		typ := dst.Type()
 		for p := seen; p != nil; p = p.next {
 			if p.ptr == addr && p.typ == typ {
-					return nil
+				return nil
 			}
 		}
 		// Remember, remember...
@@ -97,15 +97,15 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, over
 				continue
 			}
 			if srcKind == dstKind {
-				if err = deepMerge(dstElement, srcElement, visited, depth + 1, overwrite); err != nil {
+				if err = deepMerge(dstElement, srcElement, visited, depth+1, overwrite); err != nil {
 					return
 				}
 			} else if dstKind == reflect.Interface && dstElement.Kind() == reflect.Interface {
-				if err = deepMerge(dstElement, srcElement, visited, depth + 1, overwrite); err != nil {
+				if err = deepMerge(dstElement, srcElement, visited, depth+1, overwrite); err != nil {
 					return
 				}
 			} else if srcKind == reflect.Map {
-				if err = deepMap(dstElement, srcElement, visited, depth + 1, overwrite); err != nil {
+				if err = deepMap(dstElement, srcElement, visited, depth+1, overwrite); err != nil {
 					return
 				}
 			} else {
@@ -140,7 +140,7 @@ func MapWithOverwrite(dst, src interface{}) error {
 func _map(dst, src interface{}, overwrite bool) error {
 	var (
 		vDst, vSrc reflect.Value
-		err error
+		err        error
 	)
 	if vDst, vSrc, err = resolveValues(dst, src); err != nil {
 		return err

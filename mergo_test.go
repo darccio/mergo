@@ -6,11 +6,11 @@
 package mergo
 
 import (
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"reflect"
 	"testing"
 	"time"
-	"gopkg.in/yaml.v2"
 )
 
 type simpleTest struct {
@@ -277,12 +277,12 @@ func TestEmptyToEmptyMaps(t *testing.T) {
 
 func TestEmptyToNotEmptyMaps(t *testing.T) {
 	a := mapTest{map[int]int{
-		1 : 2,
-		3 : 4,
+		1: 2,
+		3: 4,
 	}}
 	aa := mapTest{map[int]int{
-		1 : 2,
-		3 : 4,
+		1: 2,
+		3: 4,
 	}}
 	b := mapTest{
 		map[int]int{},
