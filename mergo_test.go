@@ -369,7 +369,8 @@ func TestYAMLMaps(t *testing.T) {
 	license := loadYAML("testdata/license.yml")
 	ft := thing["fields"].(map[interface{}]interface{})
 	fl := license["fields"].(map[interface{}]interface{})
-	expectedLength := len(ft) + len(fl)
+	// license has one extra field (site) and another already existing in thing (author) that Mergo won't override.
+	expectedLength := len(ft) + len(fl) - 1
 	if err := Merge(&license, thing); err != nil {
 		t.Fatal(err.Error())
 	}
