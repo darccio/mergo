@@ -214,7 +214,7 @@ func TestEmbeddedStruct(t *testing.T) {
 	}
 }
 
-func TestPointerStructNil(t *testing.T) {
+func TestPointerStructDstNil(t *testing.T) {
 	a := pointerTest{nil}
 	b := pointerTest{&simpleTest{19}}
 	if err := Merge(&a, b); err != nil {
@@ -222,6 +222,40 @@ func TestPointerStructNil(t *testing.T) {
 	}
 	if a.C.Value != b.C.Value {
 		t.Fatalf("b not merged in a properly: a.C.Value(%d) != b.C.Value(%d)", a.C.Value, b.C.Value)
+	}
+}
+
+func TestPointerStructSrcNil(t *testing.T) {
+	a := pointerTest{&simpleTest{19}}
+	b := pointerTest{nil}
+	if err := Merge(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.C == nil {
+		t.Fatalf("nil b should not have been merged into non nil a: a.C == nil")
+	}
+}
+
+func TestPointerStructDstNilOverwrite(t *testing.T) {
+	a := pointerTest{nil}
+	b := pointerTest{&simpleTest{19}}
+	if err := MergeWithOverwrite(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.C.Value != b.C.Value {
+		t.Fatalf("b not merged in a properly: a.C.Value(%d) != b.C.Value(%d)", a.C.Value, b.C.Value)
+	}
+}
+
+func TestPointerStructSrcNilOverwrite(t *testing.T) {
+	a := pointerTest{&simpleTest{19}}
+	b := pointerTest{nil}
+
+	if err := MergeWithOverwrite(&a, b); err != nil {
+		t.FailNow()
+	}
+	if a.C == nil {
+		t.Fatal("nil b should not have been merged into non nil a: a.C == nil")
 	}
 }
 
