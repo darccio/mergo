@@ -8,14 +8,12 @@
 
 package mergo
 
-import (
-	"reflect"
-)
+import "reflect"
 
 func hasExportedField(dst reflect.Value) (exported bool) {
 	for i, n := 0, dst.NumField(); i < n; i++ {
 		field := dst.Type().Field(i)
-		if field.Anonymous {
+		if field.Anonymous && dst.Field(i).Kind() == reflect.Struct {
 			exported = exported || hasExportedField(dst.Field(i))
 		} else {
 			exported = exported || len(field.PkgPath) == 0
