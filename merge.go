@@ -101,6 +101,9 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 	case reflect.Ptr:
 		fallthrough
 	case reflect.Interface:
+		if src.IsNil() {
+			break
+		}
 		if src.Kind() != reflect.Interface {
 			if dst.IsNil() || overwrite {
 				if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
@@ -119,9 +122,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, ov
 			}
 			break
 		}
-		if src.IsNil() {
-			break
-		} else if dst.IsNil() || overwrite {
+		if dst.IsNil() || overwrite {
 			if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
 				dst.Set(src)
 			}
