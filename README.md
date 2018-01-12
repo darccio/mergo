@@ -11,6 +11,7 @@ It is ready for production use. It works fine after extensive use in the wild.
 [![Build Status][1]][2]
 [![GoDoc][3]][4]
 [![GoCard][5]][6]
+[![Coverage Status][7]][8]
 
 [1]: https://travis-ci.org/imdario/mergo.png
 [2]: https://travis-ci.org/imdario/mergo
@@ -18,10 +19,14 @@ It is ready for production use. It works fine after extensive use in the wild.
 [4]: https://godoc.org/github.com/imdario/mergo
 [5]: https://goreportcard.com/badge/imdario/mergo
 [6]: https://goreportcard.com/report/github.com/imdario/mergo
+[7]: https://coveralls.io/repos/github/imdario/mergo/badge.svg?branch=master
+[8]: https://coveralls.io/github/imdario/mergo?branch=master
+
+### Latest release
+
+[Release 0.3.0](https://github.com/imdario/mergo/releases/tag/0.3.0) is an important release because it changes `Merge()`and `Map()` signatures to support [transformers](#transformers). An optional/variadic argument has been added, so it won't break existing code.
 
 ### Important note
-
-Mergo is intended to assign **only** zero value fields on destination with source value. Since April 6th it works like this. Before it didn't work properly, causing some random overwrites. After some issues and PRs I found it didn't merge as I designed it. Thanks to [imdario/mergo#8](https://github.com/imdario/mergo/pull/8) overwriting functions were added and the wrong behavior was clearly detected.
 
 If you were using Mergo **before** April 6th 2015, please check your project works as intended after updating your local copy with ```go get -u github.com/imdario/mergo```. I apologize for any issue caused by its previous behavior and any future bug that Mergo could cause (I hope it won't!) in existing projects after the change (release 0.2.0).
 
