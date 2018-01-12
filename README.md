@@ -2,9 +2,7 @@
 
 A helper to merge structs and maps in Golang. Useful for configuration default values, avoiding messy if-statements.
 
-Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the Province of Ancona in the Italian region Marche.
-
-![Mergo dall'alto](http://www.comune.mergo.an.it/Siti/Mergo/Immagini/Foto/mergo_dall_alto.jpg)
+Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the Province of Ancona in the Italian region of Marche.
 
 ## Status
 
