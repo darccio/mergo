@@ -71,7 +71,7 @@ if err := mergo.Merge(&dst, src); err != nil {
 }
 ```
 
-Also, you can merge overwriting values using the transformer WithOverride.
+Also, you can merge overwriting values using the transformer `WithOverride`.
 
 ```go
 if err := mergo.Merge(&dst, src, WithOverride); err != nil {
@@ -79,7 +79,7 @@ if err := mergo.Merge(&dst, src, WithOverride); err != nil {
 }
 ```
 
-Additionally, you can map a map[string]interface{} to a struct (and otherwise, from struct to map), following the same restrictions as in Merge(). Keys are capitalized to find each corresponding exported field.
+Additionally, you can map a `map[string]interface{}` to a struct (and otherwise, from struct to map), following the same restrictions as in `Merge()`. Keys are capitalized to find each corresponding exported field.
 
 ```go
 if err := mergo.Map(&dst, srcMap); err != nil {
