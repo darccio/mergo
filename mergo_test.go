@@ -6,11 +6,12 @@
 package mergo
 
 import (
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"reflect"
 	"testing"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 type simpleTest struct {
@@ -666,10 +667,10 @@ type structWithUnexportedProperty struct {
 
 func TestUnexportedProperty(t *testing.T) {
 	a := structWithMap{map[string]structWithUnexportedProperty{
-		"key": structWithUnexportedProperty{"hello"},
+		"key": {"hello"},
 	}}
 	b := structWithMap{map[string]structWithUnexportedProperty{
-		"key": structWithUnexportedProperty{"hi"},
+		"key": {"hi"},
 	}}
 	defer func() {
 		if r := recover(); r != nil {

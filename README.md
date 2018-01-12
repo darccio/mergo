@@ -172,6 +172,7 @@ func (t timeTransfomer) Transformer(typ reflect.Type) func(dst, src reflect.Valu
 					dst.Set(src)
 				}
 			}
+			return nil
 		}
 	}
 	return nil
