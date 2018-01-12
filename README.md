@@ -6,7 +6,7 @@ Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the
 
 ## Status
 
-It is ready for production use. It works fine after extensive use in the wild.
+It is ready for production use. [It is used in several projects by Docker, Google, The Linux Foundation, VMWare, Shopify, etc](https://github.com/imdario/mergo#mergo-in-the-wild).
 
 [![Build Status][1]][2]
 [![GoDoc][3]][4]
@@ -32,10 +32,28 @@ If you were using Mergo **before** April 6th 2015, please check your project wor
 
 ### Mergo in the wild
 
-- [docker/docker](https://github.com/docker/docker/)
+- [moby/moby](https://github.com/moby/moby)
 - [kubernetes/kubernetes](https://github.com/kubernetes/kubernetes)
+- [vmware/dispatch](https://github.com/vmware/dispatch)
+- [Shopify/themekit](https://github.com/Shopify/themekit)
 - [imdario/zas](https://github.com/imdario/zas)
+- [matcornic/hermes](https://github.com/matcornic/hermes)
+- [OpenBazaar/openbazaar-go](https://github.com/OpenBazaar/openbazaar-go)
+- [kataras/iris](https://github.com/kataras/iris)
+- [michaelsauter/crane](https://github.com/michaelsauter/crane)
+- [go-task/task](https://github.com/go-task/task)
+- [sensu/uchiwa](https://github.com/sensu/uchiwa)
+- [ory/hydra](https://github.com/ory/hydra)
+- [sisatech/vcli](https://github.com/sisatech/vcli)
+- [dairycart/dairycart](https://github.com/dairycart/dairycart)
+- [projectcalico/felix](https://github.com/projectcalico/felix)
+- [resin-os/balena](https://github.com/resin-os/balena)
+- [go-kivik/kivik](https://github.com/go-kivik/kivik)
+- [Telefonica/govice](https://github.com/Telefonica/govice)
+- [supergiant/supergiant](supergiant/supergiant)
+- [SergeyTsalkov/brooce](https://github.com/SergeyTsalkov/brooce)
 - [soniah/dnsmadeeasy](https://github.com/soniah/dnsmadeeasy)
+- [ohsu-comp-bio/funnel](https://github.com/ohsu-comp-bio/funnel)
 - [EagerIO/Stout](https://github.com/EagerIO/Stout)
 - [lynndylanhurley/defsynth-api](https://github.com/lynndylanhurley/defsynth-api)
 - [russross/canvasassignments](https://github.com/russross/canvasassignments)
@@ -53,7 +71,7 @@ If you were using Mergo **before** April 6th 2015, please check your project wor
 - [thoas/picfit](https://github.com/thoas/picfit)
 - [mantasmatelis/whooplist-server](https://github.com/mantasmatelis/whooplist-server)
 - [jnuthong/item_search](https://github.com/jnuthong/item_search)
-- [Iris Web Framework](https://github.com/kataras/iris)
+- [bukalapak/snowboard](https://github.com/bukalapak/snowboard)
 
 ## Installation
 
