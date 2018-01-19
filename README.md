@@ -24,7 +24,7 @@ It is ready for production use. [It is used in several projects by Docker, Googl
 
 ### Latest release
 
-[Release 0.3.0](https://github.com/imdario/mergo/releases/tag/0.3.0) is an important release because it changes `Merge()`and `Map()` signatures to support [transformers](#transformers). An optional/variadic argument has been added, so it won't break existing code.
+[Release 0.3.1](https://github.com/imdario/mergo/releases/tag/0.3.1) is an important release because it changes `Merge()`and `Map()` signatures to support [transformers](#transformers). An optional/variadic argument has been added, so it won't break existing code.
 
 ### Important note
 
