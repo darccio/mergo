@@ -30,6 +30,15 @@ It is ready for production use. [It is used in several projects by Docker, Googl
 
 If you were using Mergo **before** April 6th 2015, please check your project works as intended after updating your local copy with ```go get -u github.com/imdario/mergo```. I apologize for any issue caused by its previous behavior and any future bug that Mergo could cause (I hope it won't!) in existing projects after the change (release 0.2.0).
 
+### Donations
+
+If Mergo is useful to you, consider buying me a coffe, a beer or making a monthly donation so I can keep building great free software. :heart_eyes:
+
+<a href='https://ko-fi.com/B0B58839' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi1.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+[![Beerpay](https://beerpay.io/imdario/mergo/badge.svg)](https://beerpay.io/imdario/mergo)
+[![Beerpay](https://beerpay.io/imdario/mergo/make-wish.svg)](https://beerpay.io/imdario/mergo)
+<a href="https://liberapay.com/dario/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
+
 ### Mergo in the wild
 
 - [moby/moby](https://github.com/moby/moby)
