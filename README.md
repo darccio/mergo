@@ -8,10 +8,11 @@ Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the
 
 It is ready for production use. [It is used in several projects by Docker, Google, The Linux Foundation, VMWare, Shopify, etc](https://github.com/imdario/mergo#mergo-in-the-wild).
 
-[![Build Status][1]][2]
 [![GoDoc][3]][4]
 [![GoCard][5]][6]
+[![Build Status][1]][2]
 [![Coverage Status][7]][8]
+[![Sourcegraph][9]][10]
 
 [1]: https://travis-ci.org/imdario/mergo.png
 [2]: https://travis-ci.org/imdario/mergo
@@ -21,6 +22,8 @@ It is ready for production use. [It is used in several projects by Docker, Googl
 [6]: https://goreportcard.com/report/github.com/imdario/mergo
 [7]: https://coveralls.io/repos/github/imdario/mergo/badge.svg?branch=master
 [8]: https://coveralls.io/github/imdario/mergo?branch=master
+[9]: https://sourcegraph.com/github.com/imdario/mergo/-/badge.svg
+[10]: https://sourcegraph.com/github.com/imdario/mergo?badge
 
 ### Latest release
 
