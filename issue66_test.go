@@ -25,10 +25,10 @@ func TestPrivateSlice(t *testing.T) {
 	}
 
 	if len(p1.PublicStrings) != 5 {
-		t.Error("5 element should be in 'PublicStrings' field")
+		t.Error("5 elements should be in 'PublicStrings' field")
 	}
 
 	if len(p1.privateStrings) != 2 {
-		t.Error("2 element should be in 'privateStrings' field")
+		t.Error("2 elements should be in 'privateStrings' field")
 	}
 }
