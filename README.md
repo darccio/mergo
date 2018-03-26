@@ -107,7 +107,7 @@ if err := mergo.Merge(&dst, src); err != nil {
 Also, you can merge overwriting values using the transformer `WithOverride`.
 
 ```go
-if err := mergo.Merge(&dst, src, WithOverride); err != nil {
+if err := mergo.Merge(&dst, src, mergo.WithOverride); err != nil {
     // ...
 }
 ```
