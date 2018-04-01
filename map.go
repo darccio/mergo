@@ -132,7 +132,7 @@ func Map(dst, src interface{}, opts ...func(*config)) error {
 	return _map(dst, src, opts...)
 }
 
-// MapWithOverwrite will do the same as Map except that non-empty dst attributes will be overriden by
+// MapWithOverwrite will do the same as Map except that non-empty dst attributes will be overridden by
 // non-empty src attribute values.
 // Deprecated: Use Map(…) with WithOverride
 func MapWithOverwrite(dst, src interface{}, opts ...func(*config)) error {

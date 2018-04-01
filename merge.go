@@ -8,7 +8,9 @@
 
 package mergo
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func hasExportedField(dst reflect.Value) (exported bool) {
 	for i, n := 0, dst.NumField(); i < n; i++ {
@@ -132,29 +134,45 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	case reflect.Slice:
 		dst.Set(reflect.AppendSlice(dst, src))
 	case reflect.Ptr:
-		fallthrough
+		if src.Kind() == reflect.Ptr {
+			src = src.Elem()
+		}
+
+		if !dst.IsNil() {
+			// dst is not empty, so we use another iteration of deepMerge to do the magic
+			if err = deepMerge(dst.Elem(), src, visited, depth+1, config); err != nil {
+				return
+			}
+		} else {
+			// set dst to the addr of src without checking 'overwrite' because dst is empty
+			if dst.CanSet() {
+				dst.Set(src.Addr())
+			}
+		}
 	case reflect.Interface:
 		if src.IsNil() {
 			break
 		}
-		if src.Kind() != reflect.Interface {
-			if dst.IsNil() || overwrite {
-				if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
-					dst.Set(src)
+		/*
+			if src.Kind() != reflect.Interface {
+				if dst.IsNil() || overwrite {
+					if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
+						dst.Set(src)
+					}
+				} else if src.Kind() == reflect.Ptr {
+					if err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
+						return
+					}
+				} else if dst.Elem().Type() == src.Type() {
+					if err = deepMerge(dst.Elem(), src, visited, depth+1, config); err != nil {
+						return
+					}
+				} else {
+					return ErrDifferentArgumentsTypes
 				}
-			} else if src.Kind() == reflect.Ptr {
-				if err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
-					return
-				}
-			} else if dst.Elem().Type() == src.Type() {
-				if err = deepMerge(dst.Elem(), src, visited, depth+1, config); err != nil {
-					return
-				}
-			} else {
-				return ErrDifferentArgumentsTypes
+				break
 			}
-			break
-		}
+		*/
 		if dst.IsNil() || overwrite {
 			if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
 				dst.Set(src)
@@ -178,7 +196,7 @@ func Merge(dst, src interface{}, opts ...func(*config)) error {
 	return merge(dst, src, opts...)
 }
 
-// MergeWithOverwrite will do the same as Merge except that non-empty dst attributes will be overriden by
+// MergeWithOverwrite will do the same as Merge except that non-empty dst attributes will be overridden by
 // non-empty src attribute values.
 // Deprecated: use Merge(…) with WithOverride
 func MergeWithOverwrite(dst, src interface{}, opts ...func(*config)) error {

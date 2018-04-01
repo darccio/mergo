@@ -6,11 +6,12 @@
 package mergo
 
 import (
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"reflect"
 	"testing"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 type simpleTest struct {
