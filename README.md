@@ -107,7 +107,7 @@ if err := mergo.Merge(&dst, src); err != nil {
 Also, you can merge overwriting values using the transformer `WithOverride`.
 
 ```go
-if err := mergo.Merge(&dst, src, WithOverride); err != nil {
+if err := mergo.Merge(&dst, src, mergo.WithOverride); err != nil {
     // ...
 }
 ```
@@ -169,6 +169,8 @@ import (
 	"fmt"
         "reflect"
         "time"
+	
+	"github.com/imdario/mergo"
 )
 
 type timeTransfomer struct {
@@ -198,7 +200,7 @@ type Snapshot struct {
 func main() {
 	src := Snapshot{time.Now()}
 	dest := Snapshot{}
-	mergo.Merge(&dest, src, WithTransformers(timeTransfomer{}))
+	mergo.Merge(&dest, src, mergo.WithTransformers(timeTransfomer{}))
 	fmt.Println(dest)
 	// Will print
 	// { 2018-01-12 01:15:00 +0000 UTC m=+0.000000001 }
