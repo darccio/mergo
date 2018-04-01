@@ -167,10 +167,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/imdario/mergo"
         "reflect"
         "time"
-	
-	"github.com/imdario/mergo"
 )
 
 type timeTransfomer struct {
