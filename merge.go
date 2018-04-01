@@ -8,7 +8,9 @@
 
 package mergo
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func hasExportedField(dst reflect.Value) (exported bool) {
 	for i, n := 0, dst.NumField(); i < n; i++ {
