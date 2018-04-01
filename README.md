@@ -96,7 +96,7 @@ If Mergo is useful to you, consider buying me a coffe, a beer or making a monthl
 
 ## Usage
 
-You can only merge same-type structs with exported fields initialized as zero value of their type and same-types maps. Mergo won't merge unexported (private) fields but will do recursively any exported one. Also maps will be merged recursively except for structs inside maps (because they are not addressable using Go reflection).
+You can only merge same-type structs with exported fields initialized as zero value of their type and same-types maps. Mergo won't merge unexported (private) fields but will do recursively any exported one. It won't merge empty structs value as [they are not considered zero values](https://golang.org/ref/spec#The_zero_value) either. Also maps will be merged recursively except for structs inside maps (because they are not addressable using Go reflection).
 
 ```go
 if err := mergo.Merge(&dst, src); err != nil {

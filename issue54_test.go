@@ -32,7 +32,6 @@ func TestPtr2NestedStruct(t *testing.T) {
 		Str:    "This is a non empty test string",
 		Nested: &dstNested,
 	}
-
 	src := TestPtr{
 		Str:    "This is also a string",
 		Number: 4,
