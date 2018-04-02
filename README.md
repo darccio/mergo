@@ -27,7 +27,7 @@ It is ready for production use. [It is used in several projects by Docker, Googl
 
 ### Latest release
 
-[Release 0.3.3](https://github.com/imdario/mergo/releases/tag/v0.3.3).
+[Release v0.3.3](https://github.com/imdario/mergo/releases/tag/v0.3.3).
 
 ### Important note
 
