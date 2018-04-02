@@ -24,20 +24,20 @@ func hasExportedField(dst reflect.Value) (exported bool) {
 	return
 }
 
-type config struct {
-	overwrite    bool
-	transformers transformers
+type Config struct {
+	Overwrite    bool
+	Transformers Transformers
 }
 
-type transformers interface {
+type Transformers interface {
 	Transformer(reflect.Type) func(dst, src reflect.Value) error
 }
 
 // Traverses recursively both values, assigning src's fields values to dst.
 // The map argument tracks comparisons that have already been seen, which allows
 // short circuiting on recursive types.
-func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, config *config) (err error) {
-	overwrite := config.overwrite
+func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, config *Config) (err error) {
+	overwrite := config.Overwrite
 
 	if !src.IsValid() {
 		return
@@ -56,8 +56,8 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		visited[h] = &visit{addr, typ, seen}
 	}
 
-	if config.transformers != nil && !isEmptyValue(dst) {
-		if fn := config.transformers.Transformer(dst.Type()); fn != nil {
+	if config.Transformers != nil && !isEmptyValue(dst) {
+		if fn := config.Transformers.Transformer(dst.Type()); fn != nil {
 			err = fn(dst, src)
 			return
 		}
@@ -180,36 +180,36 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 // src attributes if they themselves are not empty. dst and src must be valid same-type structs
 // and dst must be a pointer to struct.
 // It won't merge unexported (private) fields and will do recursively any exported field.
-func Merge(dst, src interface{}, opts ...func(*config)) error {
+func Merge(dst, src interface{}, opts ...func(*Config)) error {
 	return merge(dst, src, opts...)
 }
 
 // MergeWithOverwrite will do the same as Merge except that non-empty dst attributes will be overriden by
 // non-empty src attribute values.
 // Deprecated: use Merge(…) with WithOverride
-func MergeWithOverwrite(dst, src interface{}, opts ...func(*config)) error {
+func MergeWithOverwrite(dst, src interface{}, opts ...func(*Config)) error {
 	return merge(dst, src, append(opts, WithOverride)...)
 }
 
 // WithTransformers adds transformers to merge, allowing to customize the merging of some types.
-func WithTransformers(transformers transformers) func(*config) {
-	return func(config *config) {
-		config.transformers = transformers
+func WithTransformers(transformers Transformers) func(*Config) {
+	return func(config *Config) {
+		config.Transformers = transformers
 	}
 }
 
 // WithOverride will make merge override non-empty dst attributes with non-empty src attributes values.
-func WithOverride(config *config) {
-	config.overwrite = true
+func WithOverride(config *Config) {
+	config.Overwrite = true
 }
 
-func merge(dst, src interface{}, opts ...func(*config)) error {
+func merge(dst, src interface{}, opts ...func(*Config)) error {
 	var (
 		vDst, vSrc reflect.Value
 		err        error
 	)
 
-	config := &config{}
+	config := &Config{}
 
 	for _, opt := range opts {
 		opt(config)
