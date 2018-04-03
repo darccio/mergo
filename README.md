@@ -31,7 +31,7 @@ It is ready for production use. [It is used in several projects by Docker, Googl
 
 ### Important note
 
-Please keep in mind that in [v0.3.2](//github.com/imdario/mergo/releases/tag/v0.3.2) Mergo changed `Merge()`and `Map()` signatures to support [transformers](#transformers). An optional/variadic argument has been added, so it won't break existing code.
+Please keep in mind that in [0.3.2](//github.com/imdario/mergo/releases/tag/0.3.2) Mergo changed `Merge()`and `Map()` signatures to support [transformers](#transformers). An optional/variadic argument has been added, so it won't break existing code.
 
 If you were using Mergo **before** April 6th 2015, please check your project works as intended after updating your local copy with ```go get -u github.com/imdario/mergo```. I apologize for any issue caused by its previous behavior and any future bug that Mergo could cause (I hope it won't!) in existing projects after the change (release 0.2.0).
 
