@@ -26,6 +26,7 @@ func hasExportedField(dst reflect.Value) (exported bool) {
 
 type Config struct {
 	Overwrite    bool
+	AppendSlice  bool
 	Transformers Transformers
 }
 
@@ -134,7 +135,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		if !dst.CanSet() {
 			break
 		}
-		if !isEmptyValue(src) && (overwrite || isEmptyValue(dst)) {
+		if !isEmptyValue(src) && (overwrite || isEmptyValue(dst)) && !config.AppendSlice {
 			dst.Set(src)
 		} else {
 			dst.Set(reflect.AppendSlice(dst, src))
@@ -203,6 +204,11 @@ func WithTransformers(transformers Transformers) func(*Config) {
 // WithOverride will make merge override non-empty dst attributes with non-empty src attributes values.
 func WithOverride(config *Config) {
 	config.Overwrite = true
+}
+
+// WithAppendSlice will make merge append slices instead of overwriting it
+func WithAppendSlice(config *Config) {
+	config.AppendSlice = true
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
