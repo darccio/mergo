@@ -217,6 +217,10 @@ If I can help you, you have an idea or you are using Mergo in your projects, don
 
 Written by [Dario Castañé](http://dario.im).
 
+## Top Contributors
+
+[![](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/images/0)](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/links/0)[![](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/images/1)](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/links/1)[![](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/images/2)](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/links/2)[![](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/images/3)](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/links/3)[![](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/images/4)](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/links/4)[![](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/images/5)](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/links/5)[![](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/images/6)](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/links/6)[![](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/images/7)](https://sourcerer.io/fame/gwenaelp/gwenaelp/mergo/links/7)
+
 ## License
 
 [BSD 3-Clause](http://opensource.org/licenses/BSD-3-Clause) license, as [Go language](http://golang.org/LICENSE).
