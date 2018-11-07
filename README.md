@@ -13,6 +13,7 @@ It is ready for production use. [It is used in several projects by Docker, Googl
 [![Build Status][1]][2]
 [![Coverage Status][7]][8]
 [![Sourcegraph][9]][10]
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fimdario%2Fmergo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fimdario%2Fmergo?ref=badge_shield)
 
 [1]: https://travis-ci.org/imdario/mergo.png
 [2]: https://travis-ci.org/imdario/mergo
@@ -220,3 +221,6 @@ Written by [Dario Castañé](http://dario.im).
 ## License
 
 [BSD 3-Clause](http://opensource.org/licenses/BSD-3-Clause) license, as [Go language](http://golang.org/LICENSE).
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fimdario%2Fmergo.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fimdario%2Fmergo?ref=badge_large)
