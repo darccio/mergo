@@ -294,6 +294,7 @@ func TestSlice(t *testing.T) {
 	testSlice(t, nil, []int{1, 2, 3}, []int{1, 2, 3}, WithAppendSlice)
 	testSlice(t, []int{}, []int{1, 2, 3}, []int{1, 2, 3}, WithAppendSlice)
 	testSlice(t, []int{1}, []int{2, 3}, []int{1, 2, 3}, WithAppendSlice)
+	testSlice(t, []int{1}, []int{2, 3}, []int{1, 2, 3}, WithAppendSlice, WithOverride)
 	testSlice(t, []int{1}, []int{}, []int{1}, WithAppendSlice)
 	testSlice(t, []int{1}, nil, []int{1}, WithAppendSlice)
 }
