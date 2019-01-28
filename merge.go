@@ -72,6 +72,9 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	case reflect.Struct:
 		if hasExportedField(dst) {
 			for i, n := 0, dst.NumField(); i < n; i++ {
+				if dst.Type().Field(i).Tag.Get("mergo") == "savedst" {
+					continue
+				}
 				if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config); err != nil {
 					return
 				}
