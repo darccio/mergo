@@ -30,6 +30,7 @@ type Config struct {
 	AppendSlice             bool
 	Transformers            Transformers
 	overwriteWithEmptyValue bool
+	FieldTag     string
 }
 
 type Transformers interface {
@@ -231,6 +232,13 @@ func WithOverride(config *Config) {
 // WithAppendSlice will make merge append slices instead of overwriting it
 func WithAppendSlice(config *Config) {
 	config.AppendSlice = true
+}
+
+// WithAppendSlice will make merge append slices instead of overwriting it
+func WithFieldTag(tag string) func(*Config) {
+	return func(config *Config) {
+		config.FieldTag = tag
+	}
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {

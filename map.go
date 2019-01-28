@@ -11,6 +11,7 @@ package mergo
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -75,7 +76,12 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 			config.overwriteWithEmptyValue = true
 			srcValue := srcMap[key]
 			fieldName := changeInitialCase(key, unicode.ToUpper)
-			dstElement := dst.FieldByName(fieldName)
+			var dstElement reflect.Value
+			if config.FieldTag != "" {
+				dstElement = fieldByTagOrName(dst, config.FieldTag, key)
+			} else {
+				dstElement = dst.FieldByName(fieldName)
+			}
 			if dstElement == zeroValue {
 				// We discard it because the field doesn't exist.
 				continue
@@ -116,6 +122,35 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 		}
 	}
 	return
+}
+
+func fieldByTagOrName(v reflect.Value, key, value string) reflect.Value {
+	t := v.Type()
+	if v.Type() == nil {
+		return reflect.Value{}
+	}
+	t = indirect(t)
+	if t.Kind() != reflect.Struct {
+		return reflect.Value{}
+	}
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if tag, ok := field.Tag.Lookup(key); ok {
+			tagName := strings.SplitN(tag, ",", 2)[0]
+			if tagName == value {
+				return v.Field(i)
+			}
+		}
+	}
+	return v.FieldByName(value)
+}
+
+func indirect(t reflect.Type) reflect.Type {
+	for t != nil && t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	return t
 }
 
 // Map sets fields' values in dst from src.
