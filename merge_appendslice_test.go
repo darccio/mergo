@@ -9,7 +9,7 @@ var testDataS = []struct {
 	S2            Student
 	ExpectedSlice []string
 }{
-	{Student{"Jack", []string{"a", "B"}}, Student{"Tom", []string{"1"}}, []string{"1", "a", "B"}},
+	{Student{"Jack", []string{"a", "B"}}, Student{"Tom", []string{"1"}}, []string{"a", "B", "1"}},
 	{Student{"Jack", []string{"a", "B"}}, Student{"Tom", []string{}}, []string{"a", "B"}},
 	{Student{"Jack", []string{}}, Student{"Tom", []string{"1"}}, []string{"1"}},
 	{Student{"Jack", []string{}}, Student{"Tom", []string{}}, []string{}},
