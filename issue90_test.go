@@ -10,7 +10,8 @@ func TestMergoSimpleMap(t *testing.T) {
 	dst := map[string]string{"key1": "loosethis", "key2": "keepthis"}
 	src := map[string]string{"key1": "key10"}
 	exp := map[string]string{"key1": "key10", "key2": "keepthis"}
-	Merge(&dst, src, WithAppendSlice, WithOverride)
+	err := Merge(&dst, src, WithAppendSlice, WithOverride)
+	assert.Equal(t, err, nil)
 	assert.Equal(t, dst, exp)
 }
 
@@ -49,7 +50,8 @@ func TestMergoStructMap(t *testing.T) {
 		src := data.src
 		exp := data.exp
 
-		Merge(&dst, src, WithAppendSlice, WithOverride)
+		err := Merge(&dst, src, WithAppendSlice, WithOverride)
+		assert.Equal(t, err, nil)
 		assert.Equal(t, dst, exp)
 	}
 }
