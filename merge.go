@@ -348,63 +348,6 @@ func merge(dst, src interface{}, opts ...func(*Config)) error {
 	return err
 }
 
-func handleNil(dst reflect.Value) reflect.Value {
-	if !dst.CanSet() {
-		t := reflect.Indirect(reflect.ValueOf(dst)).Type()
-		dsttmp := reflect.New(t).Elem()
-		fmt.Println(dsttmp)
-		initiallize(t, dsttmp)
-		if !isTypeExported(t) {
-			return dsttmp
-		}
-		dsttmp.Set(dst)
-		dst = dsttmp
-	}
-	return dst
-}
-
-func initiallize(t reflect.Type, v reflect.Value) {
-	// fmt.Println("initializeStruct(1.2.1)", t)
-	switch t.Kind() {
-	case reflect.Map:
-		v.Set(reflect.MakeMap(t))
-	case reflect.Slice:
-		v.Set(reflect.MakeSlice(t, 0, 0))
-	case reflect.Chan:
-		v.Set(reflect.MakeChan(t, 0))
-	case reflect.Struct:
-		for i := 0; i < v.NumField(); i++ {
-			f := v.Field(i)
-			ft := t.Field(i)
-			initiallize(ft.Type, f)
-		}
-	case reflect.Ptr:
-		ft := t.Elem()
-		fv := reflect.New(ft)
-		initiallize(ft, fv.Elem())
-		if isTypeExported(ft) {
-			v.Set(fv)
-		}
-	default:
-	}
-}
-
-func handleEmpty(dst, src reflect.Value, overwrite, appendSlice, overwriteWithEmptySrc bool) reflect.Value {
-	dst = handleNil(dst)
-	overwrite = (overwrite && !appendSlice || isEmptyValue(dst))
-	if (!isEmptyValue(src) || overwriteWithEmptySrc) && overwrite {
-		if dst.CanSet() {
-			dst.Set(src)
-		} else {
-			dst = src
-		}
-	}
-	if dst.CanInterface() {
-		dst = reflect.ValueOf(dst.Interface())
-	}
-	return dst
-}
-
 // IsReflectNil is the reflect value provided nil
 func isReflectNil(v reflect.Value) bool {
 	k := v.Kind()
