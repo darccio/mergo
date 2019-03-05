@@ -19,10 +19,32 @@ func hasExportedField(dst reflect.Value) (exported bool) {
 		if field.Anonymous && dst.Field(i).Kind() == reflect.Struct {
 			exported = exported || hasExportedField(dst.Field(i))
 		} else {
-			exported = exported || len(field.PkgPath) == 0
+			exported = exported || isFieldExported(field)
 		}
 	}
 	return
+}
+
+func isFieldExported(field reflect.StructField) bool {
+	if len(field.PkgPath) > 0 {
+		return false
+	}
+	c := field.Name[0]
+	if 'a' <= c && c <= 'z' || c == '_' {
+		return false
+	}
+	return true
+}
+
+func isTypeExported(v reflect.Type) bool {
+	if len(v.PkgPath()) > 0 {
+		return false
+	}
+	c := v.Name()[0]
+	if 'a' <= c && c <= 'z' || c == '_' {
+		return false
+	}
+	return true
 }
 
 type Config struct {
@@ -280,4 +302,84 @@ func merge(dst, src interface{}, opts ...func(*Config)) error {
 		return ErrDifferentArgumentsTypes
 	}
 	return deepMerge(vDst, vSrc, make(map[uintptr]*visit), 0, config)
+}
+
+func handleNil(dst reflect.Value) reflect.Value {
+	fmt.Println("handlesNil(1.0)", dst, dst.CanSet(), dst.Kind())
+	fmt.Println("handleNil(1.0.1)", dst, dst.CanSet(), isReflectNil(dst), isEmptyValue(dst))
+	if !dst.CanSet() {
+		t := reflect.Indirect(reflect.ValueOf(dst)).Type()
+		dsttmp := reflect.New(t).Elem()
+		fmt.Println(dsttmp)
+		initiallize(t, dsttmp)
+		fmt.Println("dsttmp", dsttmp)
+		fmt.Println("handleNil(1.2.0.0)", dsttmp, dsttmp.CanSet(), dst, dst.CanSet(), dst.Kind())
+		if !isTypeExported(t) {
+			return dsttmp
+		}
+		dsttmp.Set(dst)
+		dst = dsttmp
+		fmt.Println("handleNil(1.2.0)", dst, dst.CanSet(), dst.Kind())
+	}
+	fmt.Println("handleNil(1.2)", dst, dst.CanSet(), dst.Kind())
+	return dst
+}
+
+func initiallize(t reflect.Type, v reflect.Value) {
+	// fmt.Println("initializeStruct(1.2.1)", t)
+	switch t.Kind() {
+	case reflect.Map:
+		v.Set(reflect.MakeMap(t))
+	case reflect.Slice:
+		v.Set(reflect.MakeSlice(t, 0, 0))
+	case reflect.Chan:
+		v.Set(reflect.MakeChan(t, 0))
+	case reflect.Struct:
+		for i := 0; i < v.NumField(); i++ {
+			f := v.Field(i)
+			ft := t.Field(i)
+			initiallize(ft.Type, f)
+		}
+	case reflect.Ptr:
+		ft := t.Elem()
+		fv := reflect.New(ft)
+		initiallize(ft, fv.Elem())
+		if isTypeExported(ft) {
+			v.Set(fv)
+		}
+	default:
+	}
+}
+
+func handleEmpty(dst, src reflect.Value, overwrite, appendSlice, overwriteWithEmptySrc bool) reflect.Value {
+	fmt.Println("handleEmpty(0)", dst, src, dst.CanSet(), dst.Kind(), src.Kind())
+	dst = handleNil(dst)
+	overwrite = (overwrite && !appendSlice || isEmptyValue(dst))
+	fmt.Println("handleEmpty(3.0)", dst, src, dst.CanSet(), dst.Kind(), src.Kind(), "can set: ", dst.CanSet(), "!isEmptyValue: ", !isEmptyValue(src), overwriteWithEmptySrc, overwrite)
+	if (!isEmptyValue(src) || overwriteWithEmptySrc) && overwrite {
+		fmt.Println("handleEmpty(3.1)", dst, src)
+		if dst.CanSet() {
+			dst.Set(src)
+		} else {
+			dst = src
+		}
+	}
+	fmt.Println("handleEmpty(4)", dst, src, dst.CanSet())
+	if dst.CanInterface() {
+		dst = reflect.ValueOf(dst.Interface())
+	}
+	return dst
+}
+
+// IsReflectNil is the reflect value provided nil
+func isReflectNil(v reflect.Value) bool {
+	k := v.Kind()
+	switch k {
+	case reflect.Interface, reflect.Slice, reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr:
+		// Both interface and slice are nil if first word is 0.
+		// Both are always bigger than a word; assume flagIndir.
+		return v.IsNil()
+	default:
+		return false
+	}
 }
