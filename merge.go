@@ -11,6 +11,7 @@ package mergo
 import (
 	"fmt"
 	"reflect"
+	"unsafe"
 )
 
 func hasExportedField(dst reflect.Value) (exported bool) {
@@ -99,27 +100,34 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 			for i, n := 0, dst.NumField(); i < n; i++ {
 				dstField := dst.Field(i)
 				if !isFieldExported(dst.Type().Field(i)) {
+					rf := dstCp.Field(i)
+					rf = reflect.NewAt(rf.Type(), unsafe.Pointer(rf.UnsafeAddr())).Elem()
+
+					dstRF := dst.Field(i)
+					if !dst.Field(i).CanAddr() {
+						continue
+					}
+
+					dstRF = reflect.NewAt(dstRF.Type(), unsafe.Pointer(dstRF.UnsafeAddr())).Elem()
+
+					rf.Set(dstRF)
 					continue
 				}
-				if dst.Field(i).IsValid() {
-					k := dstField.Interface()
-					dstField = reflect.ValueOf(k)
-				}
-				dstField, err = deepMerge(dstField, src.Field(i), visited, depth+1, config)
+				dstField, err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config)
 				if err != nil {
 					return
 				}
 				dstCp.Field(i).Set(dstField)
 			}
+
 			if dst.CanSet() {
 				dst.Set(dstCp)
 			} else {
 				dst = dstCp
 			}
-
 		} else {
-			if dst.CanSet() && (!isEmptyValue(src) || overwriteWithEmptySrc) && (overwrite || isEmptyValue(dst)) {
-				dst.Set(src)
+			if (isReflectNil(dst) || overwrite) && (!isEmptyValue(src) || overwriteWithEmptySrc) {
+				dst = src
 			}
 		}
 	case reflect.Map:
@@ -251,6 +259,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 				if dst, err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
 					return
 				}
+				dst = dst.Addr()
 			} else if dst.Elem().Type() == src.Type() {
 				if dst, err = deepMerge(dst.Elem(), src, visited, depth+1, config); err != nil {
 					return
@@ -261,20 +270,24 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 			break
 		}
 		if dst.IsNil() || overwrite {
-			if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
-				dst.Set(src)
+			if (overwrite || isEmptyValue(dst)) && (overwriteWithEmptySrc || !isEmptyValue(src)) {
+				if dst.CanSet() {
+					dst.Set(src)
+				} else {
+					dst = src
+				}
 			}
-			// TODO HERE
 		} else if _, err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
 			return
 		}
-		// dst.Set()
 	default:
-		overwrite := (!isEmptyValue(src) || overwriteWithEmptySrc) && (overwrite || isEmptyValue(dst))
-		if dst.CanSet() && overwrite {
-			dst.Set(src)
-		} else {
-			dst = src
+		overwriteFull := (!isEmptyValue(src) || overwriteWithEmptySrc) && (overwrite || isEmptyValue(dst))
+		if overwriteFull {
+			if dst.CanSet() {
+				dst.Set(src)
+			} else {
+				dst = src
+			}
 		}
 	}
 
