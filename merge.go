@@ -180,7 +180,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 					srcSlice := reflect.ValueOf(srcElement.Interface())
 
 					var dstSlice reflect.Value
-					if !dstElement.IsValid() || dstElement.IsNil() {
+					if !dstElement.IsValid() || isReflectNil(dstElement) {
 						dstSlice = reflect.MakeSlice(srcSlice.Type(), 0, srcSlice.Len())
 					} else {
 						dstSlice = reflect.ValueOf(dstElement.Interface())
