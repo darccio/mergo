@@ -30,10 +30,6 @@ func isFieldExported(field reflect.StructField) bool {
 	return isExportedComponent(field.Name, field.PkgPath)
 }
 
-func isTypeExported(v reflect.Type) bool {
-	return isExportedComponent(v.Name(), v.PkgPath())
-}
-
 func isExportedComponent(name, pkgPath string) bool {
 	if len(pkgPath) > 0 {
 		return false
@@ -113,7 +109,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 					rf.Set(dstRF)
 					continue
 				}
-				dstField, err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config)
+				dstField, err = deepMerge(dstField, src.Field(i), visited, depth+1, config)
 				if err != nil {
 					return
 				}
