@@ -145,7 +145,6 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 				k := dstElement.Interface()
 				dstElement = reflect.ValueOf(k)
 			}
-			// dstElement.Set(reflect.ValueOf())
 
 			switch srcElement.Kind() {
 			case reflect.Chan, reflect.Func, reflect.Map, reflect.Interface, reflect.Slice:

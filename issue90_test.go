@@ -1,19 +1,9 @@
 package mergo
 
 import (
+	"reflect"
 	"testing"
-
-	"github.com/magiconair/properties/assert"
 )
-
-func TestMergoSimpleMap(t *testing.T) {
-	dst := map[string]string{"key1": "loosethis", "key2": "keepthis"}
-	src := map[string]string{"key1": "key10"}
-	exp := map[string]string{"key1": "key10", "key2": "keepthis"}
-	err := Merge(&dst, src, WithAppendSlice, WithOverride)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, dst, exp)
-}
 
 type CustomStruct struct {
 	SomeMap map[string]string
@@ -50,7 +40,11 @@ func TestMergoStructMap(t *testing.T) {
 		exp := data.exp
 
 		err := Merge(&dst, src, WithAppendSlice, WithOverride)
-		assert.Equal(t, err, nil)
-		assert.Equal(t, dst, exp)
+		if err != nil {
+			t.Errorf("mergo error was not nil, %v", err)
+		}
+		if !reflect.DeepEqual(dst, exp) {
+			t.Errorf("Actual: %#v did not match \nExpected: %#v", dst, exp)
+		}
 	}
 }
