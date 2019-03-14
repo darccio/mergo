@@ -21,7 +21,7 @@ func TestPrivateSlice(t *testing.T) {
 		t.Fatalf("Error during the merge: %v", err)
 	}
 	if len(p1.PublicStrings) != 3 {
-		t.Error("5 elements should be in 'PublicStrings' field")
+		t.Error("3 elements should be in 'PublicStrings' field, when no append")
 	}
 	if len(p1.privateStrings) != 2 {
 		t.Error("2 elements should be in 'privateStrings' field")
