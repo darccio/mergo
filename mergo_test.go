@@ -8,6 +8,7 @@ package mergo
 import (
 	"io/ioutil"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -734,15 +735,35 @@ func TestBooleanPointer(t *testing.T) {
 }
 
 func TestMergeMapWithInnerSliceOfDifferentType(t *testing.T) {
-	src := map[string]interface{}{
-		"foo": []string{"a", "b"},
+	testCases := []struct {
+		name    string
+		options []func(*Config)
+		err     string
+	}{
+		{
+			"With override and append slice",
+			[]func(*Config){WithOverride, WithAppendSlice},
+			"cannot append two slices with different type",
+		},
+		{
+			"With override and type check",
+			[]func(*Config){WithOverride, WithTypeCheck},
+			"cannot override two slices with different type",
+		},
 	}
-	dst := map[string]interface{}{
-		"foo": []int{1, 2},
-	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			src := map[string]interface{}{
+				"foo": []string{"a", "b"},
+			}
+			dst := map[string]interface{}{
+				"foo": []int{1, 2},
+			}
 
-	if err := Merge(&src, &dst, WithOverride, WithAppendSlice); err == nil {
-		t.Fatal("expected an error, got nothing")
+			if err := Merge(&src, &dst, tc.options...); err == nil || !strings.Contains(err.Error(), tc.err) {
+				t.Fatalf("expected %q, got %q", tc.err, err)
+			}
+		})
 	}
 }
 
