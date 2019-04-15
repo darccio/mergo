@@ -746,11 +746,11 @@ func TestMergeMapWithInnerSliceOfDifferentType(t *testing.T) {
 	}
 }
 
-func TestMergeSliceDifferentType(t *testing.T) {
+func TestMergeSlicesIsNotSupported(t *testing.T) {
 	src := []string{"a", "b"}
 	dst := []int{1, 2}
 
-	if err := Merge(&src, &dst, WithOverride, WithAppendSlice); err == nil {
-		t.Fatal("expected an error, got nothing")
+	if err := Merge(&src, &dst, WithOverride, WithAppendSlice); err != ErrNotSupported {
+		t.Fatalf("expected %q, got %q", ErrNotSupported, err)
 	}
 }
