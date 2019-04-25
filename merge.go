@@ -96,6 +96,9 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			switch srcElement.Kind() {
 			case reflect.Chan, reflect.Func, reflect.Map, reflect.Interface, reflect.Slice:
 				if srcElement.IsNil() {
+					if overwrite {
+						dst.SetMapIndex(key, srcElement)
+					}
 					continue
 				}
 				fallthrough
