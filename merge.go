@@ -26,11 +26,12 @@ func hasExportedField(dst reflect.Value) (exported bool) {
 }
 
 type Config struct {
-	Overwrite               bool
-	AppendSlice             bool
-	TypeCheck               bool
-	Transformers            Transformers
-	overwriteWithEmptyValue bool
+	Overwrite                    bool
+	AppendSlice                  bool
+	TypeCheck                    bool
+	Transformers                 Transformers
+	overwriteWithEmptyValue      bool
+	OverwriteSliceWithEmptyValue bool
 }
 
 type Transformers interface {
@@ -44,6 +45,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	overwrite := config.Overwrite
 	typeCheck := config.TypeCheck
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
+	overwriteSliceWithEmptySrc := config.OverwriteSliceWithEmptyValue
 	config.overwriteWithEmptyValue = false
 
 	if !src.IsValid() {
@@ -130,7 +132,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 						dstSlice = reflect.ValueOf(dstElement.Interface())
 					}
 
-					if (!isEmptyValue(src) || overwriteWithEmptySrc) && (overwrite || isEmptyValue(dst)) && !config.AppendSlice {
+					if (!isEmptyValue(src) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst)) && !config.AppendSlice {
 						if typeCheck && srcSlice.Type() != dstSlice.Type() {
 							return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
 						}
@@ -242,6 +244,11 @@ func WithTransformers(transformers Transformers) func(*Config) {
 // WithOverride will make merge override non-empty dst attributes with non-empty src attributes values.
 func WithOverride(config *Config) {
 	config.Overwrite = true
+}
+
+// WithOverride will make merge override empty dst slice with empty src slice.
+func WithOverrideEmptySlice(config *Config) {
+	config.OverwriteSliceWithEmptyValue = true
 }
 
 // WithAppendSlice will make merge append slices instead of overwriting it.
