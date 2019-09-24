@@ -31,7 +31,7 @@ type Config struct {
 	TypeCheck                    bool
 	Transformers                 Transformers
 	overwriteWithEmptyValue      bool
-	OverwriteSliceWithEmptyValue bool
+	overwriteSliceWithEmptyValue bool
 }
 
 type Transformers interface {
@@ -45,7 +45,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	overwrite := config.Overwrite
 	typeCheck := config.TypeCheck
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
-	overwriteSliceWithEmptySrc := config.OverwriteSliceWithEmptyValue
+	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
 	config.overwriteWithEmptyValue = false
 
 	if !src.IsValid() {
@@ -248,7 +248,7 @@ func WithOverride(config *Config) {
 
 // WithOverride will make merge override empty dst slice with empty src slice.
 func WithOverrideEmptySlice(config *Config) {
-	config.OverwriteSliceWithEmptyValue = true
+	config.overwriteSliceWithEmptyValue = true
 }
 
 // WithAppendSlice will make merge append slices instead of overwriting it.
