@@ -46,7 +46,6 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	typeCheck := config.TypeCheck
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
 	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
-	config.overwriteWithEmptyValue = false
 
 	if !src.IsValid() {
 		return
@@ -249,6 +248,11 @@ func WithOverride(config *Config) {
 // WithOverride will make merge override empty dst slice with empty src slice.
 func WithOverrideEmptySlice(config *Config) {
 	config.overwriteSliceWithEmptyValue = true
+}
+
+// WithOverrideEmptyValue will make merge override non-empty dst attributes with empty src attributes values.
+func WithOverrideEmptyValue(config *Config) {
+	config.overwriteWithEmptyValue = true
 }
 
 // WithAppendSlice will make merge append slices instead of overwriting it.
