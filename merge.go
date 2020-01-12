@@ -180,7 +180,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 			}
 			newSlice = src
 		} else if config.AppendSlice {
-			if src.Type() != dst.Type() {
+			if typeCheck && src.Type() != dst.Type() {
 				err = fmt.Errorf("cannot append two slice with different type (%s, %s)", src.Type(), dst.Type())
 				return
 			}

@@ -893,12 +893,12 @@ func TestMergeMapWithInnerSliceOfDifferentType(t *testing.T) {
 		{
 			"With override and append slice",
 			[]func(*Config){WithOverride, WithAppendSlice},
-			"cannot append two slices with different type",
+			"cannot append two different types (slice, slice)",
 		},
 		{
 			"With override and type check",
 			[]func(*Config){WithOverride, WithTypeCheck},
-			"cannot override two slices with different type",
+			"cannot append two different types (slice, slice)",
 		},
 	}
 	for _, tc := range testCases {
