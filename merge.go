@@ -98,17 +98,16 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 			for i, n := 0, dst.NumField(); i < n; i++ {
 				dstField := dst.Field(i)
 				structField := dst.Type().Field(i)
+				// copy un-exported struct fields
 				if !isExportedComponent(&structField) {
 					rf := dstCp.Field(i)
-					rf = reflect.NewAt(rf.Type(), unsafe.Pointer(rf.UnsafeAddr())).Elem() // no:gosec
-
+					rf = reflect.NewAt(rf.Type(), unsafe.Pointer(rf.Pointer())).Elem() //nolint:gosec
 					dstRF := dst.Field(i)
 					if !dst.Field(i).CanAddr() {
 						continue
 					}
 
-					dstRF = reflect.NewAt(dstRF.Type(), unsafe.Pointer(dstRF.UnsafeAddr())).Elem() // no:gosec
-
+					dstRF = reflect.NewAt(dstRF.Type(), unsafe.Pointer(dstRF.UnsafeAddr())).Elem() //nolint:gosec
 					rf.Set(dstRF)
 					continue
 				}
