@@ -885,7 +885,6 @@ func TestBooleanPointer(t *testing.T) {
 }
 
 func TestMergeMapWithInnerSliceOfDifferentType(t *testing.T) {
-<<<<<<< HEAD
 	testCases := []struct {
 		name    string
 		options []func(*Config)
@@ -901,13 +900,6 @@ func TestMergeMapWithInnerSliceOfDifferentType(t *testing.T) {
 			[]func(*Config){WithOverride, WithTypeCheck},
 			"cannot override two slices with different type",
 		},
-=======
-	dst := map[string]interface{}{
-		"foo": []string{"a", "b"},
-	}
-	src := map[string]interface{}{
-		"foo": []int{1, 2},
->>>>>>> Reduce code complexity
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -918,15 +910,10 @@ func TestMergeMapWithInnerSliceOfDifferentType(t *testing.T) {
 				"foo": []int{1, 2},
 			}
 
-<<<<<<< HEAD
 			if err := Merge(&src, &dst, tc.options...); err == nil || !strings.Contains(err.Error(), tc.err) {
 				t.Fatalf("expected %q, got %q", tc.err, err)
 			}
 		})
-=======
-	if err := Merge(&dst, src, WithOverride, WithAppendSlice); err == nil {
-		t.Fatal("expected an error, got nothing")
->>>>>>> Reduce code complexity
 	}
 }
 
