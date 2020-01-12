@@ -17,18 +17,16 @@ import (
 func hasExportedField(dst reflect.Value) (exported bool) {
 	for i, n := 0, dst.NumField(); i < n; i++ {
 		field := dst.Type().Field(i)
-		if isFieldExported(field) {
+		if isExportedComponent(field) {
 			return true
 		}
 	}
 	return
 }
 
-func isFieldExported(field reflect.StructField) bool {
-	return isExportedComponent(field.Name, field.PkgPath)
-}
-
-func isExportedComponent(name, pkgPath string) bool {
+func isExportedComponent(field reflect.StructField) bool {
+	name := field.Name
+	pkgPath := field.PkgPath
 	if len(pkgPath) > 0 {
 		return false
 	}
@@ -99,7 +97,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 			dstCp := reflect.New(dst.Type()).Elem()
 			for i, n := 0, dst.NumField(); i < n; i++ {
 				dstField := dst.Field(i)
-				if !isFieldExported(dst.Type().Field(i)) {
+				if !isExportedComponent(dst.Type().Field(i)) {
 					rf := dstCp.Field(i)
 					rf = reflect.NewAt(rf.Type(), unsafe.Pointer(rf.UnsafeAddr())).Elem()
 
