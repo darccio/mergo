@@ -176,7 +176,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 		newSlice := dst
 		if (!isEmptyValue(src) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst)) && !config.AppendSlice {
 			if typeCheck && src.Type() != dst.Type() {
-				return fmt.Errorf("cannot override two slices with different type (%s, %s)", src.Type(), dst.Type())
+				return dst, fmt.Errorf("cannot override two slices with different type (%s, %s)", src.Type(), dst.Type())
 			}
 			newSlice = src
 		} else if config.AppendSlice {
