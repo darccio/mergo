@@ -44,7 +44,7 @@ type Transformers interface {
 func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, config *Config) (err error) {
 	overwrite := config.Overwrite
 	typeCheck := config.TypeCheck
-	overwriteWithEmptySrc := config.OverwriteWithEmptyValue
+	overwriteWithEmptySrc := config.overwriteWithEmptyValue
 	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
 
 	if !src.IsValid() {
