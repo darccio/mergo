@@ -30,7 +30,7 @@ type Config struct {
 	AppendSlice                  bool
 	TypeCheck                    bool
 	Transformers                 Transformers
-	OverwriteWithEmptyValue      bool
+	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
 }
 
