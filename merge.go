@@ -250,7 +250,7 @@ func WithOverwriteWithEmptyValue(config *Config) {
 	config.overwriteWithEmptyValue = true
 }
 
-// WithOverride will make merge override empty dst slice with empty src slice.
+// WithOverrideEmptySlice will make merge override empty dst slice with empty src slice.
 func WithOverrideEmptySlice(config *Config) {
 	config.overwriteSliceWithEmptyValue = true
 }
