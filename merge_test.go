@@ -48,3 +48,12 @@ func TestMergeWithTransformerNilStruct(t *testing.T) {
 		t.Fatalf("b not merged in properly: a.Bar shouldn't be nil")
 	}
 }
+
+func TestMergeNonPointer(t *testing.T) {
+	dst := bar{i: 1}
+	src := bar{i: 2, s: map[string]string{"a": "1"}}
+	want := ErrNonPointerAgument
+	if got := merge(dst, src); got != want {
+		t.Fatalf("want: %s, got: %s", want, got)
+	}
+}
