@@ -281,7 +281,12 @@ func WithOverride(config *Config) {
 	config.Overwrite = true
 }
 
-// WithOverride will make merge override empty dst slice with empty src slice.
+// WithOverwriteWithEmptyValue will make merge override non empty dst attributes with empty src attributes values.
+func WithOverwriteWithEmptyValue(config *Config) {
+	config.overwriteWithEmptyValue = true
+}
+
+// WithOverrideEmptySlice will make merge override empty dst slice with empty src slice.
 func WithOverrideEmptySlice(config *Config) {
 	config.overwriteSliceWithEmptyValue = true
 }

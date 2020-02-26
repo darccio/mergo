@@ -12,8 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-
 	"gopkg.in/yaml.v2"
 )
 
@@ -401,7 +399,6 @@ func TestMapWithEmbeddedStructPointer(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	assert.Equalf(t, expect, m, "Test Failed")
 	if !reflect.DeepEqual(m, expect) {
 		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", m, expect)
 	}
