@@ -129,10 +129,10 @@ func TestComplexStruct(t *testing.T) {
 }
 
 func TestComplexStructWithOverwrite(t *testing.T) {
-	a := complexTest{simpleTest{1}, 1, "do-not-overwrite-with-empty-value"}
-	b := complexTest{simpleTest{42}, 2, ""}
+	a := complexTest{St: simpleTest{1}, sz: 1, ID: "do-not-overwrite-with-empty-value"}
+	b := complexTest{St: simpleTest{42}, sz: 2, ID: ""}
 
-	expect := complexTest{simpleTest{42}, 1, "do-not-overwrite-with-empty-value"}
+	expect := complexTest{St: simpleTest{42}, sz: 1, ID: "do-not-overwrite-with-empty-value"}
 	if err := MergeWithOverwrite(&a, b); err != nil {
 		t.FailNow()
 	}
@@ -156,7 +156,7 @@ func TestPointerStruct(t *testing.T) {
 }
 
 type embeddingStruct struct {
-	embeddedStruct
+	A embeddedStruct
 }
 
 type embeddedStruct struct {
@@ -345,13 +345,13 @@ func TestEmptyToNotEmptyMaps(t *testing.T) {
 }
 
 func TestMapsWithOverwrite(t *testing.T) {
-	m := map[string]simpleTest{
+	dst := map[string]simpleTest{
 		"a": {},   // overwritten by 16
 		"b": {42}, // overwritten by 0, as map Value is not addressable and it doesn't check for b is set or not set in `n`
 		"c": {13}, // overwritten by 12
 		"d": {61},
 	}
-	n := map[string]simpleTest{
+	src := map[string]simpleTest{
 		"a": {16},
 		"b": {},
 		"c": {12},
@@ -359,18 +359,18 @@ func TestMapsWithOverwrite(t *testing.T) {
 	}
 	expect := map[string]simpleTest{
 		"a": {16},
-		"b": {},
+		"b": {42},
 		"c": {12},
 		"d": {61},
 		"e": {14},
 	}
 
-	if err := MergeWithOverwrite(&m, n); err != nil {
+	if err := MergeWithOverwrite(&dst, src); err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	if !reflect.DeepEqual(m, expect) {
-		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", m, expect)
+	if !reflect.DeepEqual(dst, expect) {
+		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", dst, expect)
 	}
 }
 
@@ -536,23 +536,13 @@ func TestMergeUsingStructAndMap(t *testing.T) {
 }
 func TestMaps(t *testing.T) {
 	m := map[string]simpleTest{
-		"a": {},
-		"b": {42},
-		"c": {13},
-		"d": {61},
+		"a": {0}, "b": {42}, "c": {13}, "d": {61},
 	}
 	n := map[string]simpleTest{
-		"a": {16},
-		"b": {},
-		"c": {12},
-		"e": {14},
+		"a": {16}, "b": {}, "c": {12}, "e": {14},
 	}
 	expect := map[string]simpleTest{
-		"a": {0},
-		"b": {42},
-		"c": {13},
-		"d": {61},
-		"e": {14},
+		"a": {16}, "b": {42}, "c": {13}, "d": {61}, "e": {14},
 	}
 
 	if err := Merge(&m, n); err != nil {
@@ -562,7 +552,7 @@ func TestMaps(t *testing.T) {
 	if !reflect.DeepEqual(m, expect) {
 		t.Fatalf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", m, expect)
 	}
-	if m["a"].Value != 0 {
+	if m["a"].Value != 16 {
 		t.Fatalf(`n merged in m because I solved non-addressable map values TODO: m["a"].Value(%d) != n["a"].Value(%d)`, m["a"].Value, n["a"].Value)
 	}
 	if m["b"].Value != 42 {
@@ -903,12 +893,12 @@ func TestMergeMapWithInnerSliceOfDifferentType(t *testing.T) {
 		{
 			"With override and append slice",
 			[]func(*Config){WithOverride, WithAppendSlice},
-			"cannot append two slices with different type",
+			"cannot append two different types (slice, slice)",
 		},
 		{
 			"With override and type check",
 			[]func(*Config){WithOverride, WithTypeCheck},
-			"cannot override two slices with different type",
+			"cannot append two different types (slice, slice)",
 		},
 	}
 	for _, tc := range testCases {
