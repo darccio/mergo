@@ -76,23 +76,3 @@ func resolveValues(dst, src interface{}) (vDst, vSrc reflect.Value, err error) {
 	}
 	return
 }
-
-// Traverses recursively both values, assigning src's fields values to dst.
-// The map argument tracks comparisons that have already been seen, which allows
-// short circuiting on recursive types.
-func deeper(dst, src reflect.Value, visited map[uintptr]*visit, depth int) (err error) {
-	if dst.CanAddr() {
-		addr := dst.UnsafeAddr()
-		h := 17 * addr
-		seen := visited[h]
-		typ := dst.Type()
-		for p := seen; p != nil; p = p.next {
-			if p.ptr == addr && p.typ == typ {
-				return nil
-			}
-		}
-		// Remember, remember...
-		visited[h] = &visit{addr, typ, seen}
-	}
-	return // TODO refactor
-}
