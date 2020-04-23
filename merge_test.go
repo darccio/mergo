@@ -62,7 +62,7 @@ func TestMergeNonPointer(t *testing.T) {
 			"a": "1",
 		},
 	}
-	want := ErrNonPointerAgument
+	want := ErrNonPointerArgument
 
 	if got := merge(dst, src); got != want {
 		t.Fatalf("want: %s, got: %s", want, got)
@@ -79,7 +79,7 @@ func TestMapNonPointer(t *testing.T) {
 			},
 		},
 	}
-	want := ErrNonPointerAgument
+	want := ErrNonPointerArgument
 	if got := merge(dst, src); got != want {
 		t.Fatalf("want: %s, got: %s", want, got)
 	}
