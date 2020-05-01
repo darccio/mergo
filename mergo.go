@@ -20,7 +20,7 @@ var (
 	ErrNotSupported                = errors.New("only structs and maps are supported")
 	ErrExpectedMapAsDestination    = errors.New("dst was expected to be a map")
 	ErrExpectedStructAsDestination = errors.New("dst was expected to be a struct")
-	ErrNonPointerAgument           = errors.New("dst must be a pointer")
+	ErrNonPointerArgument          = errors.New("dst must be a pointer")
 )
 
 // During deepMerge, must keep track of checks that are
