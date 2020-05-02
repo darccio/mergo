@@ -9,26 +9,25 @@ Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the
 It is ready for production use. [It is used in several projects by Docker, Google, The Linux Foundation, VMWare, Shopify, etc](https://github.com/imdario/mergo#mergo-in-the-wild).
 
 [![GoDoc][3]][4]
-[![GoCard][5]][6]
+[![GitHub release][5]][6]
+[![GoCard][7]][8]
 [![Build Status][1]][2]
-[![Coverage Status][7]][8]
-[![Sourcegraph][9]][10]
+[![Coverage Status][9]][10]
+[![Sourcegraph][11]][12]
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fimdario%2Fmergo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fimdario%2Fmergo?ref=badge_shield)
 
 [1]: https://travis-ci.org/imdario/mergo.png
 [2]: https://travis-ci.org/imdario/mergo
 [3]: https://godoc.org/github.com/imdario/mergo?status.svg
 [4]: https://godoc.org/github.com/imdario/mergo
-[5]: https://goreportcard.com/badge/imdario/mergo
-[6]: https://goreportcard.com/report/github.com/imdario/mergo
-[7]: https://coveralls.io/repos/github/imdario/mergo/badge.svg?branch=master
-[8]: https://coveralls.io/github/imdario/mergo?branch=master
-[9]: https://sourcegraph.com/github.com/imdario/mergo/-/badge.svg
-[10]: https://sourcegraph.com/github.com/imdario/mergo?badge
-
-### Latest release
-
-[Release v0.3.9](https://github.com/imdario/mergo/releases/tag/v0.3.9).
+[5]: https://img.shields.io/github/release/imdario/mergo.svg
+[6]: https://github.com/imdario/mergo/releases
+[7]: https://goreportcard.com/badge/imdario/mergo
+[8]: https://goreportcard.com/report/github.com/imdario/mergo
+[9]: https://coveralls.io/repos/github/imdario/mergo/badge.svg?branch=master
+[10]: https://coveralls.io/github/imdario/mergo?branch=master
+[11]: https://sourcegraph.com/github.com/imdario/mergo/-/badge.svg
+[12]: https://sourcegraph.com/github.com/imdario/mergo?badge
 
 ### Important note
 
