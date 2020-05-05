@@ -174,10 +174,10 @@ import (
         "time"
 )
 
-type timeTransfomer struct {
+type timeTransformer struct {
 }
 
-func (t timeTransfomer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
+func (t timeTransformer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
 	if typ == reflect.TypeOf(time.Time{}) {
 		return func(dst, src reflect.Value) error {
 			if dst.CanSet() {
@@ -201,7 +201,7 @@ type Snapshot struct {
 func main() {
 	src := Snapshot{time.Now()}
 	dest := Snapshot{}
-	mergo.Merge(&dest, src, mergo.WithTransformers(timeTransfomer{}))
+	mergo.Merge(&dest, src, mergo.WithTransformers(timeTransformer{}))
 	fmt.Println(dest)
 	// Will print
 	// { 2018-01-12 01:15:00 +0000 UTC m=+0.000000001 }
