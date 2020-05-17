@@ -23,10 +23,10 @@ func TestIssue129Boolean(t *testing.T) {
 	if err := Merge(&dst, src); err != nil {
 		t.Fatal(err)
 	}
-	if dst.A == false {
+	if dst.A != true {
 		t.Fatalf("expected true, got false")
 	}
-	if dst.B == false {
+	if dst.B != true {
 		t.Fatalf("expected true, got false")
 	}
 
@@ -38,10 +38,10 @@ func TestIssue129Boolean(t *testing.T) {
 	if err := Merge(&dst, src, WithOverwriteWithEmptyValue); err != nil {
 		t.Fatal(err)
 	}
-	if dst.A == false {
+	if dst.A != true {
 		t.Fatalf("expected true, got false")
 	}
-	if dst.B == true {
+	if dst.B != false {
 		t.Fatalf("expected false, got true")
 	}
 }
