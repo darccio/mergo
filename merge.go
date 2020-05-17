@@ -309,6 +309,7 @@ func WithOverride(config *Config) {
 
 // WithOverwriteWithEmptyValue will make merge override non empty dst attributes with empty src attributes values.
 func WithOverwriteWithEmptyValue(config *Config) {
+	config.Overwrite = true
 	config.overwriteWithEmptyValue = true
 }
 
