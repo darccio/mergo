@@ -29,7 +29,7 @@ func TestIssue84MergeMapWithNilValueToStructWithOverride(t *testing.T) {
 	}
 
 	if err := Map(&p1, p2, WithOverride); err != nil {
-		t.Fatalf("Error during the merge: %v", err)
+		t.Errorf("Error during the merge: %v", err)
 	}
 
 	if p1.C != 0 {
@@ -46,7 +46,7 @@ func TestIssue84MergeMapWithoutKeyExistsToStructWithOverride(t *testing.T) {
 	}
 
 	if err := Map(&p1, p2, WithOverride); err != nil {
-		t.Fatalf("Error during the merge: %v", err)
+		t.Errorf("Error during the merge: %v", err)
 	}
 
 	if p1.C != 2 {
@@ -71,7 +71,7 @@ func TestIssue84MergeNestedMapWithNilValueToStructWithOverride(t *testing.T) {
 	}
 
 	if err := Map(&p1, p2, WithOverride); err != nil {
-		t.Fatalf("Error during the merge: %v", err)
+		t.Errorf("Error during the merge: %v", err)
 	}
 
 	if p1.B != 4 {

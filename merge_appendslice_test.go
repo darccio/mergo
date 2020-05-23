@@ -23,12 +23,12 @@ func TestMergeSliceWithOverrideWithAppendSlice(t *testing.T) {
 		}
 
 		if len(data.S2.Books) != len(data.ExpectedSlice) {
-			t.Fatalf("Got %d elements in slice, but expected %d", len(data.S2.Books), len(data.ExpectedSlice))
+			t.Errorf("Got %d elements in slice, but expected %d", len(data.S2.Books), len(data.ExpectedSlice))
 		}
 
 		for i, val := range data.S2.Books {
 			if val != data.ExpectedSlice[i] {
-				t.Fatalf("Expected %s, but got %s while merging slice with override", data.ExpectedSlice[i], val)
+				t.Errorf("Expected %s, but got %s while merging slice with override", data.ExpectedSlice[i], val)
 			}
 		}
 	}

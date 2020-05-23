@@ -50,7 +50,7 @@ func TestOverwriteZeroSrcTime(t *testing.T) {
 	}
 
 	if !dst.Birth.IsZero() {
-		t.Fatalf("dst should have been overwritten: dst.Birth(%v) != now(%v)", dst.Birth, now)
+		t.Errorf("dst should have been overwritten: dst.Birth(%v) != now(%v)", dst.Birth, now)
 	}
 }
 
@@ -64,7 +64,7 @@ func TestOverwriteZeroSrcTimeWithTransformer(t *testing.T) {
 	}
 
 	if dst.Birth.IsZero() {
-		t.Fatalf("dst should not have been overwritten: dst.Birth(%v) != now(%v)", dst.Birth, now)
+		t.Errorf("dst should not have been overwritten: dst.Birth(%v) != now(%v)", dst.Birth, now)
 	}
 }
 
@@ -78,7 +78,7 @@ func TestOverwriteZeroDstTime(t *testing.T) {
 	}
 
 	if dst.Birth.IsZero() {
-		t.Fatalf("dst should have been overwritten: dst.Birth(%v) != zero(%v)", dst.Birth, time.Time{})
+		t.Errorf("dst should have been overwritten: dst.Birth(%v) != zero(%v)", dst.Birth, time.Time{})
 	}
 }
 
@@ -92,7 +92,7 @@ func TestZeroDstTime(t *testing.T) {
 	}
 
 	if !dst.Birth.IsZero() {
-		t.Fatalf("dst should not have been overwritten: dst.Birth(%v) != zero(%v)", dst.Birth, time.Time{})
+		t.Errorf("dst should not have been overwritten: dst.Birth(%v) != zero(%v)", dst.Birth, time.Time{})
 	}
 }
 
@@ -106,6 +106,6 @@ func TestZeroDstTimeWithTransformer(t *testing.T) {
 	}
 
 	if dst.Birth.IsZero() {
-		t.Fatalf("dst should have been overwritten: dst.Birth(%v) != now(%v)", dst.Birth, now)
+		t.Errorf("dst should have been overwritten: dst.Birth(%v) != now(%v)", dst.Birth, now)
 	}
 }

@@ -21,13 +21,13 @@ func TestIssue129Boolean(t *testing.T) {
 
 	// Standard behavior
 	if err := Merge(&dst, src); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 	if dst.A != true {
-		t.Fatalf("expected true, got false")
+		t.Errorf("expected true, got false")
 	}
 	if dst.B != true {
-		t.Fatalf("expected true, got false")
+		t.Errorf("expected true, got false")
 	}
 
 	// Expected behavior
@@ -36,12 +36,12 @@ func TestIssue129Boolean(t *testing.T) {
 		B: true,
 	}
 	if err := Merge(&dst, src, WithOverwriteWithEmptyValue); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 	if dst.A != true {
-		t.Fatalf("expected true, got false")
+		t.Errorf("expected true, got false")
 	}
 	if dst.B != false {
-		t.Fatalf("expected false, got true")
+		t.Errorf("expected false, got true")
 	}
 }

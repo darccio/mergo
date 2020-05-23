@@ -19,7 +19,7 @@ func TestPrivateSlice(t *testing.T) {
 	}
 
 	if err := Merge(&p1, p2); err != nil {
-		t.Fatalf("Error during the merge: %v", err)
+		t.Errorf("Error during the merge: %v", err)
 	}
 
 	if len(p1.PublicStrings) != 3 {
@@ -41,7 +41,7 @@ func TestPrivateSliceWithAppendSlice(t *testing.T) {
 	}
 
 	if err := Merge(&p1, p2, WithAppendSlice); err != nil {
-		t.Fatalf("Error during the merge: %v", err)
+		t.Errorf("Error during the merge: %v", err)
 	}
 
 	if len(p1.PublicStrings) != 5 {

@@ -18,7 +18,7 @@ func TestIssue123(t *testing.T) {
 
 	// Expected behavior
 	if err := Merge(&dst, src, WithOverride); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 	testCases := []struct {
 		key      string
@@ -39,7 +39,7 @@ func TestIssue123(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		if dst[tC.key] != tC.expected {
-			t.Fatalf("expected %v in dst[%q], got %v", tC.expected, tC.key, dst[tC.key])
+			t.Errorf("expected %v in dst[%q], got %v", tC.expected, tC.key, dst[tC.key])
 		}
 	}
 }

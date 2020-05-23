@@ -40,15 +40,15 @@ func TestMergeWithTransformerNilStruct(t *testing.T) {
 			},
 		},
 	})); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	if a.s != "foo" {
-		t.Fatalf("b not merged in properly: a.s.Value(%s) != expected(%s)", a.s, "foo")
+		t.Errorf("b not merged in properly: a.s.Value(%s) != expected(%s)", a.s, "foo")
 	}
 
 	if a.Bar == nil {
-		t.Fatalf("b not merged in properly: a.Bar shouldn't be nil")
+		t.Errorf("b not merged in properly: a.Bar shouldn't be nil")
 	}
 }
 
@@ -65,7 +65,7 @@ func TestMergeNonPointer(t *testing.T) {
 	want := ErrNonPointerArgument
 
 	if got := merge(dst, src); got != want {
-		t.Fatalf("want: %s, got: %s", want, got)
+		t.Errorf("want: %s, got: %s", want, got)
 	}
 }
 
@@ -81,6 +81,6 @@ func TestMapNonPointer(t *testing.T) {
 	}
 	want := ErrNonPointerArgument
 	if got := merge(dst, src); got != want {
-		t.Fatalf("want: %s, got: %s", want, got)
+		t.Errorf("want: %s, got: %s", want, got)
 	}
 }

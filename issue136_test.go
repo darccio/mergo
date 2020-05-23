@@ -24,6 +24,6 @@ func TestMergeEmbedded(t *testing.T) {
 	err := Merge(&b.embeddedTestA, *a)
 
 	if b.Name != "Suwon" {
-		t.Fatalf("%v %v", b.Name, err)
+		t.Errorf("%v %v", b.Name, err)
 	}
 }

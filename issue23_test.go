@@ -24,6 +24,6 @@ func TestIssue23MergeWithOverwrite(t *testing.T) {
 	}
 
 	if !dst.Created.Equal(*src.Created) { //--> https://golang.org/pkg/time/#pkg-overview
-		t.Fatalf("Created not merged in properly: dst.Created(%v) != src.Created(%v)", dst.Created, src.Created)
+		t.Errorf("Created not merged in properly: dst.Created(%v) != src.Created(%v)", dst.Created, src.Created)
 	}
 }

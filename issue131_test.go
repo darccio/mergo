@@ -20,9 +20,9 @@ func TestIssue131MergeWithOverwriteWithEmptyValue(t *testing.T) {
 	}
 	Merge(&dest, src, WithOverwriteWithEmptyValue)
 	if *src.A != *dest.A {
-		t.Fatalf("dest.A not merged in properly: %v != %v", *src.A, *dest.A)
+		t.Errorf("dest.A not merged in properly: %v != %v", *src.A, *dest.A)
 	}
 	if src.B != dest.B {
-		t.Fatalf("dest.B not merged in properly: %v != %v", src.B, dest.B)
+		t.Errorf("dest.B not merged in properly: %v != %v", src.B, dest.B)
 	}
 }

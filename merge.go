@@ -92,7 +92,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 		}
 	}
 
-	if dst.IsValid() && src.IsValid() && src.Type() != dst.Type() {
+	if typeCheck && dst.IsValid() && src.Type() != dst.Type() {
 		err = fmt.Errorf("cannot append two different types (%s, %s)", src.Kind(), dst.Kind())
 		return
 	}
@@ -159,7 +159,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 
 			dstElement := dst.MapIndex(key)
 
-			if dst.MapIndex(key).IsValid() {
+			if dstElement.IsValid() {
 				k := dstElement.Interface()
 				dstElement = reflect.ValueOf(k)
 			}
@@ -168,7 +168,6 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 				if overwrite || isReflectNil(dstElement) {
 					dst.SetMapIndex(key, srcElement)
 				}
-
 				continue
 			}
 
@@ -181,6 +180,37 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 
 				if dstElement.IsValid() {
 					dstElement = reflect.ValueOf(dstElement.Interface())
+				}
+			}
+
+			if dstElement.IsValid() && dstElement.Type() == srcElement.Type() {
+				newSlice := srcElement
+				if overwrite || overwriteSliceWithEmptySrc || overwriteWithEmptySrc {
+					if dstElement.Kind() == reflect.Slice && config.AppendSlice {
+						if dstElement.Type().Elem().Kind() == srcElement.Type().Elem().Kind() {
+							newSlice = reflect.AppendSlice(dstElement, srcElement)
+						} else {
+							err = fmt.Errorf("cannot override two slices with different type (%s, %s)", src.Type(), dst.Type())
+							return
+						}
+					}
+					dst.SetMapIndex(key, newSlice)
+					dstElement = newSlice
+				} else {
+					if isEmptyValue(dstElement) {
+						dst.SetMapIndex(key, newSlice)
+						dstElement = newSlice
+					}
+				}
+			} else {
+				if overwrite || overwriteSliceWithEmptySrc || overwriteWithEmptySrc || dst.IsNil() {
+					dst.SetMapIndex(key, srcElement)
+					dstElement = srcElement
+				} else {
+					if typeCheck {
+						err = fmt.Errorf("cannot append two different types (%s, %s)", srcElement, dstElement)
+						return
+					}
 				}
 			}
 
@@ -320,6 +350,7 @@ func WithOverrideEmptySlice(config *Config) {
 
 // WithAppendSlice will make merge append slices instead of overwriting it.
 func WithAppendSlice(config *Config) {
+	config.TypeCheck = true
 	config.AppendSlice = true
 }
 

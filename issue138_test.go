@@ -26,15 +26,15 @@ func TestIssue138(t *testing.T) {
 
 	err := Map(&config{}, foo)
 	if err == nil {
-		t.Fatal("expected type mismatch error, got nil")
+		t.Error("expected type mismatch error, got nil")
 	} else {
 		if err.Error() != "type mismatch on Port field: found float64, expected uint16" {
-			t.Fatalf("expected type mismatch error, got %q", err)
+			t.Errorf("expected type mismatch error, got %q", err)
 		}
 	}
 
 	c := compatibleConfig{}
 	if err := Map(&c, foo); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 }
