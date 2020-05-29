@@ -219,20 +219,6 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 			break
 		}
 
-		if dst.Kind() != reflect.Ptr && src.Type().AssignableTo(dst.Type()) {
-			if dst.IsNil() || overwrite {
-				if overwrite || isEmptyValue(dst) {
-					if dst.CanSet() {
-						dst.Set(src)
-					} else {
-						dst = src
-					}
-				}
-			}
-
-			break
-		}
-
 		if src.Kind() != reflect.Interface {
 			if dst.IsNil() || (src.Kind() != reflect.Ptr && overwrite) {
 				if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
@@ -263,8 +249,28 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 					dst = src
 				}
 			}
-		} else if _, err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
-			return
+			break
+		}
+
+		if dst.Elem().Kind() == src.Elem().Kind() {
+			if dst, err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
+				return
+			}
+			break
+		}
+
+		if dst.Kind() != reflect.Ptr && src.Type().AssignableTo(dst.Type()) {
+			if dst.IsNil() || overwrite {
+				if overwrite || isEmptyValue(dst) {
+					if dst.CanSet() {
+						dst.Set(src)
+					} else {
+						dst = src
+					}
+				}
+			}
+
+			break
 		}
 	default:
 		mustSet := (!isEmptyValue(src) || overwriteWithEmptySrc) && (overwrite || isEmptyValue(dst))

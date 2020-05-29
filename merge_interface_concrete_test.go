@@ -40,3 +40,37 @@ func TestMergeInterfaceWithDifferentConcreteTypes(t *testing.T) {
 		t.Errorf("Handler not merged in properly: got %q header value %q, want %q", "Test", got, want)
 	}
 }
+
+func TestMergeInterfaceWithSameConcreteTypes(t *testing.T) {
+	type testStruct struct {
+		Name string
+		Value string
+	}
+	type interfaceStruct struct {
+		Field interface{}
+	}
+	dst := interfaceStruct{
+		Field: testStruct{
+			Value: "keepMe",
+		},
+	}
+
+	src := interfaceStruct{
+		Field: testStruct{
+			Name: t.Name(),
+		},
+	}
+
+	if err := Merge(&dst, src); err != nil {
+		t.Errorf("Error while merging %s", err)
+	}
+
+	dstData := dst.Field.(testStruct)
+	srcData := src.Field.(testStruct)
+	if dstData.Name != srcData.Name {
+		t.Errorf("dst name was not updated: got %s, want %s", dstData.Name, srcData.Name)
+	}
+	if dstData.Value != "keepMe" {
+		t.Errorf("dst value was not preserved: got %s, want %s", dstData.Value, "keepMe")
+	}
+}
