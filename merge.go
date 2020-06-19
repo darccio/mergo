@@ -46,6 +46,7 @@ type Config struct {
 	TypeCheck                    bool
 	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
+	deepMergeSlice               bool
 	Transformers                 Transformers
 }
 
@@ -207,6 +208,29 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 				return
 			}
 			newSlice = reflect.AppendSlice(dst, src)
+		} else if config.deepMergeSlice {
+			if typeCheck && src.Type() != dst.Type() {
+				err = fmt.Errorf("cannot deep merge two slice with different type (%s, %s)", src.Type(), dst.Type())
+				return
+			}
+
+			if src.Len() > dst.Len() {
+				newSlice = reflect.MakeSlice(dst.Type(), src.Len(), src.Len())
+
+				for i := 0; i < dst.Len(); i++ {
+					newSlice.Index(i).Set(dst.Index(i))
+				}
+			}
+
+			for i := 0; i < src.Len(); i++ {
+				dstElem := newSlice.Index(i)
+
+				if dstElem, err = deepMerge(dstElem, src.Index(i), visited, depth+1, config); err != nil {
+					return
+				} else {
+					newSlice.Index(i).Set(dstElem)
+				}
+			}
 		}
 
 		if dst.CanSet() {
@@ -326,6 +350,11 @@ func WithAppendSlice(config *Config) {
 // WithTypeCheck will make merge check types while overwriting it (must be used with WithOverride).
 func WithTypeCheck(config *Config) {
 	config.TypeCheck = true
+}
+
+// WithDeepMergeSlice will make merge deep merge slice elements pairwise (resizing dst slice if needed)
+func WithDeepMergeSlice(config *Config) {
+	config.deepMergeSlice = true
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
