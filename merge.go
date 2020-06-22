@@ -236,13 +236,16 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 
 				if newSlice.Index(i).IsZero() {
 					newSlice.Index(i).Set(srcElem)
-				} else {
-					if dstElem, err = deepMerge(dstElem, srcElem, visited, depth+1, config); err != nil {
-						return
-					} else {
-						newSlice.Index(i).Set(dstElem)
-					}
+					continue
 				}
+
+				dstElem, err = deepMerge(dstElem, srcElem, visited, depth+1, config)
+
+				if err != nil {
+					return
+				}
+
+				newSlice.Index(i).Set(dstElem)
 			}
 		}
 
