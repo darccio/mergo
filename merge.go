@@ -223,12 +223,25 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 			}
 
 			for i := 0; i < src.Len(); i++ {
+				srcElem := src.Index(i)
 				dstElem := newSlice.Index(i)
 
-				if dstElem, err = deepMerge(dstElem, src.Index(i), visited, depth+1, config); err != nil {
-					return
+				if srcElem.CanInterface() {
+					srcElem = reflect.ValueOf(srcElem.Interface())
+				}
+
+				if dstElem.CanInterface() {
+					dstElem = reflect.ValueOf(dstElem.Interface())
+				}
+
+				if newSlice.Index(i).IsZero() {
+					newSlice.Index(i).Set(srcElem)
 				} else {
-					newSlice.Index(i).Set(dstElem)
+					if dstElem, err = deepMerge(dstElem, srcElem, visited, depth+1, config); err != nil {
+						return
+					} else {
+						newSlice.Index(i).Set(dstElem)
+					}
 				}
 			}
 		}

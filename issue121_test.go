@@ -15,7 +15,7 @@ func TestIssue121WithSliceDeepMerge(t *testing.T) {
 	src := map[string]interface{}{
 		"b": []map[string]interface{}{
 			map[string]interface{}{"c": "3", "d": "1"},
-			map[string]interface{}{"e": "1", "f": "1"},
+			map[string]interface{}{"e": "1", "f": "1", "g": []string{"1", "2"}},
 		},
 	}
 
@@ -37,5 +37,9 @@ func TestIssue121WithSliceDeepMerge(t *testing.T) {
 
 	if dst["b"].([]map[string]interface{})[1]["e"] != "1" {
 		t.Error("b.[1].e should equal '1'")
+	}
+
+	if dst["b"].([]map[string]interface{})[1]["g"].([]string)[0] != "1" {
+		t.Error("b.[1].g[0] should equal '1'")
 	}
 }
