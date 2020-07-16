@@ -65,6 +65,7 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 	typeCheck := config.TypeCheck
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
 	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
+	config.overwriteWithEmptyValue = false
 
 	if !src.IsValid() {
 		return
