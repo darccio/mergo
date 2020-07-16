@@ -29,6 +29,7 @@ type bar struct {
 func TestMergeWithTransformerNilStruct(t *testing.T) {
 	a := foo{s: "foo"}
 	b := foo{Bar: &bar{i: 2, s: map[string]string{"foo": "bar"}}}
+
 	if err := Merge(&a, &b, WithOverride, WithTransformers(&transformer{
 		m: map[reflect.Type]func(dst, src reflect.Value) error{
 			reflect.TypeOf(&bar{}): func(dst, src reflect.Value) error {
@@ -39,12 +40,47 @@ func TestMergeWithTransformerNilStruct(t *testing.T) {
 			},
 		},
 	})); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
+
 	if a.s != "foo" {
-		t.Fatalf("b not merged in properly: a.s.Value(%s) != expected(%s)", a.s, "foo")
+		t.Errorf("b not merged in properly: a.s.Value(%s) != expected(%s)", a.s, "foo")
 	}
+
 	if a.Bar == nil {
-		t.Fatalf("b not merged in properly: a.Bar shouldn't be nil")
+		t.Errorf("b not merged in properly: a.Bar shouldn't be nil")
+	}
+}
+
+func TestMergeNonPointer(t *testing.T) {
+	dst := bar{
+		i: 1,
+	}
+	src := bar{
+		i: 2,
+		s: map[string]string{
+			"a": "1",
+		},
+	}
+	want := ErrNonPointerArgument
+
+	if got := merge(dst, src); got != want {
+		t.Errorf("want: %s, got: %s", want, got)
+	}
+}
+
+func TestMapNonPointer(t *testing.T) {
+	dst := make(map[string]bar)
+	src := map[string]bar{
+		"a": {
+			i: 2,
+			s: map[string]string{
+				"a": "1",
+			},
+		},
+	}
+	want := ErrNonPointerArgument
+	if got := merge(dst, src); got != want {
+		t.Errorf("want: %s, got: %s", want, got)
 	}
 }

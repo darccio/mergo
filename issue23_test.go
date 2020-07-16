@@ -18,10 +18,12 @@ func TestIssue23MergeWithOverwrite(t *testing.T) {
 	src := document{
 		&expected,
 	}
+
 	if err := MergeWithOverwrite(&dst, src); err != nil {
 		t.Errorf("Error while merging %s", err)
 	}
+
 	if !dst.Created.Equal(*src.Created) { //--> https://golang.org/pkg/time/#pkg-overview
-		t.Fatalf("Created not merged in properly: dst.Created(%v) != src.Created(%v)", dst.Created, src.Created)
+		t.Errorf("Created not merged in properly: dst.Created(%v) != src.Created(%v)", dst.Created, src.Created)
 	}
 }

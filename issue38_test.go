@@ -18,11 +18,13 @@ func TestIssue38Merge(t *testing.T) {
 	src := structWithoutTimePointer{
 		expected,
 	}
+
 	if err := Merge(&dst, src); err != nil {
 		t.Errorf("Error while merging %s", err)
 	}
+
 	if dst.Created == src.Created {
-		t.Fatalf("Created merged unexpectedly: dst.Created(%v) == src.Created(%v)", dst.Created, src.Created)
+		t.Errorf("Created merged unexpectedly: dst.Created(%v) == src.Created(%v)", dst.Created, src.Created)
 	}
 }
 
@@ -33,11 +35,13 @@ func TestIssue38MergeEmptyStruct(t *testing.T) {
 	src := structWithoutTimePointer{
 		expected,
 	}
+
 	if err := Merge(&dst, src); err != nil {
 		t.Errorf("Error while merging %s", err)
 	}
+
 	if dst.Created == src.Created {
-		t.Fatalf("Created merged unexpectedly: dst.Created(%v) == src.Created(%v)", dst.Created, src.Created)
+		t.Errorf("Created merged unexpectedly: dst.Created(%v) == src.Created(%v)", dst.Created, src.Created)
 	}
 }
 
@@ -50,10 +54,12 @@ func TestIssue38MergeWithOverwrite(t *testing.T) {
 	src := structWithoutTimePointer{
 		expected,
 	}
+
 	if err := MergeWithOverwrite(&dst, src); err != nil {
 		t.Errorf("Error while merging %s", err)
 	}
+
 	if dst.Created != src.Created {
-		t.Fatalf("Created not merged in properly: dst.Created(%v) != src.Created(%v)", dst.Created, src.Created)
+		t.Errorf("Created not merged in properly: dst.Created(%v) != src.Created(%v)", dst.Created, src.Created)
 	}
 }
