@@ -33,7 +33,7 @@ var fssnDefault = FssnConfig {
 // Inside a function [...]
 
 if err := mergo.Merge(&config, fssnDefault); err != nil {
-	log.Fatal(err)
+	log.Error(err)
 }
 
 // More code [...]
