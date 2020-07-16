@@ -65,7 +65,6 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 	typeCheck := config.TypeCheck
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
 	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
-	config.overwriteWithEmptyValue = false
 
 	if !src.IsValid() {
 		return
@@ -160,17 +159,19 @@ func deepMerge(dstIn, src reflect.Value, visited map[uintptr]*visit, depth int, 
 			}
 
 			dstElement := dst.MapIndex(key)
-
 			if dstElement.IsValid() {
 				k := dstElement.Interface()
 				dstElement = reflect.ValueOf(k)
 			}
 
-			if isReflectNil(srcElement) {
-				if overwrite || isReflectNil(dstElement) {
-					dst.SetMapIndex(key, srcElement)
+			switch srcElement.Kind() {
+			case reflect.Chan, reflect.Func, reflect.Map, reflect.Interface, reflect.Slice:
+				if isReflectNil(srcElement) {
+					if overwrite || isReflectNil(dstElement) {
+						dst.SetMapIndex(key, srcElement)
+					}
+					continue
 				}
-				continue
 			}
 
 			if !srcElement.CanInterface() {
