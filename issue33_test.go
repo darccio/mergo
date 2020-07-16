@@ -15,6 +15,7 @@ func TestIssue33Merge(t *testing.T) {
 		Str:    "b",
 		Bslice: []byte{1, 2},
 	}
+
 	if err := Merge(&dest, toMerge); err != nil {
 		t.Errorf("Error while merging: %s", err)
 	}
@@ -27,6 +28,7 @@ func TestIssue33Merge(t *testing.T) {
 	if err := Merge(&dest, toMerge, WithOverride); err != nil {
 		t.Errorf("Error while merging: %s", err)
 	}
+
 	if dest.Str != toMerge.Str {
 		t.Errorf("dest.Str should have been override: dest.Str(%v) != toMerge.Str(%v)", dest.Str, toMerge.Str)
 	}
