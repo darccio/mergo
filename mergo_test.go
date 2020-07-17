@@ -529,7 +529,7 @@ func TestMergeUsingStructAndMap(t *testing.T) {
 				t.Error(err)
 			}
 			if !reflect.DeepEqual(tc.target, tc.output) {
-				t.Errorf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", tc.target, tc.output)
+				t.Errorf("Test failed:\ngot  :\n%+v\n\nwant :\n%+v\n\n", tc.target.Params, tc.output.Params)
 			}
 		})
 	}
