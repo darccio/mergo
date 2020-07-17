@@ -171,9 +171,8 @@ func MapWithOverwrite(dst, src interface{}, opts ...func(*Config)) error {
 
 func _map(dst, src interface{}, opts ...func(*Config)) error {
 	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Ptr {
-		return ErrNonPointerArgument
+		return ErrNonPointerAgument
 	}
-
 	var (
 		vDst, vSrc reflect.Value
 		err        error

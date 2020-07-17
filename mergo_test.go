@@ -365,12 +365,12 @@ func TestMapsWithOverwrite(t *testing.T) {
 		"e": {14},
 	}
 
-	if err := MergeWithOverwrite(&dst, src); err != nil {
+	if err := MergeWithOverwrite(&m, n); err != nil {
 		t.Errorf(err.Error())
 	}
 
-	if !reflect.DeepEqual(dst, expect) {
-		t.Errorf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", dst, expect)
+	if !reflect.DeepEqual(m, expect) {
+		t.Errorf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", m, expect)
 	}
 }
 
@@ -552,7 +552,7 @@ func TestMaps(t *testing.T) {
 	if !reflect.DeepEqual(m, expect) {
 		t.Errorf("Test failed:\ngot  :\n%#v\n\nwant :\n%#v\n\n", m, expect)
 	}
-	if m["a"].Value != 16 {
+	if m["a"].Value != 0 {
 		t.Errorf(`n merged in m because I solved non-addressable map values TODO: m["a"].Value(%d) != n["a"].Value(%d)`, m["a"].Value, n["a"].Value)
 	}
 	if m["b"].Value != 42 {

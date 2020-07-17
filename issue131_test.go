@@ -18,7 +18,9 @@ func TestIssue131MergeWithOverwriteWithEmptyValue(t *testing.T) {
 		A: func(v bool) *bool { return &v }(true),
 		B: "dest",
 	}
-	Merge(&dest, src, WithOverwriteWithEmptyValue)
+	if err := Merge(&dest, src, WithOverwriteWithEmptyValue); err != nil {
+		t.Error(err)
+	}
 	if *src.A != *dest.A {
 		t.Errorf("dest.A not merged in properly: %v != %v", *src.A, *dest.A)
 	}
