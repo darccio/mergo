@@ -13,11 +13,11 @@ import (
 	"reflect"
 )
 
-func isMergeableField(dst reflect.Value) (exported bool) {
+func hasMergeableFields(dst reflect.Value) (exported bool) {
 	for i, n := 0, dst.NumField(); i < n; i++ {
 		field := dst.Type().Field(i)
 		if field.Anonymous && dst.Field(i).Kind() == reflect.Struct {
-			exported = exported || isMergeableField(dst.Field(i))
+			exported = exported || hasMergeableFields(dst.Field(i))
 		} else if isExportedComponent(&field) {
 			exported = exported || len(field.PkgPath) == 0
 		}
@@ -45,6 +45,7 @@ type Config struct {
 	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
+	debug                        bool
 }
 
 type Transformers interface {
@@ -87,7 +88,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 
 	switch dst.Kind() {
 	case reflect.Struct:
-		if isMergeableField(dst) {
+		if hasMergeableFields(dst) {
 			for i, n := 0, dst.NumField(); i < n; i++ {
 				if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config); err != nil {
 					return
@@ -236,15 +237,6 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			break
 		}
 
-		if dst.Kind() != reflect.Ptr && src.Type().AssignableTo(dst.Type()) {
-			if dst.IsNil() || overwrite {
-				if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
-					dst.Set(src)
-				}
-			}
-			break
-		}
-
 		if src.Kind() != reflect.Interface {
 			if dst.IsNil() || (src.Kind() != reflect.Ptr && overwrite) {
 				if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
@@ -268,11 +260,22 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			if dst.CanSet() && (overwrite || isEmptyValue(dst)) {
 				dst.Set(src)
 			}
-		} else if err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
-			return
+			break
+		}
+
+		if dst.Elem().Kind() == src.Elem().Kind() {
+			if err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
+				return
+			}
+			break
 		}
 	default:
-		mustSet := (!isEmptyValue(src) || overwriteWithEmptySrc) && (overwrite || isEmptyValue(dst))
+		mustSet := (isEmptyValue(dst) || overwrite) && (!isEmptyValue(src) || overwriteWithEmptySrc)
+		v := fmt.Sprintf("%v", src)
+		if v == "TestIssue106" {
+			fmt.Println(mustSet)
+			fmt.Println(dst.CanSet())
+		}
 		if mustSet {
 			if dst.CanSet() {
 				dst.Set(src)
