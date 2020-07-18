@@ -1,8 +1,10 @@
-package mergo
+package mergo_test
 
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 type settings struct {
@@ -24,7 +26,7 @@ func TestIssue125MergeWithOverwrite(t *testing.T) {
 		t.Errorf("Error while Unmarshalling maprequest: %s", err)
 	}
 
-	if err := Merge(&something, defaultSettings, WithOverrideEmptySlice); err != nil {
+	if err := mergo.Merge(&something, defaultSettings, mergo.WithOverrideEmptySlice); err != nil {
 		t.Errorf("Error while merging: %s", err)
 	}
 

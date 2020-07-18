@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 func TestIssue123(t *testing.T) {
@@ -17,7 +19,7 @@ func TestIssue123(t *testing.T) {
 	}
 
 	// Expected behavior
-	if err := Merge(&dst, src, WithOverride); err != nil {
+	if err := mergo.Merge(&dst, src, mergo.WithOverride); err != nil {
 		t.Fatal(err)
 	}
 	testCases := []struct {

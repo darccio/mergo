@@ -1,8 +1,10 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
 	"time"
+
+	"github.com/imdario/mergo"
 )
 
 type document struct {
@@ -19,7 +21,7 @@ func TestIssue23MergeWithOverwrite(t *testing.T) {
 		&expected,
 	}
 
-	if err := MergeWithOverwrite(&dst, src); err != nil {
+	if err := mergo.MergeWithOverwrite(&dst, src); err != nil {
 		t.Errorf("Error while merging %s", err)
 	}
 

@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 type embeddedTestA struct {
@@ -15,13 +17,17 @@ type embeddedTestB struct {
 }
 
 func TestMergeEmbedded(t *testing.T) {
-	a := &embeddedTestA{
-		"Suwon", 16,
+	var (
+		err error
+		a   = &embeddedTestA{
+			"Suwon", 16,
+		}
+		b = &embeddedTestB{}
+	)
+
+	if err := mergo.Merge(&b.embeddedTestA, *a); err != nil {
+		t.Error(err)
 	}
-
-	b := &embeddedTestB{}
-
-	err := Merge(&b.embeddedTestA, *a)
 
 	if b.Name != "Suwon" {
 		t.Errorf("%v %v", b.Name, err)

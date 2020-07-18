@@ -1,8 +1,10 @@
-package mergo
+package mergo_test
 
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 func TestIssue17MergeWithOverwrite(t *testing.T) {
@@ -20,7 +22,7 @@ func TestIssue17MergeWithOverwrite(t *testing.T) {
 		t.Errorf("Error while Unmarshalling maprequest: %s", err)
 	}
 
-	if err := MergeWithOverwrite(&something, maprequest); err != nil {
+	if err := mergo.MergeWithOverwrite(&something, maprequest); err != nil {
 		t.Errorf("Error while merging: %s", err)
 	}
 }

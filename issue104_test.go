@@ -1,8 +1,10 @@
-package mergo
+package mergo_test
 
 import (
 	"reflect"
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 type Record struct {
@@ -23,7 +25,9 @@ func StructToRecord(in interface{}) *Record {
 		}
 	}
 
-	Map(&rec.Data, in)
+	if err := mergo.Map(&rec.Data, in); err != nil {
+		panic(err)
+	}
 	return &rec
 }
 

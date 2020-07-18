@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 var testDataS = []struct {
@@ -17,7 +19,7 @@ var testDataS = []struct {
 
 func TestMergeSliceWithOverrideWithAppendSlice(t *testing.T) {
 	for _, data := range testDataS {
-		err := Merge(&data.S2, data.S1, WithOverride, WithAppendSlice)
+		err := mergo.Merge(&data.S2, data.S1, mergo.WithOverride, mergo.WithAppendSlice)
 		if err != nil {
 			t.Errorf("Error while merging %s", err)
 		}

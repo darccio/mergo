@@ -1,17 +1,19 @@
-package mergo
+package mergo_test
 
 import (
 	"fmt"
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 func TestIssue143(t *testing.T) {
 	testCases := []struct {
-		options  []func(*Config)
+		options  []func(*mergo.Config)
 		expected func(map[string]interface{}) error
 	}{
 		{
-			options: []func(*Config){WithOverride},
+			options: []func(*mergo.Config){mergo.WithOverride},
 			expected: func(m map[string]interface{}) error {
 				properties := m["properties"].(map[string]interface{})
 				if properties["field1"] != "wrong" {
@@ -21,7 +23,7 @@ func TestIssue143(t *testing.T) {
 			},
 		},
 		{
-			options: []func(*Config){},
+			options: []func(*mergo.Config){},
 			expected: func(m map[string]interface{}) error {
 				properties := m["properties"].(map[string]interface{})
 				if properties["field1"] == "wrong" {
@@ -40,7 +42,7 @@ func TestIssue143(t *testing.T) {
 			},
 		}
 
-		err := Map(
+		err := mergo.Map(
 			&base,
 			map[string]interface{}{
 				"properties": map[string]interface{}{

@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 func TestIssue89Boolean(t *testing.T) {
@@ -12,7 +14,7 @@ func TestIssue89Boolean(t *testing.T) {
 	src := Foo{Bar: true}
 	dst := Foo{Bar: false}
 
-	if err := Merge(&dst, src); err != nil {
+	if err := mergo.Merge(&dst, src); err != nil {
 		t.Error(err)
 	}
 	if dst.Bar == false {
@@ -27,7 +29,7 @@ func TestIssue89MergeWithEmptyValue(t *testing.T) {
 	p2 := map[string]interface{}{
 		"B": "", "C": false,
 	}
-	if err := Merge(&p1, p2, WithOverwriteWithEmptyValue); err != nil {
+	if err := mergo.Merge(&p1, p2, mergo.WithOverwriteWithEmptyValue); err != nil {
 		t.Error(err)
 	}
 	testCases := []struct {

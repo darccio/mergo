@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 type foz struct {
@@ -18,7 +20,7 @@ func TestIssue131MergeWithOverwriteWithEmptyValue(t *testing.T) {
 		A: func(v bool) *bool { return &v }(true),
 		B: "dest",
 	}
-	if err := Merge(&dest, src, WithOverwriteWithEmptyValue); err != nil {
+	if err := mergo.Merge(&dest, src, mergo.WithOverwriteWithEmptyValue); err != nil {
 		t.Error(err)
 	}
 	if *src.A != *dest.A {

@@ -1,8 +1,10 @@
-package mergo
+package mergo_test
 
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 const issue138configuration string = `
@@ -24,7 +26,7 @@ func TestIssue138(t *testing.T) {
 	// https://golang.org/pkg/encoding/json/#Unmarshal
 	json.Unmarshal([]byte(issue138configuration), &foo)
 
-	err := Map(&config{}, foo)
+	err := mergo.Map(&config{}, foo)
 	if err == nil {
 		t.Error("expected type mismatch error, got nil")
 	} else {
@@ -34,7 +36,7 @@ func TestIssue138(t *testing.T) {
 	}
 
 	c := compatibleConfig{}
-	if err := Map(&c, foo); err != nil {
+	if err := mergo.Map(&c, foo); err != nil {
 		t.Error(err)
 	}
 }

@@ -1,6 +1,10 @@
-package mergo
+package mergo_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/imdario/mergo"
+)
 
 type issue83My struct {
 	Data []int
@@ -9,7 +13,7 @@ type issue83My struct {
 func TestIssue83(t *testing.T) {
 	dst := issue83My{Data: []int{1, 2, 3}}
 	new := issue83My{}
-	if err := Merge(&dst, new, WithOverwriteWithEmptyValue); err != nil {
+	if err := mergo.Merge(&dst, new, mergo.WithOverwriteWithEmptyValue); err != nil {
 		t.Error(err)
 	}
 	if len(dst.Data) > 0 {

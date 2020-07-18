@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 func TestMapInterfaceWithMultipleLayer(t *testing.T) {
@@ -18,7 +20,7 @@ func TestMapInterfaceWithMultipleLayer(t *testing.T) {
 		},
 	}
 
-	if err := Map(&m1, m2, WithOverride); err != nil {
+	if err := mergo.Map(&m1, m2, mergo.WithOverride); err != nil {
 		t.Errorf("Error merging: %v", err)
 	}
 

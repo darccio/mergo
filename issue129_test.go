@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 func TestIssue129Boolean(t *testing.T) {
@@ -20,7 +22,7 @@ func TestIssue129Boolean(t *testing.T) {
 	}
 
 	// Standard behavior
-	if err := Merge(&dst, src); err != nil {
+	if err := mergo.Merge(&dst, src); err != nil {
 		t.Error(err)
 	}
 	if dst.A != true {
@@ -35,7 +37,7 @@ func TestIssue129Boolean(t *testing.T) {
 		A: false,
 		B: true,
 	}
-	if err := Merge(&dst, src, WithOverwriteWithEmptyValue); err != nil {
+	if err := mergo.Merge(&dst, src, mergo.WithOverwriteWithEmptyValue); err != nil {
 		t.Error(err)
 	}
 	if dst.A != true {

@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 type PrivateSliceTest66 struct {
@@ -18,7 +20,7 @@ func TestPrivateSlice(t *testing.T) {
 		PublicStrings: []string{"six", "seven"},
 	}
 
-	if err := Merge(&p1, p2); err != nil {
+	if err := mergo.Merge(&p1, p2); err != nil {
 		t.Errorf("Error during the merge: %v", err)
 	}
 
@@ -40,7 +42,7 @@ func TestPrivateSliceWithAppendSlice(t *testing.T) {
 		PublicStrings: []string{"six", "seven"},
 	}
 
-	if err := Merge(&p1, p2, WithAppendSlice); err != nil {
+	if err := mergo.Merge(&p1, p2, mergo.WithAppendSlice); err != nil {
 		t.Errorf("Error during the merge: %v", err)
 	}
 

@@ -1,8 +1,10 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
 	"time"
+
+	"github.com/imdario/mergo"
 )
 
 type structWithoutTimePointer struct {
@@ -19,7 +21,7 @@ func TestIssue38Merge(t *testing.T) {
 		expected,
 	}
 
-	if err := Merge(&dst, src); err != nil {
+	if err := mergo.Merge(&dst, src); err != nil {
 		t.Errorf("Error while merging %s", err)
 	}
 
@@ -36,7 +38,7 @@ func TestIssue38MergeEmptyStruct(t *testing.T) {
 		expected,
 	}
 
-	if err := Merge(&dst, src); err != nil {
+	if err := mergo.Merge(&dst, src); err != nil {
 		t.Errorf("Error while merging %s", err)
 	}
 
@@ -55,7 +57,7 @@ func TestIssue38MergeWithOverwrite(t *testing.T) {
 		expected,
 	}
 
-	if err := MergeWithOverwrite(&dst, src); err != nil {
+	if err := mergo.MergeWithOverwrite(&dst, src); err != nil {
 		t.Errorf("Error while merging %s", err)
 	}
 

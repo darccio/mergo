@@ -1,8 +1,10 @@
-package mergo
+package mergo_test
 
 import (
 	"reflect"
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 type transformer struct {
@@ -30,7 +32,7 @@ func TestMergeWithTransformerNilStruct(t *testing.T) {
 	a := foo{s: "foo"}
 	b := foo{Bar: &bar{i: 2, s: map[string]string{"foo": "bar"}}}
 
-	if err := Merge(&a, &b, WithOverride, WithTransformers(&transformer{
+	if err := mergo.Merge(&a, &b, mergo.WithOverride, mergo.WithTransformers(&transformer{
 		m: map[reflect.Type]func(dst, src reflect.Value) error{
 			reflect.TypeOf(&bar{}): func(dst, src reflect.Value) error {
 				// Do sthg with Elem
@@ -62,9 +64,9 @@ func TestMergeNonPointer(t *testing.T) {
 			"a": "1",
 		},
 	}
-	want := ErrNonPointerAgument
+	want := mergo.ErrNonPointerAgument
 
-	if got := merge(dst, src); got != want {
+	if got := mergo.Merge(dst, src); got != want {
 		t.Errorf("want: %s, got: %s", want, got)
 	}
 }
@@ -79,8 +81,8 @@ func TestMapNonPointer(t *testing.T) {
 			},
 		},
 	}
-	want := ErrNonPointerAgument
-	if got := merge(dst, src); got != want {
+	want := mergo.ErrNonPointerAgument
+	if got := mergo.Merge(dst, src); got != want {
 		t.Errorf("want: %s, got: %s", want, got)
 	}
 }

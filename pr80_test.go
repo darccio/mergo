@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 type mapInterface map[string]interface{}
@@ -9,7 +11,7 @@ type mapInterface map[string]interface{}
 func TestMergeMapsEmptyString(t *testing.T) {
 	a := mapInterface{"s": ""}
 	b := mapInterface{"s": "foo"}
-	if err := Merge(&a, b); err != nil {
+	if err := mergo.Merge(&a, b); err != nil {
 		t.Error(err)
 	}
 	if a["s"] != "foo" {

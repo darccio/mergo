@@ -1,8 +1,10 @@
-package mergo
+package mergo_test
 
 import (
 	"reflect"
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 func TestIssue61MergeNilMap(t *testing.T) {
@@ -12,7 +14,7 @@ func TestIssue61MergeNilMap(t *testing.T) {
 	t1 := T{}
 	t2 := T{I: map[string][]string{"hi": {"there"}}}
 
-	if err := Merge(&t1, t2); err != nil {
+	if err := mergo.Merge(&t1, t2); err != nil {
 		t.Fail()
 	}
 

@@ -1,7 +1,9 @@
-package mergo
+package mergo_test
 
 import (
 	"testing"
+
+	"github.com/imdario/mergo"
 )
 
 type user struct {
@@ -25,7 +27,7 @@ func TestIssue149(t *testing.T) {
 		User:  nil,
 		Token: &tokenValue,
 	}
-	if err := Merge(dest, src, WithOverwriteWithEmptyValue); err != nil {
+	if err := mergo.Merge(dest, src, mergo.WithOverwriteWithEmptyValue); err != nil {
 		t.Error(err)
 	}
 	if dest.User != nil {
