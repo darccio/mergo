@@ -8,6 +8,7 @@
 [![Coverage Status][9]][10]
 [![Sourcegraph][11]][12]
 [![FOSSA Status][13]][14]
+
 [![GoCenter Kudos][15]][16]
 
 [1]: https://travis-ci.org/imdario/mergo.png
