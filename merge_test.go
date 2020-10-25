@@ -64,7 +64,7 @@ func TestMergeNonPointer(t *testing.T) {
 			"a": "1",
 		},
 	}
-	want := mergo.ErrNonPointerAgument
+	want := mergo.ErrNonPointerArgument
 
 	if got := mergo.Merge(dst, src); got != want {
 		t.Errorf("want: %s, got: %s", want, got)
@@ -81,7 +81,7 @@ func TestMapNonPointer(t *testing.T) {
 			},
 		},
 	}
-	want := mergo.ErrNonPointerAgument
+	want := mergo.ErrNonPointerArgument
 	if got := mergo.Merge(dst, src); got != want {
 		t.Errorf("want: %s, got: %s", want, got)
 	}
