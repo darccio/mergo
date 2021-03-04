@@ -45,6 +45,7 @@ type Config struct {
 	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
+	sliceDeepMerge               bool
 	debug                        bool
 }
 
@@ -61,6 +62,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
 	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
 	sliceDeepCopy := config.sliceDeepCopy
+	sliceDeepMerge := config.sliceDeepMerge
 
 	if !src.IsValid() {
 		return
@@ -190,6 +192,39 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 							}
 						}
 
+					} else if sliceDeepMerge {
+						if srcSlice.Len() > dstSlice.Len() {
+							newSlice := reflect.MakeSlice(srcSlice.Type(), srcSlice.Len(), srcSlice.Len())
+
+							for i := 0; i < dstSlice.Len(); i++ {
+								newSlice.Index(i).Set(dstSlice.Index(i))
+							}
+
+							dstSlice = newSlice
+						}
+
+						for i := 0; i < srcSlice.Len(); i++ {
+							srcElem := srcSlice.Index(i)
+							dstElem := dstSlice.Index(i)
+
+							if srcElem.CanInterface() {
+								srcElem = reflect.ValueOf(srcElem.Interface())
+							}
+
+							if dstElem.CanInterface() {
+								dstElem = reflect.ValueOf(dstElem.Interface())
+							}
+
+							if dstSlice.Index(i).IsZero() {
+								dstSlice.Index(i).Set(srcElem)
+							} else {
+								if err = deepMerge(dstElem, srcElem, visited, depth+1, config); err != nil {
+									return
+								} else {
+									dstSlice.Index(i).Set(dstElem)
+								}
+							}
+						}
 					}
 					dst.SetMapIndex(key, dstSlice)
 				}
@@ -229,6 +264,39 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 
 				if err = deepMerge(dstElement, srcElement, visited, depth+1, config); err != nil {
 					return
+				}
+			}
+		} else if sliceDeepMerge {
+			if src.Len() > dst.Len() {
+				newSlice := reflect.MakeSlice(dst.Type(), src.Len(), src.Len())
+
+				for i := 0; i < dst.Len(); i++ {
+					newSlice.Index(i).Set(dst.Index(i))
+				}
+
+				dst = newSlice
+			}
+
+			for i := 0; i < src.Len(); i++ {
+				srcElem := src.Index(i)
+				dstElem := dst.Index(i)
+
+				if srcElem.CanInterface() {
+					srcElem = reflect.ValueOf(srcElem.Interface())
+				}
+
+				if dstElem.CanInterface() {
+					dstElem = reflect.ValueOf(dstElem.Interface())
+				}
+
+				if dst.Index(i).IsZero() {
+					dst.Index(i).Set(srcElem)
+				} else {
+					if err = deepMerge(dstElem, srcElem, visited, depth+1, config); err != nil {
+						return
+					} else {
+						dst.Index(i).Set(dstElem)
+					}
 				}
 			}
 		}
@@ -340,6 +408,11 @@ func WithTypeCheck(config *Config) {
 func WithSliceDeepCopy(config *Config) {
 	config.sliceDeepCopy = true
 	config.Overwrite = true
+}
+
+// WithSliceDeepMerge will make merge deep merge slice elements pairwise (resizing dst slice if needed)
+func WithSliceDeepMerge(config *Config) {
+	config.sliceDeepMerge = true
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
