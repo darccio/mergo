@@ -65,7 +65,7 @@ func resolveValues(dst, src interface{}) (vDst, vSrc reflect.Value, err error) {
 		return
 	}
 	vDst = reflect.ValueOf(dst).Elem()
-	if vDst.Kind() != reflect.Struct && vDst.Kind() != reflect.Map {
+	if vDst.Kind() != reflect.Struct && vDst.Kind() != reflect.Map && vDst.Kind() != reflect.Slice {
 		err = ErrNotSupported
 		return
 	}
