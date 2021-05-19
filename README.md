@@ -98,6 +98,7 @@ If Mergo is useful to you, consider buying me a coffee, a beer, or making a mont
 - [jnuthong/item_search](https://github.com/jnuthong/item_search)
 - [bukalapak/snowboard](https://github.com/bukalapak/snowboard)
 - [containerssh/containerssh](https://github.com/containerssh/containerssh)
+- [goreleaser/goreleaser](https://github.com/goreleaser/goreleaser)
 
 ## Install
 
