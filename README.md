@@ -99,6 +99,7 @@ If Mergo is useful to you, consider buying me a coffee, a beer, or making a mont
 - [bukalapak/snowboard](https://github.com/bukalapak/snowboard)
 - [containerssh/containerssh](https://github.com/containerssh/containerssh)
 - [goreleaser/goreleaser](https://github.com/goreleaser/goreleaser)
+- [tjpnz/structbot](https://github.com/tjpnz/structbot)
 
 ## Install
 
@@ -219,7 +220,6 @@ func main() {
 }
 ```
 
-
 ## Contact me
 
 If I can help you, you have an idea or you are using Mergo in your projects, don't hesitate to drop me a line (or a pull request): [@im_dario](https://twitter.com/im_dario)
@@ -227,18 +227,6 @@ If I can help you, you have an idea or you are using Mergo in your projects, don
 ## About
 
 Written by [Dario Castañé](http://dario.im).
-
-## Top Contributors
-
-[![0](https://sourcerer.io/fame/imdario/imdario/mergo/images/0)](https://sourcerer.io/fame/imdario/imdario/mergo/links/0)
-[![1](https://sourcerer.io/fame/imdario/imdario/mergo/images/1)](https://sourcerer.io/fame/imdario/imdario/mergo/links/1)
-[![2](https://sourcerer.io/fame/imdario/imdario/mergo/images/2)](https://sourcerer.io/fame/imdario/imdario/mergo/links/2)
-[![3](https://sourcerer.io/fame/imdario/imdario/mergo/images/3)](https://sourcerer.io/fame/imdario/imdario/mergo/links/3)
-[![4](https://sourcerer.io/fame/imdario/imdario/mergo/images/4)](https://sourcerer.io/fame/imdario/imdario/mergo/links/4)
-[![5](https://sourcerer.io/fame/imdario/imdario/mergo/images/5)](https://sourcerer.io/fame/imdario/imdario/mergo/links/5)
-[![6](https://sourcerer.io/fame/imdario/imdario/mergo/images/6)](https://sourcerer.io/fame/imdario/imdario/mergo/links/6)
-[![7](https://sourcerer.io/fame/imdario/imdario/mergo/images/7)](https://sourcerer.io/fame/imdario/imdario/mergo/links/7)
-
 
 ## License
 
