@@ -761,6 +761,40 @@ func TestBackAndForth(t *testing.T) {
 	}
 }
 
+type typeWithPointerToPrimitiveTypes struct {
+	OptionalString  *string
+	Value           string
+	OptionalInteger *int
+}
+
+func TestNilPointerToField(t *testing.T) {
+	m := map[string]interface{}{
+		"value":           "A required Value",
+		"optionalString":  "An optional value",
+		"optionalInteger": 42,
+	}
+
+	optionalInteger := 35
+
+	pt := typeWithPointerToPrimitiveTypes{OptionalInteger: &optionalInteger}
+
+	if err := mergo.Map(&pt, m); err != nil {
+		t.FailNow()
+	}
+
+	if pt.Value != "A required Value" {
+		t.Errorf("pt not mapped properly: pt.Value(%s) != m[`value`](%s)", pt.Value, m[`value`])
+	}
+
+	if pt.OptionalString == nil || *pt.OptionalString != "An optional value" {
+		t.Errorf("pt not mapped properly: pt.OptionalString(%s) != m[`optionalString`](%s)", *pt.OptionalString, m[`optionalString`])
+	}
+
+	if pt.OptionalInteger == nil || *pt.OptionalInteger != 35 {
+		t.Errorf("pt not mapped properly: pt.OptionalString(%d) != m[`optionalInteger`](%d)", *pt.OptionalInteger, m[`optionalInteger`])
+	}
+}
+
 func TestEmbeddedPointerUnpacking(t *testing.T) {
 	tests := []struct{ input pointerMapTest }{
 		{pointerMapTest{42, 1, nil}},
