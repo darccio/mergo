@@ -1,6 +1,7 @@
 package mergo_test
 
 import (
+	"net"
 	"reflect"
 	"testing"
 
@@ -84,5 +85,48 @@ func TestMapNonPointer(t *testing.T) {
 	want := mergo.ErrNonPointerAgument
 	if got := mergo.Merge(dst, src); got != want {
 		t.Errorf("want: %s, got: %s", want, got)
+	}
+}
+
+type fromStringTransformer struct {
+}
+
+func (s *fromStringTransformer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
+	if typ == reflect.TypeOf(net.IP{}) {
+		return func(dst, src reflect.Value) error {
+			strValue := src.Interface().(string)
+			address := net.ParseIP(strValue)
+			dst.Set(reflect.ValueOf(address))
+
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func TestMergeWithTypeTransformer(t *testing.T) {
+	type myStruct struct {
+		Address net.IP
+		Name    string
+	}
+
+	var dst myStruct
+
+	src := map[string]interface{}{
+		"name":    "some name",
+		"address": "11.22.33.44",
+	}
+
+	if err := mergo.Map(&dst, src, mergo.WithTransformers(&fromStringTransformer{})); err != nil {
+		t.Errorf("err should be nil")
+	}
+
+	if !dst.Address.Equal(net.ParseIP("11.22.33.44")) {
+		t.Errorf("invalid IP")
+	}
+
+	if dst.Name != "some name" {
+		t.Errorf("invalid name")
 	}
 }

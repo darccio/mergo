@@ -79,18 +79,26 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		visited[h] = &visit{addr, typ, seen}
 	}
 
-	if config.Transformers != nil && !isEmptyValue(dst) {
-		if fn := config.Transformers.Transformer(dst.Type()); fn != nil {
-			err = fn(dst, src)
-			return
-		}
-	}
-
 	switch dst.Kind() {
 	case reflect.Struct:
 		if hasMergeableFields(dst) {
 			for i, n := 0, dst.NumField(); i < n; i++ {
-				if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config); err != nil {
+				dstElement := dst.Field(i)
+				srcElement := src.Field(i)
+
+				if !isEmptyValue(dstElement) {
+					var usedTransformer bool
+
+					if usedTransformer, err = maybeUseTransformer(dstElement, srcElement, config); err != nil {
+						return err
+					}
+
+					if usedTransformer {
+						continue
+					}
+				}
+
+				if err = deepMerge(dstElement, srcElement, visited, depth+1, config); err != nil {
 					return
 				}
 			}
@@ -363,7 +371,22 @@ func merge(dst, src interface{}, opts ...func(*Config)) error {
 	if vDst.Type() != vSrc.Type() {
 		return ErrDifferentArgumentsTypes
 	}
+
 	return deepMerge(vDst, vSrc, make(map[uintptr]*visit), 0, config)
+}
+
+func maybeUseTransformer(dst, src reflect.Value, config *Config) (bool, error) {
+	if config.Transformers != nil {
+		if fn := config.Transformers.Transformer(dst.Type()); fn != nil {
+			if err := fn(dst, src); err != nil {
+				return true, err
+			}
+
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 // IsReflectNil is the reflect value provided nil

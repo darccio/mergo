@@ -98,6 +98,18 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 			if !srcElement.IsValid() {
 				continue
 			}
+
+			var usedTransformer bool
+
+			usedTransformer, err = maybeUseTransformer(dstElement, srcElement, config)
+			if err != nil {
+				return err
+			}
+
+			if usedTransformer {
+				continue
+			}
+
 			if srcKind == dstKind {
 				if err = deepMerge(dstElement, srcElement, visited, depth+1, config); err != nil {
 					return
