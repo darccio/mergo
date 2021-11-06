@@ -11,6 +11,8 @@ package mergo
 import (
 	"fmt"
 	"reflect"
+	"unicode"
+	"unicode/utf8"
 )
 
 func hasMergeableFields(dst reflect.Value) (exported bool) {
@@ -46,6 +48,42 @@ type Config struct {
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
 	debug                        bool
+	fieldNameMapper              FieldNameMapper
+}
+
+// A FieldNameMapper allows custom ways to map struct field names to map keys and vice-versa.
+type FieldNameMapper interface {
+	// FromStructField is used to obtain a struct field name in a custom way.
+	FromStructField(reflect.StructField) (string, error)
+
+	// FromKeyName is used to obtain a struct field and its name based on the struct and a key.
+	FromKeyName(reflect.Value, string) (reflect.Value, string, error)
+}
+
+type defaultFieldNameMapper struct {
+}
+
+var defaultMapper = &defaultFieldNameMapper{}
+
+func changeInitialCase(s string, mapper func(rune) rune) string {
+	if s == "" {
+		return s
+	}
+	r, n := utf8.DecodeRuneInString(s)
+	return string(mapper(r)) + s[n:]
+}
+
+func (m *defaultFieldNameMapper) FromStructField(field reflect.StructField) (string, error) {
+	fieldName := field.Name
+	fieldName = changeInitialCase(fieldName, unicode.ToLower)
+
+	return fieldName, nil
+}
+
+func (m *defaultFieldNameMapper) FromKeyName(dst reflect.Value, key string) (reflect.Value, string, error) {
+	fieldName := changeInitialCase(key, unicode.ToUpper)
+
+	return dst.FieldByName(fieldName), fieldName, nil
 }
 
 type Transformers interface {
@@ -315,6 +353,13 @@ func WithOverride(config *Config) {
 	config.Overwrite = true
 }
 
+// WithFieldNameMapper will make Map() use a custom way to map field names to map keys and vice-versa.
+func WithFieldNameMapper(mapper FieldNameMapper) func(*Config) {
+	return func(config *Config) {
+		config.fieldNameMapper = mapper
+	}
+}
+
 // WithOverwriteWithEmptyValue will make merge override non empty dst attributes with empty src attributes values.
 func WithOverwriteWithEmptyValue(config *Config) {
 	config.Overwrite = true
@@ -355,6 +400,10 @@ func merge(dst, src interface{}, opts ...func(*Config)) error {
 
 	for _, opt := range opts {
 		opt(config)
+	}
+
+	if config.fieldNameMapper == nil {
+		config.fieldNameMapper = defaultMapper
 	}
 
 	if vDst, vSrc, err = resolveValues(dst, src); err != nil {

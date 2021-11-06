@@ -938,3 +938,62 @@ func TestMergeSlicesIsNotSupported(t *testing.T) {
 		t.Errorf("expected %q, got %q", mergo.ErrNotSupported, err)
 	}
 }
+
+type allCapsFieldNameMapper struct{}
+
+func (m *allCapsFieldNameMapper) FromStructField(field reflect.StructField) (string, error) {
+	return strings.ToLower(field.Name), nil
+}
+
+func (m *allCapsFieldNameMapper) FromKeyName(dst reflect.Value, key string) (reflect.Value, string, error) {
+	fieldName := strings.ToUpper(key)
+	return dst.FieldByName(fieldName), fieldName, nil
+}
+
+func TestMapToStructWithCustomFieldNameMapper(t *testing.T) {
+	var dst struct {
+		NAME string
+		AGE  int
+	}
+
+	src := map[string]interface{}{
+		"name": "some name",
+		"age":  42,
+	}
+
+	if err := mergo.Map(&dst, src, mergo.WithFieldNameMapper(&allCapsFieldNameMapper{})); err != nil {
+		t.Errorf("expected nil, got %q", err)
+	}
+
+	if dst.NAME != "some name" {
+		t.Errorf("expected %s, got %s", "some name", dst.NAME)
+	}
+
+	if dst.AGE != 42 {
+		t.Errorf("expected %d, got %d", 42, dst.AGE)
+	}
+}
+
+func TestMapFromStructWithCustomFieldNameMapper(t *testing.T) {
+	src := struct {
+		NAME string
+		AGE  int
+	}{
+		NAME: "some name",
+		AGE:  42,
+	}
+
+	dst := map[string]interface{}{}
+
+	if err := mergo.Map(&dst, src, mergo.WithFieldNameMapper(&allCapsFieldNameMapper{})); err != nil {
+		t.Errorf("expected nil, got %q", err)
+	}
+
+	if dst["name"].(string) != "some name" {
+		t.Errorf("expected %s, got %v", "some name", dst["name"])
+	}
+
+	if dst["age"].(int) != 42 {
+		t.Errorf("expected %d, got %v", 42, dst["age"])
+	}
+}

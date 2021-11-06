@@ -11,17 +11,8 @@ package mergo
 import (
 	"fmt"
 	"reflect"
-	"unicode"
 	"unicode/utf8"
 )
-
-func changeInitialCase(s string, mapper func(rune) rune) string {
-	if s == "" {
-		return s
-	}
-	r, n := utf8.DecodeRuneInString(s)
-	return string(mapper(r)) + s[n:]
-}
 
 func isExported(field reflect.StructField) bool {
 	r, _ := utf8.DecodeRuneInString(field.Name)
@@ -56,8 +47,12 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 			if !isExported(field) {
 				continue
 			}
-			fieldName := field.Name
-			fieldName = changeInitialCase(fieldName, unicode.ToLower)
+
+			fieldName, err := config.fieldNameMapper.FromStructField(field)
+			if err != nil {
+				return nil
+			}
+
 			if v, ok := dstMap[fieldName]; !ok || (isEmptyValue(reflect.ValueOf(v)) || overwrite) {
 				dstMap[fieldName] = src.Field(i).Interface()
 			}
@@ -74,8 +69,12 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 		for key := range srcMap {
 			config.overwriteWithEmptyValue = true
 			srcValue := srcMap[key]
-			fieldName := changeInitialCase(key, unicode.ToUpper)
-			dstElement := dst.FieldByName(fieldName)
+
+			dstElement, fieldName, err := config.fieldNameMapper.FromKeyName(dst, key)
+			if err != nil {
+				return err
+			}
+
 			if dstElement == zeroValue {
 				// We discard it because the field doesn't exist.
 				continue
@@ -100,15 +99,15 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 			}
 			if srcKind == dstKind {
 				if err = deepMerge(dstElement, srcElement, visited, depth+1, config); err != nil {
-					return
+					return err
 				}
 			} else if dstKind == reflect.Interface && dstElement.Kind() == reflect.Interface {
 				if err = deepMerge(dstElement, srcElement, visited, depth+1, config); err != nil {
-					return
+					return err
 				}
 			} else if srcKind == reflect.Map {
 				if err = deepMap(dstElement, srcElement, visited, depth+1, config); err != nil {
-					return
+					return err
 				}
 			} else {
 				return fmt.Errorf("type mismatch on %s field: found %v, expected %v", fieldName, srcKind, dstKind)
@@ -152,6 +151,10 @@ func _map(dst, src interface{}, opts ...func(*Config)) error {
 
 	for _, opt := range opts {
 		opt(config)
+	}
+
+	if config.fieldNameMapper == nil {
+		config.fieldNameMapper = defaultMapper
 	}
 
 	if vDst, vSrc, err = resolveValues(dst, src); err != nil {
