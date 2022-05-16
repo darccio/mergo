@@ -930,11 +930,11 @@ func TestMergeMapWithInnerSliceOfDifferentType(t *testing.T) {
 	}
 }
 
-func TestMergeSlicesIsNotSupported(t *testing.T) {
+func TestMergeDifferentSlicesIsNotSupported(t *testing.T) {
 	src := []string{"a", "b"}
 	dst := []int{1, 2}
 
-	if err := mergo.Merge(&src, &dst, mergo.WithOverride, mergo.WithAppendSlice); err != mergo.ErrNotSupported {
+	if err := mergo.Merge(&src, &dst, mergo.WithOverride, mergo.WithAppendSlice); err != mergo.ErrDifferentArgumentsTypes {
 		t.Errorf("expected %q, got %q", mergo.ErrNotSupported, err)
 	}
 }
