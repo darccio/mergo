@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/imdario/mergo"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type simpleTest struct {
@@ -603,18 +603,18 @@ func TestMapsWithNilPointer(t *testing.T) {
 func TestYAMLMaps(t *testing.T) {
 	thing := loadYAML("testdata/thing.yml")
 	license := loadYAML("testdata/license.yml")
-	ft := thing["fields"].(map[interface{}]interface{})
-	fl := license["fields"].(map[interface{}]interface{})
+	ft := thing["fields"].(map[string]interface{})
+	fl := license["fields"].(map[string]interface{})
 	// license has one extra field (site) and another already existing in thing (author) that Mergo won't override.
 	expectedLength := len(ft) + len(fl) - 1
 	if err := mergo.Merge(&license, thing); err != nil {
 		t.Error(err.Error())
 	}
-	currentLength := len(license["fields"].(map[interface{}]interface{}))
+	currentLength := len(license["fields"].(map[string]interface{}))
 	if currentLength != expectedLength {
 		t.Errorf(`thing not merged in license properly, license must have %d elements instead of %d`, expectedLength, currentLength)
 	}
-	fields := license["fields"].(map[interface{}]interface{})
+	fields := license["fields"].(map[string]interface{})
 	if _, ok := fields["id"]; !ok {
 		t.Errorf(`thing not merged in license properly, license must have a new id field from thing`)
 	}
