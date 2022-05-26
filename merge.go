@@ -38,14 +38,15 @@ func isExportedComponent(field *reflect.StructField) bool {
 }
 
 type Config struct {
-	Overwrite                    bool
-	AppendSlice                  bool
-	TypeCheck                    bool
-	Transformers                 Transformers
-	overwriteWithEmptyValue      bool
-	overwriteSliceWithEmptyValue bool
-	sliceDeepCopy                bool
-	debug                        bool
+	Overwrite                            bool
+	AppendSlice                          bool
+	TypeCheck                            bool
+	Transformers                         Transformers
+	overwriteWithEmptyValue              bool
+	overwriteSliceWithEmptyValue         bool
+	doNotOverwriteEmptyStructValuesInDst bool
+	sliceDeepCopy                        bool
+	debug                                bool
 }
 
 type Transformers interface {
@@ -60,6 +61,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	typeCheck := config.TypeCheck
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
 	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
+	doNotOverwriteEmptyStructValuesInDst := config.doNotOverwriteEmptyStructValuesInDst
 	sliceDeepCopy := config.sliceDeepCopy
 
 	if !src.IsValid() {
@@ -86,9 +88,11 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		}
 	}
 
+	overwriteStructValues := depth == 0 || !doNotOverwriteEmptyStructValuesInDst
+
 	switch dst.Kind() {
 	case reflect.Struct:
-		if hasMergeableFields(dst) {
+		if overwriteStructValues && hasMergeableFields(dst) {
 			for i, n := 0, dst.NumField(); i < n; i++ {
 				if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config); err != nil {
 					return
@@ -324,6 +328,11 @@ func WithOverwriteWithEmptyValue(config *Config) {
 // WithOverrideEmptySlice will make merge override empty dst slice with empty src slice.
 func WithOverrideEmptySlice(config *Config) {
 	config.overwriteSliceWithEmptyValue = true
+}
+
+// WithNoOverrideEmptyStructValues will make merge not overwrite the empty values within non-empty structs in dst
+func WithNoOverrideEmptyStructValues(config *Config) {
+	config.doNotOverwriteEmptyStructValuesInDst = true
 }
 
 // WithAppendSlice will make merge append slices instead of overwriting it.
