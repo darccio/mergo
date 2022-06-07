@@ -33,20 +33,20 @@ func TestIssue89MergeWithEmptyValue(t *testing.T) {
 		t.Error(err)
 	}
 	testCases := []struct {
-		key      string
 		expected interface{}
+		key      string
 	}{
 		{
-			"A",
 			3,
+			"A",
 		},
 		{
-			"B",
 			"",
+			"B",
 		},
 		{
-			"C",
 			false,
+			"C",
 		},
 	}
 	for _, tC := range testCases {

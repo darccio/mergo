@@ -9,8 +9,8 @@ import (
 
 func TestIssue143(t *testing.T) {
 	testCases := []struct {
-		options  []func(*mergo.Config)
 		expected func(map[string]interface{}) error
+		options  []func(*mergo.Config)
 	}{
 		{
 			options: []func(*mergo.Config){mergo.WithOverride},

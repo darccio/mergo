@@ -19,13 +19,13 @@ func (s *transformer) Transformer(t reflect.Type) func(dst, src reflect.Value) e
 }
 
 type foo struct {
-	s   string
 	Bar *bar
+	s   string
 }
 
 type bar struct {
-	i int
 	s map[string]string
+	i int
 }
 
 func TestMergeWithTransformerNilStruct(t *testing.T) {
