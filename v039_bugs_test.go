@@ -53,8 +53,8 @@ func TestV039Issue152(t *testing.T) {
 }
 
 type issue146Foo struct {
-	A string
 	B map[string]issue146Bar
+	A string
 }
 
 type issue146Bar struct {

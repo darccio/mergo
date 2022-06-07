@@ -12,8 +12,8 @@ type embeddedTestA struct {
 }
 
 type embeddedTestB struct {
-	embeddedTestA
 	Address string
+	embeddedTestA
 }
 
 func TestMergeEmbedded(t *testing.T) {
