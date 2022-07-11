@@ -14,6 +14,7 @@ import (
 	"reflect"
 )
 
+// ErrSkip Allow users to judge by the type of DST and SRC, and skip the check
 var ErrSkip = errors.New("mergo: skip custom transformer")
 
 func hasMergeableFields(dst reflect.Value) (exported bool) {
