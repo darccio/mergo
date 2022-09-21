@@ -27,6 +27,8 @@
 [15]: https://img.shields.io/github/sponsors/imdario
 [16]: https://github.com/sponsors/imdario
 
+This repo is forked from https://github.com/imdario/mergo
+
 A helper to merge structs and maps in Golang. Useful for configuration default values, avoiding messy if-statements.
 
 Mergo merges same-type structs and maps by setting default values in zero-value fields. Mergo won't merge unexported (private) fields. It will do recursively any exported one. It also won't merge structs inside maps (because they are not addressable using Go reflection).
