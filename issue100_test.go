@@ -3,7 +3,7 @@ package mergo_test
 import (
 	"testing"
 
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
 )
 
 type issue100s struct {

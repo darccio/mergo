@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
 )
 
 type structWithTime struct {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
 )
 
 func TestIssue17MergeWithOverwrite(t *testing.T) {

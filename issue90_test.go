@@ -1,7 +1,7 @@
 package mergo_test
 
 import (
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
 	"reflect"
 	"testing"
 )

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
 )
 
 type settings struct {

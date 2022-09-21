@@ -41,11 +41,13 @@ type Config struct {
 	Transformers                 Transformers
 	Overwrite                    bool
 	AppendSlice                  bool
+	AppendSliceReversely         bool
 	TypeCheck                    bool
 	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
 	debug                        bool
+	SkipMergingBool              bool
 }
 
 type Transformers interface {
@@ -216,6 +218,11 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 				return fmt.Errorf("cannot append two slice with different type (%s, %s)", src.Type(), dst.Type())
 			}
 			dst.Set(reflect.AppendSlice(dst, src))
+		} else if config.AppendSliceReversely {
+			if src.Type() != dst.Type() {
+				return fmt.Errorf("cannot append two slice with different type (%s, %s)", src.Type(), dst.Type())
+			}
+			dst.Set(reflect.AppendSlice(src, dst))
 		} else if sliceDeepCopy {
 			for i := 0; i < src.Len() && i < dst.Len(); i++ {
 				srcElement := src.Index(i)
@@ -274,6 +281,20 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			}
 			break
 		}
+	case reflect.Bool:
+		if config.SkipMergingBool {
+			// Skip merging bool and keep whatever dst has if 'SkipMergingBool' is true.
+			break
+		}
+		mustSet := (isEmptyValue(dst) || overwrite) && (!isEmptyValue(src) || overwriteWithEmptySrc)
+		if mustSet {
+			if dst.CanSet() {
+				dst.Set(src)
+			} else {
+				dst = src
+			}
+		}
+
 	default:
 		mustSet := (isEmptyValue(dst) || overwrite) && (!isEmptyValue(src) || overwriteWithEmptySrc)
 		if mustSet {
@@ -331,6 +352,11 @@ func WithAppendSlice(config *Config) {
 	config.AppendSlice = true
 }
 
+// WithAppendSliceReversely will make merge append slices with the sequence of [src, dst]  instead of overwriting it.
+func WithAppendSliceReversely(config *Config) {
+	config.AppendSliceReversely = true
+}
+
 // WithTypeCheck will make merge check types while overwriting it (must be used with WithOverride).
 func WithTypeCheck(config *Config) {
 	config.TypeCheck = true
@@ -340,6 +366,11 @@ func WithTypeCheck(config *Config) {
 func WithSliceDeepCopy(config *Config) {
 	config.sliceDeepCopy = true
 	config.Overwrite = true
+}
+
+// WithSkipMergingBool will skip merging booleans and just keep whatever dst has.
+func WithSkipMergingBool(config *Config) {
+	config.SkipMergingBool = true
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {

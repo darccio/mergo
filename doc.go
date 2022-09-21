@@ -28,7 +28,7 @@ Do your usual installation procedure:
 
     // use in your .go code
     import (
-        "github.com/imdario/mergo"
+        "github.com/narvar/mergo"
     )
 
 Usage
@@ -59,7 +59,7 @@ Here is a nice example:
 
 	import (
 		"fmt"
-		"github.com/imdario/mergo"
+		"github.com/narvar/mergo"
 	)
 
 	type Foo struct {
@@ -89,7 +89,7 @@ Transformers allow to merge specific types differently than in the default behav
 
 	import (
 		"fmt"
-		"github.com/imdario/mergo"
+		"github.com/narvar/mergo"
 			"reflect"
 			"time"
 	)

@@ -106,7 +106,7 @@ If Mergo is useful to you, consider buying me a coffee, a beer, or making a mont
 
     // use in your .go code
     import (
-        "github.com/imdario/mergo"
+        "github.com/narvar/mergo"
     )
 
 ## Usage
@@ -144,7 +144,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
 )
 
 type Foo struct {
@@ -180,7 +180,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
         "reflect"
         "time"
 )

@@ -3,7 +3,7 @@ package mergo_test
 import (
 	"testing"
 
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
 )
 
 func TestIssue89Boolean(t *testing.T) {

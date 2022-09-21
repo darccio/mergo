@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/imdario/mergo"
+	"github.com/narvar/mergo"
 )
 
 type Record struct {
