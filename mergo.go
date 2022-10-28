@@ -34,7 +34,7 @@ type visit struct {
 }
 
 // From src/pkg/encoding/json/encode.go.
-func isEmptyValue(v reflect.Value) bool {
+func isEmptyValue(v reflect.Value, shouldDereference bool) bool {
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
 		return v.Len() == 0
@@ -50,7 +50,10 @@ func isEmptyValue(v reflect.Value) bool {
 		if v.IsNil() {
 			return true
 		}
-		return isEmptyValue(v.Elem())
+		if shouldDereference {
+			return isEmptyValue(v.Elem(), shouldDereference)
+		}
+		return false
 	case reflect.Func:
 		return v.IsNil()
 	case reflect.Invalid:
