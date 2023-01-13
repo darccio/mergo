@@ -2,7 +2,7 @@ name: 'fund-on-stackaid'
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   stackaid-json:
     runs-on: ubuntu-latest
