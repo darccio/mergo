@@ -46,6 +46,7 @@ type Config struct {
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
 	sliceDeepMerge               bool
+	OverwriteNilInMaps           bool
 	debug                        bool
 }
 
@@ -58,6 +59,7 @@ type Transformers interface {
 // short circuiting on recursive types.
 func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, config *Config) (err error) {
 	overwrite := config.Overwrite
+	overwriteNilInMaps := config.OverwriteNilInMaps
 	typeCheck := config.TypeCheck
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
 	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
@@ -127,7 +129,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			switch srcElement.Kind() {
 			case reflect.Chan, reflect.Func, reflect.Map, reflect.Interface, reflect.Slice:
 				if srcElement.IsNil() {
-					if overwrite {
+					if overwrite || overwriteNilInMaps {
 						dst.SetMapIndex(key, srcElement)
 					}
 					continue
