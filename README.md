@@ -55,7 +55,6 @@ If Mergo is useful to you, consider buying me a coffee, a beer, or making a mont
 
 ### Mergo in the wild
 
-- [cli/cli](https://github.com/cli/cli)
 - [moby/moby](https://github.com/moby/moby)
 - [kubernetes/kubernetes](https://github.com/kubernetes/kubernetes)
 - [vmware/dispatch](https://github.com/vmware/dispatch)
