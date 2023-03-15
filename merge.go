@@ -354,7 +354,7 @@ func WithSliceDeepCopy(config *Config) {
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
 	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Ptr {
-		return ErrNonPointerAgument
+		return ErrNonPointerArgument
 	}
 	var (
 		vDst, vSrc reflect.Value
