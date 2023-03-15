@@ -205,6 +205,16 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 				dst.SetMapIndex(key, srcElement)
 			}
 		}
+
+		// Ensure that all keys in dst are deleted if they are not in src.
+		if overwriteWithEmptySrc {
+			for _, key := range dst.MapKeys() {
+				srcElement := src.MapIndex(key)
+				if !srcElement.IsValid() {
+					dst.SetMapIndex(key, reflect.Value{})
+				}
+			}
+		}
 	case reflect.Slice:
 		if !dst.CanSet() {
 			break
