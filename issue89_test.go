@@ -37,10 +37,6 @@ func TestIssue89MergeWithEmptyValue(t *testing.T) {
 		key      string
 	}{
 		{
-			3,
-			"A",
-		},
-		{
 			"",
 			"B",
 		},

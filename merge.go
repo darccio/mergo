@@ -111,7 +111,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		}
 
 		if src.Kind() != reflect.Map {
-			if overwrite {
+			if overwrite && dst.CanSet() {
 				dst.Set(src)
 			}
 			return
@@ -195,8 +195,14 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 					dst.SetMapIndex(key, dstSlice)
 				}
 			}
-			if dstElement.IsValid() && !isEmptyValue(dstElement, !config.ShouldNotDereference) && (reflect.TypeOf(srcElement.Interface()).Kind() == reflect.Map || reflect.TypeOf(srcElement.Interface()).Kind() == reflect.Slice) {
-				continue
+
+			if dstElement.IsValid() && !isEmptyValue(dstElement, !config.ShouldNotDereference) {
+				if reflect.TypeOf(srcElement.Interface()).Kind() == reflect.Slice {
+					continue
+				}
+				if reflect.TypeOf(srcElement.Interface()).Kind() == reflect.Map && reflect.TypeOf(dstElement.Interface()).Kind() == reflect.Map {
+					continue
+				}
 			}
 
 			if srcElement.IsValid() && ((srcElement.Kind() != reflect.Ptr && overwrite) || !dstElement.IsValid() || isEmptyValue(dstElement, !config.ShouldNotDereference)) {
@@ -204,6 +210,16 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 					dst.Set(reflect.MakeMap(dst.Type()))
 				}
 				dst.SetMapIndex(key, srcElement)
+			}
+		}
+
+		// Ensure that all keys in dst are deleted if they are not in src.
+		if overwriteWithEmptySrc {
+			for _, key := range dst.MapKeys() {
+				srcElement := src.MapIndex(key)
+				if !srcElement.IsValid() {
+					dst.SetMapIndex(key, reflect.Value{})
+				}
 			}
 		}
 	case reflect.Slice:
@@ -357,7 +373,7 @@ func WithSliceDeepCopy(config *Config) {
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
 	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Ptr {
-		return ErrNonPointerAgument
+		return ErrNonPointerArgument
 	}
 	var (
 		vDst, vSrc reflect.Value
