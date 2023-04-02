@@ -14,7 +14,7 @@
 [![Tidelift][17]][18]
 
 [1]: https://github.com/imdario/mergo/workflows/tests/badge.svg?branch=master
-[2]: https://travis-ci.org/imdario/mergo
+[2]: https://github.com/imdario/mergo/actions/workflows/tests.yml
 [3]: https://godoc.org/github.com/imdario/mergo?status.svg
 [4]: https://godoc.org/github.com/imdario/mergo
 [5]: https://img.shields.io/github/release/imdario/mergo.svg
