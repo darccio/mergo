@@ -1,0 +1,12 @@
+name: 'openssf'
+on:
+  push:
+    branches:
+      - master
+jobs:
+  scorecard:
+    runs-on: ubuntu-latest
+    name: OpenSSF
+    steps:
+      - name: OSSF Scorecard action
+        uses: ossf/scorecard-action@v2.1.3
