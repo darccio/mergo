@@ -99,10 +99,11 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			for i, n := 0, dst.NumField(); i < n; i++ {
 				field := dst.Type().Field(i)
 				shouldBeSkipped := overwrite && isFieldPinned(&field)
-				if !shouldBeSkipped {
-					if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config); err != nil {
-						return
-					}
+				if shouldBeSkipped {
+					continue
+				}
+				if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config); err != nil {
+					return
 				}
 			}
 		} else {
