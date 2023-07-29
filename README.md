@@ -233,6 +233,39 @@ func main() {
 }
 ```
 
+### Pin struct fields
+
+You can pin struct fields to protect them from changes in `mergo.WithOverride` mode. Use `mergo:"pinned"` tag for that:
+
+```go
+package main
+
+import (
+	"fmt"
+	"dario.cat/mergo"
+)
+
+type Foo struct {
+	Pinned string `mergo:"pinned"`
+	ToBeChanged string
+}
+
+func main() {
+	dest := Foo{
+		Pinned: "hello",
+		ToBeChanged: "world",
+	}
+	src := Foo{
+		Pinned: "bye",
+		ToBeChanged: "dream",
+	}
+	mergo.Merge(&dest, src, mergo.WithOverride)
+	fmt.Println(dest)
+	// Will print
+	// {hello dream}
+}
+```
+
 ## Contact me
 
 If I can help you, you have an idea or you are using Mergo in your projects, don't hesitate to drop me a line (or a pull request): [@im_dario](https://twitter.com/im_dario)

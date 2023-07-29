@@ -37,6 +37,12 @@ func isExportedComponent(field *reflect.StructField) bool {
 	return true
 }
 
+const pinned = "pinned"
+
+func isFieldPinned(field *reflect.StructField) bool {
+	return field.Tag.Get("mergo") == pinned
+}
+
 type Config struct {
 	Transformers                 Transformers
 	Overwrite                    bool
@@ -91,8 +97,12 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	case reflect.Struct:
 		if hasMergeableFields(dst) {
 			for i, n := 0, dst.NumField(); i < n; i++ {
-				if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config); err != nil {
-					return
+				field := dst.Type().Field(i)
+				shouldBeSkipped := overwrite && isFieldPinned(&field)
+				if !shouldBeSkipped {
+					if err = deepMerge(dst.Field(i), src.Field(i), visited, depth+1, config); err != nil {
+						return
+					}
 				}
 			}
 		} else {
