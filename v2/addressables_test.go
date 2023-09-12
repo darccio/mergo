@@ -10,7 +10,7 @@ func litPtr[T any](v T) *T {
 	return &v
 }
 
-func TestMerge(t *testing.T) {
+func TestIntMerge(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
