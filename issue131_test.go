@@ -12,6 +12,11 @@ type foz struct {
 	C *bool
 	D *bool
 	E *bool
+	F *baz
+}
+
+type baz struct {
+	A *bool
 }
 
 func TestIssue131MergeWithOverwriteWithEmptyValue(t *testing.T) {
@@ -76,6 +81,9 @@ func TestIssue131MergeWithoutDereference(t *testing.T) {
 		C: nil,
 		D: func(v bool) *bool { return &v }(false),
 		E: func(v bool) *bool { return &v }(true),
+		F: &baz{
+			A: func(v bool) *bool { return &v }(true),
+		},
 	}
 	dest := foz{
 		A: func(v bool) *bool { return &v }(true),
@@ -83,6 +91,7 @@ func TestIssue131MergeWithoutDereference(t *testing.T) {
 		C: func(v bool) *bool { return &v }(false),
 		D: nil,
 		E: func(v bool) *bool { return &v }(false),
+		F: nil,
 	}
 	if err := mergo.Merge(&dest, src, mergo.WithoutDereference); err != nil {
 		t.Error(err)
@@ -100,6 +109,14 @@ func TestIssue131MergeWithoutDereference(t *testing.T) {
 		t.Errorf("dest.D not merged in properly: %v != %v", src.D, *dest.D)
 	}
 	if *dest.E == true {
-		t.Errorf("dest.Eshould not have been merged: %v == %v", *src.E, *dest.E)
+		t.Errorf("dest.E should not have been merged: %v == %v", *src.E, *dest.E)
+	}
+
+	if dest.F == nil {
+		t.Errorf("dest.F should not have be overriden with nil: %v == %v", src.F, dest.F)
+	}
+
+	if *dest.F.A == false {
+		t.Errorf("dest.F.A not merged in properly: %v != %v", *src.F.A, *dest.F.A)
 	}
 }
