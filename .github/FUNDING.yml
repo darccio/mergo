@@ -1,3 +1,5 @@
 # These are supported funding model platforms
 
 github: darccio
+tidelift: go/github.com/imdario/mergo
+thanks_dev: gh/darccio
