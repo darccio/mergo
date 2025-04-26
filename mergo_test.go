@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"sigs.k8s.io/yaml"
+	"github.com/goccy/go-yaml"
 
 	"dario.cat/mergo"
 )
