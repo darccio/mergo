@@ -12,8 +12,9 @@ import (
 	"testing"
 	"time"
 
+	"sigs.k8s.io/yaml"
+
 	"dario.cat/mergo"
-	"gopkg.in/yaml.v3"
 )
 
 type simpleTest struct {

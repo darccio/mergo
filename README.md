@@ -193,7 +193,7 @@ func main() {
 
 Note: if test are failing due missing package, please execute:
 
-    go get gopkg.in/yaml.v3
+    go get sigs.k8s.io/yaml
 
 ### Transformers
 
