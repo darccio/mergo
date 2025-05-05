@@ -85,7 +85,6 @@ Mergo is used by [thousands](https://deps.dev/go/dario.cat%2Fmergo/v1.0.0/depend
 * [goreleaser/goreleaser](https://github.com/goreleaser/goreleaser)
 * [go-micro/go-micro](https://github.com/go-micro/go-micro)
 * [grafana/loki](https://github.com/grafana/loki)
-* [kubernetes/kubernetes](https://github.com/kubernetes/kubernetes)
 * [masterminds/sprig](github.com/Masterminds/sprig)
 * [moby/moby](https://github.com/moby/moby)
 * [slackhq/nebula](https://github.com/slackhq/nebula)
