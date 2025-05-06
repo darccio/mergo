@@ -6,7 +6,7 @@
 package mergo_test
 
 import (
-	"io/ioutil"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -846,7 +846,7 @@ func TestNestedPtrValueInMap(t *testing.T) {
 
 func loadYAML(path string) (m map[string]interface{}) {
 	m = make(map[string]interface{})
-	raw, _ := ioutil.ReadFile(path)
+	raw, _ := os.ReadFile(path)
 	_ = yaml.Unmarshal(raw, &m)
 	return
 }
