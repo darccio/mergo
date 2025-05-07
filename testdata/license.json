@@ -1,0 +1,7 @@
+{
+    "import": "./thing.json",
+    "fields": {
+        "site": "string",
+        "author": "updater"
+    }
+}

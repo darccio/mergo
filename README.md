@@ -190,10 +190,6 @@ func main() {
 }
 ```
 
-Note: if test are failing due missing package, please execute:
-
-    go get gopkg.in/yaml.v3
-
 ### Transformers
 
 Transformers allow to merge specific types differently than in the default behavior. In other words, now you can customize how some types are merged. For example, `time.Time` is a struct; it doesn't have zero value but IsZero can return true because it has fields with zero value. How can we merge a non-zero `time.Time`?

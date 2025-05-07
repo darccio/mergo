@@ -6,14 +6,14 @@
 package mergo_test
 
 import (
-	"io/ioutil"
+	"encoding/json"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
 
 	"dario.cat/mergo"
-	"gopkg.in/yaml.v3"
 )
 
 type simpleTest struct {
@@ -600,9 +600,9 @@ func TestMapsWithNilPointer(t *testing.T) {
 	}
 }
 
-func TestYAMLMaps(t *testing.T) {
-	thing := loadYAML("testdata/thing.yml")
-	license := loadYAML("testdata/license.yml")
+func TestJSONMaps(t *testing.T) {
+	thing := loadFixture("testdata/thing.json")
+	license := loadFixture("testdata/license.json")
 	ft := thing["fields"].(map[string]interface{})
 	fl := license["fields"].(map[string]interface{})
 	// license has one extra field (site) and another already existing in thing (author) that Mergo won't override.
@@ -844,10 +844,10 @@ func TestNestedPtrValueInMap(t *testing.T) {
 	}
 }
 
-func loadYAML(path string) (m map[string]interface{}) {
+func loadFixture(path string) (m map[string]interface{}) {
 	m = make(map[string]interface{})
-	raw, _ := ioutil.ReadFile(path)
-	_ = yaml.Unmarshal(raw, &m)
+	raw, _ := os.ReadFile(path)
+	_ = json.Unmarshal(raw, &m)
 	return
 }
 
