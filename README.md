@@ -12,29 +12,35 @@
 [![GoDoc][3]][4]
 [![Become my sponsor][15]][16]
 [![Tidelift][17]][18]
+[![Liberapay patrons][23]][24]
+[![Support mergo on drips.network][25]][26]
 
-[1]: https://github.com/imdario/mergo/workflows/tests/badge.svg?branch=master
-[2]: https://github.com/imdario/mergo/actions/workflows/tests.yml
-[3]: https://godoc.org/github.com/imdario/mergo?status.svg
-[4]: https://godoc.org/github.com/imdario/mergo
-[5]: https://img.shields.io/github/release/imdario/mergo.svg
-[6]: https://github.com/imdario/mergo/releases
-[7]: https://goreportcard.com/badge/imdario/mergo
-[8]: https://goreportcard.com/report/github.com/imdario/mergo
-[9]: https://coveralls.io/repos/github/imdario/mergo/badge.svg?branch=master
-[10]: https://coveralls.io/github/imdario/mergo?branch=master
+[1]: https://github.com/darccio/mergo/workflows/tests/badge.svg?branch=master
+[2]: https://github.com/darccio/mergo/actions/workflows/tests.yml
+[3]: https://pkg.go.dev/badge/dario.cat/mergo
+[4]: https://pkg.go.dev/dario.cat/mergo
+[5]: https://img.shields.io/github/release/darccio/mergo.svg
+[6]: https://github.com/darccio/mergo/releases
+[7]: https://goreportcard.com/badge/dario.cat/mergo
+[8]: https://goreportcard.com/report/dario.cat/mergo
+[9]: https://coveralls.io/repos/github/darccio/mergo/badge.svg?branch=master
+[10]: https://coveralls.io/github/darccio/mergo?branch=master
 [11]: https://sourcegraph.com/github.com/imdario/mergo/-/badge.svg
 [12]: https://sourcegraph.com/github.com/imdario/mergo?badge
 [13]: https://app.fossa.io/api/projects/git%2Bgithub.com%2Fimdario%2Fmergo.svg?type=shield
 [14]: https://app.fossa.io/projects/git%2Bgithub.com%2Fimdario%2Fmergo?ref=badge_shield
-[15]: https://img.shields.io/github/sponsors/imdario
-[16]: https://github.com/sponsors/imdario
-[17]: https://tidelift.com/badges/package/go/github.com%2Fimdario%2Fmergo
-[18]: https://tidelift.com/subscription/pkg/go-github.com-imdario-mergo
-[19]: https://bestpractices.coreinfrastructure.org/projects/7177/badge
-[20]: https://bestpractices.coreinfrastructure.org/projects/7177
-[21]: https://api.securityscorecards.dev/projects/github.com/imdario/mergo/badge
-[22]: https://api.securityscorecards.dev/projects/github.com/imdario/mergo
+[15]: https://img.shields.io/github/sponsors/darccio
+[16]: https://github.com/sponsors/darccio
+[17]: https://tidelift.com/badges/package/go/dario.cat%2Fmergo
+[18]: https://tidelift.com/subscription/pkg/go-dario.cat-mergo
+[19]: https://www.bestpractices.dev/projects/7177/badge
+[20]: https://www.bestpractices.dev/en/projects/7177
+[21]: https://api.scorecard.dev/projects/github.com/darccio/mergo/badge
+[22]: https://scorecard.dev/viewer/?uri=github.com/darccio/mergo
+[23]: https://img.shields.io/liberapay/patrons/dario
+[24]: https://liberapay.com/dario/donate
+[25]: https://www.drips.network/api/embed/project/https%3A%2F%2Fgithub.com%2Fdarccio%2Fmergo/support.png?background=light&style=github&text=project&stat=none
+[26]: https://www.drips.network/app/projects/github/darccio/mergo
 
 A helper to merge structs and maps in Golang. Useful for configuration default values, avoiding messy if-statements.
 
@@ -44,7 +50,7 @@ Also a lovely [comune](http://en.wikipedia.org/wiki/Mergo) (municipality) in the
 
 ## Status
 
-Mergo is stable and frozen, ready for production. Check a short list of the projects using at large scale it [here](https://github.com/imdario/mergo#mergo-in-the-wild).
+Mergo is stable and frozen, ready for production. Check a short list of the projects using at large scale it [here](https://github.com/darccio/mergo#mergo-in-the-wild).
 
 No new features are accepted. They will be considered for a future v2 that improves the implementation and fixes bugs for corner cases.
 
@@ -52,7 +58,7 @@ No new features are accepted. They will be considered for a future v2 that impro
 
 #### 1.0.0
 
-In [1.0.0](//github.com/imdario/mergo/releases/tag/1.0.0) Mergo moves to a vanity URL `dario.cat/mergo`. No more v1 versions will be released.
+In [1.0.0](//github.com/darccio/mergo/releases/tag/1.0.0) Mergo moves to a vanity URL `dario.cat/mergo`. No more v1 versions will be released.
 
 If the vanity URL is causing issues in your project due to a dependency pulling Mergo - it isn't a direct dependency in your project - it is recommended to use [replace](https://github.com/golang/go/wiki/Modules#when-should-i-use-the-replace-directive) to pin the version to the last one with the old import URL:
 
@@ -62,9 +68,9 @@ replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
 
 #### 0.3.9
 
-Please keep in mind that a problematic PR broke [0.3.9](//github.com/imdario/mergo/releases/tag/0.3.9). I reverted it in [0.3.10](//github.com/imdario/mergo/releases/tag/0.3.10), and I consider it stable but not bug-free. Also, this version adds support for go modules.
+Please keep in mind that a problematic PR broke [0.3.9](//github.com/darccio/mergo/releases/tag/0.3.9). I reverted it in [0.3.10](//github.com/darccio/mergo/releases/tag/0.3.10), and I consider it stable but not bug-free. Also, this version adds support for go modules.
 
-Keep in mind that in [0.3.2](//github.com/imdario/mergo/releases/tag/0.3.2), Mergo changed `Merge()`and `Map()` signatures to support [transformers](#transformers). I added an optional/variadic argument so that it won't break the existing code.
+Keep in mind that in [0.3.2](//github.com/darccio/mergo/releases/tag/0.3.2), Mergo changed `Merge()`and `Map()` signatures to support [transformers](#transformers). I added an optional/variadic argument so that it won't break the existing code.
 
 If you were using Mergo before April 6th, 2015, please check your project works as intended after updating your local copy with ```go get -u dario.cat/mergo```. I apologize for any issue caused by its previous behavior and any future bug that Mergo could cause in existing projects after the change (release 0.2.0).
 
@@ -73,7 +79,7 @@ If you were using Mergo before April 6th, 2015, please check your project works 
 If Mergo is useful to you, consider buying me a coffee, a beer, or making a monthly donation to allow me to keep building great free software. :heart_eyes:
 
 <a href="https://liberapay.com/dario/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
-<a href='https://github.com/sponsors/imdario' target='_blank'><img alt="Become my sponsor" src="https://img.shields.io/github/sponsors/imdario?style=for-the-badge" /></a>
+<a href='https://github.com/sponsors/darccio' target='_blank'><img alt="Become my sponsor" src="https://img.shields.io/github/sponsors/darccio?style=for-the-badge" /></a>
 
 ### Mergo in the wild
 
@@ -244,7 +250,7 @@ If I can help you, you have an idea or you are using Mergo in your projects, don
 
 ## About
 
-Written by [Dario Castañé](http://dario.im).
+Written by [Dario Castañé](http://dario.cat).
 
 ## License
 

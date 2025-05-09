@@ -113,7 +113,7 @@ func TestIssue131MergeWithoutDereference(t *testing.T) {
 	}
 
 	if dest.F == nil {
-		t.Errorf("dest.F should not have be overriden with nil: %v == %v", src.F, dest.F)
+		t.Errorf("dest.F should not have been overridden with nil: %v == %v", src.F, dest.F)
 	}
 
 	if *dest.F.A == false {
