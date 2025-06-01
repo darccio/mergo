@@ -86,9 +86,22 @@ func TestKb(t *testing.T) {
 }
 
 func TestNil(t *testing.T) {
-	if err := mergo.Merge(nil, nil); err != mergo.ErrNilArguments {
-		t.Fail()
-	}
+	t.Run("both nil", func(t *testing.T) {
+		if err := mergo.Merge(nil, nil); err != mergo.ErrNilArguments {
+			t.Fail()
+		}
+	})
+	t.Run("dst nil", func(t *testing.T) {
+		if err := mergo.Merge(nil, struct{}{}); err != mergo.ErrNilArguments {
+			t.Fail()
+		}
+	})
+	t.Run("src nil", func(t *testing.T) {
+		dst := struct{}{}
+		if err := mergo.Merge(&dst, nil); err != mergo.ErrNilArguments {
+			t.Error(err)
+		}
+	})
 }
 
 func TestDifferentTypes(t *testing.T) {
