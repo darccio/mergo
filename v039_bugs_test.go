@@ -28,8 +28,8 @@ func TestV039Issue139(t *testing.T) {
 	if err != nil {
 		panic(err.Error())
 	}
-	if dst.inner.A == 1 {
-		t.Errorf("expected %d, got %d", src.inner.A, dst.inner.A)
+	if dst.A == 1 {
+		t.Errorf("expected %d, got %d", src.A, dst.A)
 	}
 }
 
