@@ -46,7 +46,6 @@ type Config struct {
 	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
-	debug                        bool
 }
 
 type Transformers interface {
@@ -105,7 +104,6 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			if dst.CanSet() {
 				dst.Set(reflect.MakeMap(dst.Type()))
 			} else {
-				dst = src
 				return
 			}
 		}
@@ -302,8 +300,6 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		if mustSet {
 			if dst.CanSet() {
 				dst.Set(src)
-			} else {
-				dst = src
 			}
 		}
 	}

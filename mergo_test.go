@@ -369,7 +369,7 @@ func TestMapsWithOverwrite(t *testing.T) {
 	}
 
 	if err := mergo.MergeWithOverwrite(&m, n); err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 
 	if !reflect.DeepEqual(m, expect) {
@@ -399,7 +399,7 @@ func TestMapWithEmbeddedStructPointer(t *testing.T) {
 	}
 
 	if err := mergo.Merge(&m, n, mergo.WithOverride); err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 
 	if !reflect.DeepEqual(m, expect) {
@@ -559,7 +559,7 @@ func TestMaps(t *testing.T) {
 	}
 
 	if err := mergo.Merge(&m, n); err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 
 	if !reflect.DeepEqual(m, expect) {
@@ -592,7 +592,7 @@ func TestMapsWithNilPointer(t *testing.T) {
 	}
 
 	if err := mergo.Merge(&m, n, mergo.WithOverride); err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 
 	if !reflect.DeepEqual(m, expect) {
@@ -871,7 +871,9 @@ func TestUnexportedProperty(t *testing.T) {
 			t.Errorf("Should not have panicked")
 		}
 	}()
-	mergo.Merge(&a, b)
+	if err := mergo.Merge(&a, b); err != nil {
+		t.Errorf("Error while merging %s", err)
+	}
 }
 
 type structWithBoolPointer struct {
