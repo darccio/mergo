@@ -372,3 +372,63 @@ func TestErrorMessages(t *testing.T) {
 		}
 	})
 }
+
+func BenchmarkMerge(b *testing.B) {
+	b.ReportAllocs()
+
+	type ts struct {
+		Field int
+	}
+
+	src := ts{
+		Field: 2,
+	}
+
+	b.Run("Merge", func(b *testing.B) {
+		dst := ts{
+			Field: 0,
+		}
+
+		b.ResetTimer()
+
+		for i := 0; i < b.N; i++ {
+			if err := mergo.Merge(&dst, src); err != nil {
+				b.Fatal(err)
+			}
+
+			dst.Field = 0
+		}
+	})
+
+	b.Run("MergeValue", func(b *testing.B) {
+		dst := ts{
+			Field: 0,
+		}
+
+		b.ResetTimer()
+
+		for i := 0; i < b.N; i++ {
+			if err := mergo.MergeValue(&dst, src); err != nil {
+				b.Fatal(err)
+			}
+
+			dst.Field = 0
+		}
+	})
+
+	b.Run("MergePtr", func(b *testing.B) {
+		dst := &ts{
+			Field: 0,
+		}
+
+		b.ResetTimer()
+
+		for i := 0; i < b.N; i++ {
+			if err := mergo.MergePtr(dst, &src); err != nil {
+				b.Fatal(err)
+			}
+
+			dst.Field = 0
+		}
+	})
+}
