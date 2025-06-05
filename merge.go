@@ -376,7 +376,7 @@ func merge(dst, src interface{}, opts ...func(*Config)) error {
 		err        error
 	)
 
-	config := &Config{}
+	config := &Config{} // First allocation
 
 	for _, opt := range opts {
 		opt(config)
