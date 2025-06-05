@@ -16,7 +16,7 @@ func (s *transformer) Transformer(t reflect.Type) func(dst, src reflect.Value) e
 func Test_deepMergeTransformerInvalidDestination(t *testing.T) {
 	foo := time.Time{}
 	src := reflect.ValueOf(foo)
-	deepMerge(reflect.Value{}, src, make(map[uintptr]*visit), 0, &Config{
+	_ = deepMerge(reflect.Value{}, src, make(map[uintptr]*visit), 0, &Config{
 		Transformers: &transformer{},
 	})
 	// this test is intentionally not asserting on anything, it's sole

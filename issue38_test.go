@@ -25,7 +25,7 @@ func TestIssue38Merge(t *testing.T) {
 		t.Errorf("Error while merging %s", err)
 	}
 
-	if dst.Created == src.Created {
+	if dst.Created.Equal(src.Created) {
 		t.Errorf("Created merged unexpectedly: dst.Created(%v) == src.Created(%v)", dst.Created, src.Created)
 	}
 }
@@ -42,7 +42,7 @@ func TestIssue38MergeEmptyStruct(t *testing.T) {
 		t.Errorf("Error while merging %s", err)
 	}
 
-	if dst.Created == src.Created {
+	if dst.Created.Equal(src.Created) {
 		t.Errorf("Created merged unexpectedly: dst.Created(%v) == src.Created(%v)", dst.Created, src.Created)
 	}
 }
@@ -61,7 +61,7 @@ func TestIssue38MergeWithOverwrite(t *testing.T) {
 		t.Errorf("Error while merging %s", err)
 	}
 
-	if dst.Created != src.Created {
+	if !dst.Created.Equal(src.Created) {
 		t.Errorf("Created not merged in properly: dst.Created(%v) != src.Created(%v)", dst.Created, src.Created)
 	}
 }
