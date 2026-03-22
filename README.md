@@ -13,7 +13,9 @@
 [![Become my sponsor][15]][16]
 [![Tidelift][17]][18]
 [![Liberapay patrons][23]][24]
+
 [![Support mergo on drips.network][25]][26]
+[![Build with Ona][27]][28]
 
 [1]: https://github.com/darccio/mergo/workflows/tests/badge.svg?branch=master
 [2]: https://github.com/darccio/mergo/actions/workflows/tests.yml
@@ -41,6 +43,8 @@
 [24]: https://liberapay.com/dario/donate
 [25]: https://www.drips.network/api/embed/project/https%3A%2F%2Fgithub.com%2Fdarccio%2Fmergo/support.png?background=light&style=github&text=project&stat=none
 [26]: https://www.drips.network/app/projects/github/darccio/mergo
+[27]: https://ona.com/build-with-ona.svg
+[28]: https://app.ona.com/#https://github.com/darccio/mergo
 
 A helper to merge structs and maps in Golang. Useful for configuration default values, avoiding messy if-statements.
 
