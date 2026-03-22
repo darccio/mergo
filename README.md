@@ -29,8 +29,8 @@
 [10]: https://coveralls.io/github/darccio/mergo?branch=master
 [11]: https://sourcegraph.com/github.com/imdario/mergo/-/badge.svg
 [12]: https://sourcegraph.com/github.com/imdario/mergo?badge
-[13]: https://app.fossa.io/api/projects/git%2Bgithub.com%2Fimdario%2Fmergo.svg?type=shield
-[14]: https://app.fossa.io/projects/git%2Bgithub.com%2Fimdario%2Fmergo?ref=badge_shield
+[13]: https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdarccio%2Fmergo.svg?type=shield
+[14]: https://app.fossa.io/projects/git%2Bgithub.com%2Fdarccio%2Fmergo?ref=badge_shield
 [15]: https://img.shields.io/github/sponsors/darccio
 [16]: https://github.com/sponsors/darccio
 [17]: https://tidelift.com/badges/package/go/dario.cat%2Fmergo
