@@ -953,3 +953,35 @@ func TestMergeDifferentSlicesIsNotSupported(t *testing.T) {
 		t.Errorf("expected %q, got %q", mergo.ErrNotSupported, err)
 	}
 }
+
+func TestMergeFuncField(t *testing.T) {
+	// isEmptyValue has a reflect.Func case that returns v.IsNil(). It is only
+	// exercised when a struct field has a function type. This test covers both
+	// the nil-func (empty → should be filled) and non-nil-func (non-empty →
+	// should not be overwritten without WithOverride) paths.
+	type withFunc struct {
+		F func() string
+	}
+
+	fn := func() string { return "src" }
+
+	// nil dst.F should be filled from a non-nil src.F
+	dst := withFunc{}
+	src := withFunc{F: fn}
+	if err := mergo.Merge(&dst, src); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if dst.F == nil {
+		t.Error("expected dst.F to be set from src, got nil")
+	}
+
+	// non-nil dst.F should not be overwritten without WithOverride
+	existing := func() string { return "dst" }
+	dst2 := withFunc{F: existing}
+	if err := mergo.Merge(&dst2, src); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if dst2.F() != "dst" {
+		t.Errorf("expected dst2.F to remain unchanged, got %q", dst2.F())
+	}
+}
