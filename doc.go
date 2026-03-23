@@ -20,7 +20,7 @@ In 1.0.0 Mergo moves to a vanity URL `dario.cat/mergo`.
 
 0.3.9
 
-Please keep in mind that a problematic PR broke 0.3.9. We reverted it in 0.3.10. We consider 0.3.10 as stable but not bug-free. . Also, this version adds suppot for go modules.
+Please keep in mind that a problematic PR broke 0.3.9. We reverted it in 0.3.10. We consider 0.3.10 as stable but not bug-free. Also, this version adds support for go modules.
 
 Keep in mind that in 0.3.2, Mergo changed Merge() and Map() signatures to support transformers. We added an optional/variadic argument so that it won't break the existing code.
 
