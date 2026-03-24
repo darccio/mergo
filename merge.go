@@ -9,9 +9,13 @@
 package mergo
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
+
+// ErrSkip Allow users to judge by the type of DST and SRC, and skip the check
+var ErrSkip = errors.New("mergo: skip custom transformer")
 
 func hasMergeableFields(dst reflect.Value) (exported bool) {
 	for i, n := 0, dst.NumField(); i < n; i++ {
@@ -82,7 +86,10 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	if config.Transformers != nil && !isReflectNil(dst) && dst.IsValid() {
 		if fn := config.Transformers.Transformer(dst.Type()); fn != nil {
 			err = fn(dst, src)
-			return
+			// Allow users to judge by the type of DST and SRC, and skip the check
+			if err != ErrSkip {
+				return
+			}
 		}
 	}
 
