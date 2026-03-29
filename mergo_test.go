@@ -314,6 +314,10 @@ func TestSlice(t *testing.T) {
 	testSlice(t, []int{1}, []int{2, 3}, []int{1, 2, 3}, mergo.WithAppendSlice, mergo.WithOverride)
 	testSlice(t, []int{1}, []int{}, []int{1}, mergo.WithAppendSlice)
 	testSlice(t, []int{1}, nil, []int{1}, mergo.WithAppendSlice)
+	testSlice(t, nil, []int{1}, []int{1}, mergo.WithAppendSliceNonRepeated)
+	testSlice(t, []int{1}, []int{1}, []int{1}, mergo.WithAppendSliceNonRepeated)
+	testSlice(t, []int{1, 3}, []int{1, 2}, []int{1, 3, 1, 2}, mergo.WithAppendSlice)
+	testSlice(t, []int{1, 3}, []int{1, 2}, []int{1, 3, 2}, mergo.WithAppendSliceNonRepeated)
 }
 
 func TestEmptyMaps(t *testing.T) {
