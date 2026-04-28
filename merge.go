@@ -46,6 +46,7 @@ type Config struct {
 	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
+	mapKeyTag                    string
 }
 
 type Transformers interface {
@@ -365,6 +366,13 @@ func WithTypeCheck(config *Config) {
 func WithSliceDeepCopy(config *Config) {
 	config.sliceDeepCopy = true
 	config.Overwrite = true
+}
+
+// WithMapKeyTag uses the named struct tag value as the destination map key when mapping a struct to map.
+func WithMapKeyTag(tag string) func(*Config) {
+	return func(config *Config) {
+		config.mapKeyTag = tag
+	}
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
