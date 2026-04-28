@@ -11,6 +11,7 @@ package mergo
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 func hasMergeableFields(dst reflect.Value) (exported bool) {
@@ -46,6 +47,7 @@ type Config struct {
 	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
+	caseInsensitiveMapKeys       bool
 }
 
 type Transformers interface {
@@ -116,16 +118,26 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		}
 
 		for _, key := range src.MapKeys() {
+			mergeKey := key
+			if config.caseInsensitiveMapKeys && key.Kind() == reflect.String && dst.Type().Key().Kind() == reflect.String {
+				for _, dstKey := range dst.MapKeys() {
+					if strings.EqualFold(dstKey.String(), key.String()) {
+						mergeKey = dstKey
+						break
+					}
+				}
+			}
+
 			srcElement := src.MapIndex(key)
 			if !srcElement.IsValid() {
 				continue
 			}
-			dstElement := dst.MapIndex(key)
+			dstElement := dst.MapIndex(mergeKey)
 			switch srcElement.Kind() {
 			case reflect.Chan, reflect.Func, reflect.Map, reflect.Interface, reflect.Slice:
 				if srcElement.IsNil() {
 					if overwrite {
-						dst.SetMapIndex(key, srcElement)
+						dst.SetMapIndex(mergeKey, srcElement)
 					}
 					continue
 				}
@@ -190,7 +202,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 						}
 
 					}
-					dst.SetMapIndex(key, dstSlice)
+					dst.SetMapIndex(mergeKey, dstSlice)
 				}
 			}
 
@@ -207,7 +219,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 				if dst.IsNil() {
 					dst.Set(reflect.MakeMap(dst.Type()))
 				}
-				dst.SetMapIndex(key, srcElement)
+				dst.SetMapIndex(mergeKey, srcElement)
 			}
 		}
 
@@ -365,6 +377,11 @@ func WithTypeCheck(config *Config) {
 func WithSliceDeepCopy(config *Config) {
 	config.sliceDeepCopy = true
 	config.Overwrite = true
+}
+
+// WithCaseInsensitiveMapKeys will make merge match string map keys case-insensitively.
+func WithCaseInsensitiveMapKeys(config *Config) {
+	config.caseInsensitiveMapKeys = true
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
