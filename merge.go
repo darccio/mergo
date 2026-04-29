@@ -227,6 +227,14 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		if overwriteWithEmptySrc {
 			for _, key := range dst.MapKeys() {
 				srcElement := src.MapIndex(key)
+				if !srcElement.IsValid() && config.caseInsensitiveMapKeys && key.Kind() == reflect.String && src.Type().Key().Kind() == reflect.String {
+					for _, srcKey := range src.MapKeys() {
+						if strings.EqualFold(srcKey.String(), key.String()) {
+							srcElement = src.MapIndex(srcKey)
+							break
+						}
+					}
+				}
 				if !srcElement.IsValid() {
 					dst.SetMapIndex(key, reflect.Value{})
 				}
