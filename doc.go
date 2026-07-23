@@ -89,7 +89,7 @@ Here is a nice example:
 
 # Transformers
 
-Transformers allow to merge specific types differently than in the default behavior. In other words, now you can customize how some types are merged. For example, time.Time is a struct; it doesn't have zero value but IsZero can return true because it has fields with zero value. How can we merge a non-zero time.Time?
+Transformers allow merging specific types differently than in the default behavior. In other words, now you can customize how some types are merged. For example, time.Time is a struct; it doesn't have zero value but IsZero can return true because it has fields with zero value. How can we merge a non-zero time.Time?
 
 	package main
 
