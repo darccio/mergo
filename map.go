@@ -62,7 +62,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 				dstMap[fieldName] = src.Field(i).Interface()
 			}
 		}
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if dst.IsNil() {
 			v := reflect.New(dst.Type().Elem())
 			dst.Set(v)
@@ -83,15 +83,15 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 			srcElement := reflect.ValueOf(srcValue)
 			dstKind := dstElement.Kind()
 			srcKind := srcElement.Kind()
-			if srcKind == reflect.Ptr && dstKind != reflect.Ptr {
+			if srcKind == reflect.Pointer && dstKind != reflect.Pointer {
 				srcElement = srcElement.Elem()
 				srcKind = reflect.TypeOf(srcElement.Interface()).Kind()
-			} else if dstKind == reflect.Ptr {
+			} else if dstKind == reflect.Pointer {
 				// Can this work? I guess it can't.
-				if srcKind != reflect.Ptr && srcElement.CanAddr() {
+				if srcKind != reflect.Pointer && srcElement.CanAddr() {
 					srcPtr := srcElement.Addr()
 					srcElement = reflect.ValueOf(srcPtr)
-					srcKind = reflect.Ptr
+					srcKind = reflect.Pointer
 				}
 			}
 
@@ -141,7 +141,7 @@ func MapWithOverwrite(dst, src interface{}, opts ...func(*Config)) error {
 }
 
 func _map(dst, src interface{}, opts ...func(*Config)) error {
-	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Ptr {
+	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Pointer {
 		return ErrNonPointerArgument
 	}
 	var (
