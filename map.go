@@ -62,7 +62,7 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 				dstMap[fieldName] = src.Field(i).Interface()
 			}
 		}
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if dst.IsNil() {
 			v := reflect.New(dst.Type().Elem())
 			dst.Set(v)
