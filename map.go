@@ -9,6 +9,7 @@
 package mergo
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"unicode"
@@ -111,6 +112,29 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 					return
 				}
 			} else {
+				// If the map side of the merge is a json number then we can use the
+				// functions on the json number to merge the data depending on the
+				// destination type.
+				if number, ok := srcElement.Interface().(json.Number); ok {
+					switch dstKind {
+					case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+						value, err := number.Int64()
+						if err != nil {
+							return fmt.Errorf("...: %+v", err)
+						}
+						dstElement.SetInt(value)
+						continue
+					case reflect.Float32, reflect.Float64:
+						value, err := number.Float64()
+						if err != nil {
+							return fmt.Errorf("...: %+v", err)
+						}
+						dstElement.SetFloat(value)
+						continue
+					}
+				}
+				// But if we can't do that then fallback to the normal type mismatch
+				// failure.
 				return fmt.Errorf("type mismatch on %s field: found %v, expected %v", fieldName, srcKind, dstKind)
 			}
 		}
