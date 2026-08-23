@@ -53,14 +53,14 @@ func Merge(dst, src any) error {
 	}
 
 	dstValue := reflect.ValueOf(dst)
-	if dstValue.Kind() != reflect.Ptr {
+	if dstValue.Kind() != reflect.Pointer {
 		return new(InvalidDestinationError)
 	}
 
 	dstValue = dstValue.Elem()
 	srcValue := reflect.ValueOf(src)
 
-	if srcValue.Kind() == reflect.Ptr {
+	if srcValue.Kind() == reflect.Pointer {
 		srcValue = srcValue.Elem()
 	}
 
