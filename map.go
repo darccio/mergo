@@ -11,6 +11,7 @@ package mergo
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -58,6 +59,14 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 			}
 			fieldName := field.Name
 			fieldName = changeInitialCase(fieldName, unicode.ToLower)
+			if config.mapKeyTag != "" {
+				if taggedName := field.Tag.Get(config.mapKeyTag); taggedName != "" {
+					taggedName, _, _ = strings.Cut(taggedName, ",")
+					if taggedName != "" && taggedName != "-" {
+						fieldName = taggedName
+					}
+				}
+			}
 			if _, ok := dstMap[fieldName]; !ok || (!isEmptyValue(reflect.ValueOf(src.Field(i).Interface()), !config.ShouldNotDereference) && overwrite) || config.overwriteWithEmptyValue {
 				dstMap[fieldName] = src.Field(i).Interface()
 			}
