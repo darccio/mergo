@@ -46,7 +46,7 @@ func isEmptyValue(v reflect.Value, shouldDereference bool) bool {
 		return v.Uint() == 0
 	case reflect.Float32, reflect.Float64:
 		return v.Float() == 0
-	case reflect.Interface, reflect.Ptr:
+	case reflect.Interface, reflect.Pointer:
 		if v.IsNil() {
 			return true
 		}
@@ -74,7 +74,7 @@ func resolveValues(dst, src interface{}) (vDst, vSrc reflect.Value, err error) {
 	}
 	vSrc = reflect.ValueOf(src)
 	// We check if vSrc is a pointer to dereference it.
-	if vSrc.Kind() == reflect.Ptr {
+	if vSrc.Kind() == reflect.Pointer {
 		vSrc = vSrc.Elem()
 	}
 	return

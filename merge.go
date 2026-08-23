@@ -137,7 +137,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 				switch reflect.TypeOf(srcElement.Interface()).Kind() {
 				case reflect.Struct:
 					fallthrough
-				case reflect.Ptr:
+				case reflect.Pointer:
 					fallthrough
 				case reflect.Map:
 					srcMapElm := srcElement
@@ -203,7 +203,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 				}
 			}
 
-			if srcElement.IsValid() && ((srcElement.Kind() != reflect.Ptr && overwrite) || !dstElement.IsValid() || isEmptyValue(dstElement, !config.ShouldNotDereference)) {
+			if srcElement.IsValid() && ((srcElement.Kind() != reflect.Pointer && overwrite) || !dstElement.IsValid() || isEmptyValue(dstElement, !config.ShouldNotDereference)) {
 				if dst.IsNil() {
 					dst.Set(reflect.MakeMap(dst.Type()))
 				}
@@ -247,7 +247,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 				}
 			}
 		}
-	case reflect.Ptr:
+	case reflect.Pointer:
 		fallthrough
 	case reflect.Interface:
 		if isReflectNil(src) {
@@ -258,11 +258,11 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		}
 
 		if src.Kind() != reflect.Interface {
-			if dst.IsNil() || (src.Kind() != reflect.Ptr && overwrite) {
+			if dst.IsNil() || (src.Kind() != reflect.Pointer && overwrite) {
 				if dst.CanSet() && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) {
 					dst.Set(src)
 				}
-			} else if src.Kind() == reflect.Ptr {
+			} else if src.Kind() == reflect.Pointer {
 				if !config.ShouldNotDereference {
 					if err = deepMerge(dst.Elem(), src.Elem(), visited, depth+1, config); err != nil {
 						return
@@ -368,7 +368,7 @@ func WithSliceDeepCopy(config *Config) {
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
-	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Ptr {
+	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Pointer {
 		return ErrNonPointerArgument
 	}
 	var (
@@ -395,7 +395,7 @@ func merge(dst, src interface{}, opts ...func(*Config)) error {
 func isReflectNil(v reflect.Value) bool {
 	k := v.Kind()
 	switch k {
-	case reflect.Interface, reflect.Slice, reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr:
+	case reflect.Interface, reflect.Slice, reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer:
 		// Both interface and slice are nil if first word is 0.
 		// Both are always bigger than a word; assume flagIndir.
 		return v.IsNil()
