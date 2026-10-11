@@ -100,6 +100,12 @@ Mergo is used by [thousands](https://deps.dev/go/dario.cat%2Fmergo/v1.0.0/depend
 * [slackhq/nebula](https://github.com/slackhq/nebula)
 * [volcano-sh/volcano](https://github.com/volcano-sh/volcano)
 
+## Documentation
+
+The [documentation source](docs/index.md) is published at [dario.cat/mergo](https://dario.cat/mergo/). The [API reference](https://pkg.go.dev/dario.cat/mergo) remains on pkg.go.dev.
+
+Docs changes on `master` and published releases request a pinned source update in the site repository. A reviewed site pull request must be merged before Cloudflare Pages deploys the update. Configure `SITE_DISPATCH_TOKEN` as described in [the dispatch workflow](.github/workflows/docs-dispatch.yml); without it, the workflow reports a notice and skips dispatch.
+
 ## Install
 
     go get dario.cat/mergo
