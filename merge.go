@@ -155,22 +155,49 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 					srcSlice := reflect.ValueOf(srcElement.Interface())
 
 					var dstSlice reflect.Value
-					if !dstElement.IsValid() || dstElement.IsNil() {
-						dstSlice = reflect.MakeSlice(srcSlice.Type(), 0, srcSlice.Len())
+					if !dstElement.IsValid() || dstElement.IsNil() || reflect.ValueOf(dstElement.Interface()).Kind() != reflect.Slice {
+						targetSliceType := srcSlice.Type()
+						if dst.Type().Elem().Kind() == reflect.Slice {
+							targetSliceType = dst.Type().Elem()
+						}
+						dstSlice = reflect.MakeSlice(targetSliceType, 0, srcSlice.Len())
 					} else {
 						dstSlice = reflect.ValueOf(dstElement.Interface())
 					}
 
 					if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy {
-						if typeCheck && srcSlice.Type() != dstSlice.Type() {
-							return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
+						if dstElement.IsValid() && !dstElement.IsNil() && reflect.ValueOf(dstElement.Interface()).Kind() != reflect.Slice {
+							dstSlice = srcSlice
+						} else {
+							if typeCheck && srcSlice.Type() != dstSlice.Type() {
+								return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
+							}
+							if srcSlice.Type().AssignableTo(dstSlice.Type()) {
+								dstSlice = srcSlice
+							} else if srcSlice.Type().Elem().Kind() == reflect.Interface {
+								converted, err := convertSlice(dstSlice.Type(), srcSlice, visited, depth+1, config)
+								if err != nil {
+									return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
+								}
+								dstSlice = converted
+							} else {
+								dstSlice = srcSlice
+							}
 						}
-						dstSlice = srcSlice
 					} else if config.AppendSlice {
-						if srcSlice.Type() != dstSlice.Type() {
+						if dstElement.IsValid() && !dstElement.IsNil() && reflect.ValueOf(dstElement.Interface()).Kind() != reflect.Slice {
+							dstSlice = srcSlice
+						} else if srcSlice.Type().AssignableTo(dstSlice.Type()) {
+							dstSlice = reflect.AppendSlice(dstSlice, srcSlice)
+						} else if srcSlice.Type().Elem().Kind() == reflect.Interface {
+							converted, err := convertSlice(dstSlice.Type(), srcSlice, visited, depth+1, config)
+							if err != nil {
+								return fmt.Errorf("cannot append two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
+							}
+							dstSlice = reflect.AppendSlice(dstSlice, converted)
+						} else {
 							return fmt.Errorf("cannot append two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
 						}
-						dstSlice = reflect.AppendSlice(dstSlice, srcSlice)
 					} else if sliceDeepCopy {
 						i := 0
 						for ; i < srcSlice.Len() && i < dstSlice.Len(); i++ {
@@ -225,12 +252,32 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			break
 		}
 		if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy {
-			dst.Set(src)
+			if typeCheck && !src.Type().AssignableTo(dst.Type()) {
+				return fmt.Errorf("cannot override two slices with different type (%s, %s)", src.Type(), dst.Type())
+			}
+			if src.Type().AssignableTo(dst.Type()) {
+				dst.Set(src)
+			} else if src.Type().Elem().Kind() == reflect.Interface {
+				convertedSrc, err := convertSlice(dst.Type(), src, visited, depth, config)
+				if err != nil {
+					return err
+				}
+				dst.Set(convertedSrc)
+			} else {
+				return fmt.Errorf("cannot override two slices with different type (%s, %s)", src.Type(), dst.Type())
+			}
 		} else if config.AppendSlice {
-			if src.Type() != dst.Type() {
+			if src.Type().AssignableTo(dst.Type()) {
+				dst.Set(reflect.AppendSlice(dst, src))
+			} else if src.Type().Elem().Kind() == reflect.Interface {
+				convertedSrc, err := convertSlice(dst.Type(), src, visited, depth, config)
+				if err != nil {
+					return fmt.Errorf("cannot append two slice with different type (%s, %s)", src.Type(), dst.Type())
+				}
+				dst.Set(reflect.AppendSlice(dst, convertedSrc))
+			} else {
 				return fmt.Errorf("cannot append two slice with different type (%s, %s)", src.Type(), dst.Type())
 			}
-			dst.Set(reflect.AppendSlice(dst, src))
 		} else if sliceDeepCopy {
 			for i := 0; i < src.Len() && i < dst.Len(); i++ {
 				srcElement := src.Index(i)
@@ -402,4 +449,73 @@ func isReflectNil(v reflect.Value) bool {
 	default:
 		return false
 	}
+}
+
+func convertSlice(dstType reflect.Type, src reflect.Value, visited map[uintptr]*visit, depth int, config *Config) (reflect.Value, error) {
+	if dstType.Kind() != reflect.Slice || src.Kind() != reflect.Slice {
+		return reflect.Value{}, fmt.Errorf("both arguments must be slices")
+	}
+	dstElemType := dstType.Elem()
+	res := reflect.MakeSlice(dstType, src.Len(), src.Cap())
+	for i := 0; i < src.Len(); i++ {
+		elem := src.Index(i)
+		for elem.Kind() == reflect.Interface && !elem.IsNil() {
+			elem = elem.Elem()
+		}
+		if elem.Kind() == reflect.Interface && elem.IsNil() {
+			if elem.Type().AssignableTo(dstElemType) {
+				res.Index(i).Set(elem)
+			}
+			continue
+		}
+		if !elem.IsValid() {
+			continue
+		}
+		if elem.Kind() == reflect.Pointer && dstElemType.Kind() != reflect.Pointer && !elem.IsNil() {
+			elem = elem.Elem()
+		}
+		if elem.Type().AssignableTo(dstElemType) {
+			res.Index(i).Set(elem)
+		} else if elem.Type().ConvertibleTo(dstElemType) {
+			res.Index(i).Set(elem.Convert(dstElemType))
+		} else if dstElemType.Kind() == reflect.Pointer && elem.Kind() != reflect.Pointer {
+			ptr := reflect.New(dstElemType.Elem())
+			targetElemType := dstElemType.Elem()
+			if elem.Type().AssignableTo(targetElemType) {
+				ptr.Elem().Set(elem)
+				res.Index(i).Set(ptr)
+			} else if elem.Type().ConvertibleTo(targetElemType) {
+				ptr.Elem().Set(elem.Convert(targetElemType))
+				res.Index(i).Set(ptr)
+			} else if targetElemType.Kind() == reflect.Struct && elem.Kind() == reflect.Map {
+				if err := deepMap(ptr.Elem(), elem, visited, depth+1, config); err != nil {
+					return reflect.Value{}, err
+				}
+				res.Index(i).Set(ptr)
+			} else {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), dstElemType)
+			}
+		} else if dstElemType.Kind() == reflect.Slice && elem.Kind() == reflect.Slice {
+			subSlice, err := convertSlice(dstElemType, elem, visited, depth+1, config)
+			if err != nil {
+				return reflect.Value{}, err
+			}
+			res.Index(i).Set(subSlice)
+		} else if dstElemType.Kind() == reflect.Struct && elem.Kind() == reflect.Map {
+			elemDst := reflect.New(dstElemType).Elem()
+			if err := deepMap(elemDst, elem, visited, depth+1, config); err != nil {
+				return reflect.Value{}, err
+			}
+			res.Index(i).Set(elemDst)
+		} else if dstElemType.Kind() == reflect.Struct && elem.Kind() == reflect.Struct {
+			elemDst := reflect.New(dstElemType).Elem()
+			if err := deepMerge(elemDst, elem, visited, depth+1, config); err != nil {
+				return reflect.Value{}, err
+			}
+			res.Index(i).Set(elemDst)
+		} else {
+			return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), dstElemType)
+		}
+	}
+	return res, nil
 }

@@ -87,8 +87,13 @@ func deepMap(dst, src reflect.Value, visited map[uintptr]*visit, depth int, conf
 				srcElement = srcElement.Elem()
 				srcKind = reflect.TypeOf(srcElement.Interface()).Kind()
 			} else if dstKind == reflect.Pointer {
-				// Can this work? I guess it can't.
-				if srcKind != reflect.Pointer && srcElement.CanAddr() {
+				if dstElement.Type().Elem().Kind() == srcKind {
+					if dstElement.IsNil() {
+						dstElement.Set(reflect.New(dstElement.Type().Elem()))
+					}
+					dstElement = dstElement.Elem()
+					dstKind = dstElement.Kind()
+				} else if srcKind != reflect.Pointer && srcElement.CanAddr() {
 					srcPtr := srcElement.Addr()
 					srcElement = reflect.ValueOf(srcPtr)
 					srcKind = reflect.Pointer
