@@ -1,0 +1,50 @@
+name: docs-dispatch
+
+on:
+  push:
+    branches: [master]
+    paths: ["docs/**"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-dispatch-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: github.repository == 'darccio/mergo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
+    steps:
+      - name: Explain missing dispatch token
+        if: env.GH_TOKEN == ''
+        run: |
+          printf '%s\n' '::notice::SITE_DISPATCH_TOKEN is not configured. Add a fine-grained token scoped to darccio/darccio with Contents: write to request docs pin updates.'
+      - name: Check out source revision
+        if: env.GH_TOKEN != ''
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Request site docs update
+        if: env.GH_TOKEN != ''
+        env:
+          SOURCE_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          source_commit=$(git rev-parse HEAD)
+          if [[ ! "$source_commit" =~ ^[0-9a-f]{40}$ ]]; then
+            printf '%s\n' '::error::The checked-out source revision is not a commit SHA.'
+            exit 1
+          fi
+          jq -n --arg repo "$SOURCE_REPOSITORY" --arg commit "$source_commit" \
+            '{event_type: "docs-updated", client_payload: {repo: $repo, commit: $commit}}' \
+            > "$RUNNER_TEMP/docs-dispatch.json"
+          gh api --method POST repos/darccio/darccio/dispatches \
+            --input "$RUNNER_TEMP/docs-dispatch.json"
