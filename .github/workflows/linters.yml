@@ -21,7 +21,8 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
-          go-version: 'stable'
+          # This linter supports Go 1.26 export data; Go 1.27 is incompatible.
+          go-version: '1.26.x'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@d583c34f0599d37dbac4a198b9c83201be380893 # v9.3.0
         with:
