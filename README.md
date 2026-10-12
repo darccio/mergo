@@ -256,11 +256,11 @@ func main() {
 
 ## Contact me
 
-If I can help you, you have an idea or you are using Mergo in your projects, don't hesitate to drop me a line (or a pull request): [@im_dario](https://twitter.com/im_dario)
+If I can help you, you have an idea or you are using Mergo in your projects, [contact me](https://dario.cat/contact/) or open a pull request. You can also find me on [Bluesky](https://bsky.app/profile/dario.cat) and [the Fediverse](https://mastodont.cat/@dario).
 
 ## About
 
-Written by [Dario Castañé](http://dario.cat).
+Written by [Dario Castañé](https://dario.cat/).
 
 ## License
 
