@@ -10,6 +10,7 @@ package mergo
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 )
 
@@ -216,6 +217,12 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 							}
 						}
 
+					}
+					if dstElement.IsValid() &&
+						!isEmptyValue(dstElement, !config.ShouldNotDereference) &&
+						reflect.TypeOf(dstElement.Interface()).Kind() != reflect.Slice &&
+						!overwrite && !config.AppendSlice && !sliceDeepCopy {
+						continue
 					}
 					dst.SetMapIndex(key, dstSlice)
 				}
@@ -451,6 +458,7 @@ func isReflectNil(v reflect.Value) bool {
 	}
 }
 
+// convertSlice converts elements of src into a new slice of dstType.
 func convertSlice(dstType reflect.Type, src reflect.Value, visited map[uintptr]*visit, depth int, config *Config) (reflect.Value, error) {
 	if dstType.Kind() != reflect.Slice || src.Kind() != reflect.Slice {
 		return reflect.Value{}, fmt.Errorf("both arguments must be slices")
@@ -474,20 +482,16 @@ func convertSlice(dstType reflect.Type, src reflect.Value, visited map[uintptr]*
 		if elem.Kind() == reflect.Pointer && dstElemType.Kind() != reflect.Pointer && !elem.IsNil() {
 			elem = elem.Elem()
 		}
-		if elem.Type().AssignableTo(dstElemType) {
-			res.Index(i).Set(elem)
-		} else if elem.Type().ConvertibleTo(dstElemType) {
-			res.Index(i).Set(elem.Convert(dstElemType))
+		if converted, err := safeConvert(elem, dstElemType); err == nil {
+			res.Index(i).Set(converted)
 		} else if dstElemType.Kind() == reflect.Pointer && elem.Kind() != reflect.Pointer {
-			ptr := reflect.New(dstElemType.Elem())
 			targetElemType := dstElemType.Elem()
-			if elem.Type().AssignableTo(targetElemType) {
-				ptr.Elem().Set(elem)
-				res.Index(i).Set(ptr)
-			} else if elem.Type().ConvertibleTo(targetElemType) {
-				ptr.Elem().Set(elem.Convert(targetElemType))
+			if ptrConverted, ptrErr := safeConvert(elem, targetElemType); ptrErr == nil {
+				ptr := reflect.New(targetElemType)
+				ptr.Elem().Set(ptrConverted)
 				res.Index(i).Set(ptr)
 			} else if targetElemType.Kind() == reflect.Struct && elem.Kind() == reflect.Map {
+				ptr := reflect.New(targetElemType)
 				if err := deepMap(ptr.Elem(), elem, visited, depth+1, config); err != nil {
 					return reflect.Value{}, err
 				}
@@ -519,3 +523,132 @@ func convertSlice(dstType reflect.Type, src reflect.Value, visited map[uintptr]*
 	}
 	return res, nil
 }
+
+// safeConvert converts elem to targetType if the conversion preserves exact value semantics.
+func safeConvert(elem reflect.Value, targetType reflect.Type) (reflect.Value, error) {
+	if elem.Type().AssignableTo(targetType) {
+		return elem, nil
+	}
+	if !elem.Type().ConvertibleTo(targetType) {
+		return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+	}
+	elemKind := elem.Kind()
+	targetKind := targetType.Kind()
+	if elemKind == targetKind {
+		return elem.Convert(targetType), nil
+	}
+	if elemKind == reflect.String || targetKind == reflect.String {
+		return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+	}
+	if isIntKind(elemKind) && isIntKind(targetKind) {
+		converted := elem.Convert(targetType)
+		if isSignedIntKind(elemKind) && isSignedIntKind(targetKind) {
+			if converted.Int() != elem.Int() {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isUnsignedIntKind(elemKind) && isUnsignedIntKind(targetKind) {
+			if converted.Uint() != elem.Uint() {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isSignedIntKind(elemKind) && isUnsignedIntKind(targetKind) {
+			if elem.Int() < 0 || converted.Uint() != uint64(elem.Int()) {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isUnsignedIntKind(elemKind) && isSignedIntKind(targetKind) {
+			if elem.Uint() > math.MaxInt64 || converted.Int() != int64(elem.Uint()) {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+	}
+	if isFloatKind(elemKind) && isIntKind(targetKind) {
+		f := elem.Float()
+		if math.IsNaN(f) || math.IsInf(f, 0) || math.Trunc(f) != f {
+			return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+		}
+		if isSignedIntKind(targetKind) {
+			if f < -0x1p63 || f >= 0x1p63 {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			i := int64(f)
+			converted := elem.Convert(targetType)
+			if float64(i) != f || converted.Int() != i {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isUnsignedIntKind(targetKind) {
+			if f < 0 || f >= 0x1p64 {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			u := uint64(f)
+			converted := elem.Convert(targetType)
+			if float64(u) != f || converted.Uint() != u {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+	}
+	if isIntKind(elemKind) && isFloatKind(targetKind) {
+		converted := elem.Convert(targetType)
+		f := converted.Float()
+		if math.IsNaN(f) || math.IsInf(f, 0) || math.Trunc(f) != f {
+			return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+		}
+		if isSignedIntKind(elemKind) {
+			if f < -0x1p63 || f >= 0x1p63 || int64(f) != elem.Int() {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isUnsignedIntKind(elemKind) {
+			if f < 0 || f >= 0x1p64 || uint64(f) != elem.Uint() {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+	}
+	if isFloatKind(elemKind) && isFloatKind(targetKind) {
+		converted := elem.Convert(targetType)
+		fOrig := elem.Float()
+		fConv := converted.Float()
+		if math.IsNaN(fOrig) || math.IsInf(fOrig, 0) || math.IsInf(fConv, 0) || fOrig != fConv {
+			return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+		}
+		return converted, nil
+	}
+	return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+}
+
+func isSignedIntKind(k reflect.Kind) bool {
+	switch k {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return true
+	default:
+		return false
+	}
+}
+
+func isUnsignedIntKind(k reflect.Kind) bool {
+	switch k {
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return true
+	default:
+		return false
+	}
+}
+
+func isIntKind(k reflect.Kind) bool {
+	return isSignedIntKind(k) || isUnsignedIntKind(k)
+}
+
+func isFloatKind(k reflect.Kind) bool {
+	return k == reflect.Float32 || k == reflect.Float64
+}
+
