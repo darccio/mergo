@@ -10,6 +10,7 @@ package mergo
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 )
 
@@ -155,22 +156,49 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 					srcSlice := reflect.ValueOf(srcElement.Interface())
 
 					var dstSlice reflect.Value
-					if !dstElement.IsValid() || dstElement.IsNil() {
-						dstSlice = reflect.MakeSlice(srcSlice.Type(), 0, srcSlice.Len())
+					if !dstElement.IsValid() || dstElement.IsNil() || reflect.ValueOf(dstElement.Interface()).Kind() != reflect.Slice {
+						targetSliceType := srcSlice.Type()
+						if dst.Type().Elem().Kind() == reflect.Slice {
+							targetSliceType = dst.Type().Elem()
+						}
+						dstSlice = reflect.MakeSlice(targetSliceType, 0, srcSlice.Len())
 					} else {
 						dstSlice = reflect.ValueOf(dstElement.Interface())
 					}
 
 					if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy {
-						if typeCheck && srcSlice.Type() != dstSlice.Type() {
-							return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
+						if dstElement.IsValid() && !dstElement.IsNil() && reflect.ValueOf(dstElement.Interface()).Kind() != reflect.Slice {
+							dstSlice = srcSlice
+						} else {
+							if typeCheck && srcSlice.Type() != dstSlice.Type() {
+								return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
+							}
+							if srcSlice.Type().AssignableTo(dstSlice.Type()) {
+								dstSlice = srcSlice
+							} else if srcSlice.Type().Elem().Kind() == reflect.Interface {
+								converted, err := convertSlice(dstSlice.Type(), srcSlice, visited, depth+1, config)
+								if err != nil {
+									return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
+								}
+								dstSlice = converted
+							} else {
+								dstSlice = srcSlice
+							}
 						}
-						dstSlice = srcSlice
 					} else if config.AppendSlice {
-						if srcSlice.Type() != dstSlice.Type() {
+						if dstElement.IsValid() && !dstElement.IsNil() && reflect.ValueOf(dstElement.Interface()).Kind() != reflect.Slice {
+							dstSlice = srcSlice
+						} else if srcSlice.Type().AssignableTo(dstSlice.Type()) {
+							dstSlice = reflect.AppendSlice(dstSlice, srcSlice)
+						} else if srcSlice.Type().Elem().Kind() == reflect.Interface {
+							converted, err := convertSlice(dstSlice.Type(), srcSlice, visited, depth+1, config)
+							if err != nil {
+								return fmt.Errorf("cannot append two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
+							}
+							dstSlice = reflect.AppendSlice(dstSlice, converted)
+						} else {
 							return fmt.Errorf("cannot append two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
 						}
-						dstSlice = reflect.AppendSlice(dstSlice, srcSlice)
 					} else if sliceDeepCopy {
 						i := 0
 						for ; i < srcSlice.Len() && i < dstSlice.Len(); i++ {
@@ -189,6 +217,12 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 							}
 						}
 
+					}
+					if dstElement.IsValid() &&
+						!isEmptyValue(dstElement, !config.ShouldNotDereference) &&
+						reflect.TypeOf(dstElement.Interface()).Kind() != reflect.Slice &&
+						!overwrite && !config.AppendSlice && !sliceDeepCopy {
+						continue
 					}
 					dst.SetMapIndex(key, dstSlice)
 				}
@@ -225,12 +259,32 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 			break
 		}
 		if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy {
-			dst.Set(src)
+			if typeCheck && !src.Type().AssignableTo(dst.Type()) {
+				return fmt.Errorf("cannot override two slices with different type (%s, %s)", src.Type(), dst.Type())
+			}
+			if src.Type().AssignableTo(dst.Type()) {
+				dst.Set(src)
+			} else if src.Type().Elem().Kind() == reflect.Interface {
+				convertedSrc, err := convertSlice(dst.Type(), src, visited, depth, config)
+				if err != nil {
+					return err
+				}
+				dst.Set(convertedSrc)
+			} else {
+				return fmt.Errorf("cannot override two slices with different type (%s, %s)", src.Type(), dst.Type())
+			}
 		} else if config.AppendSlice {
-			if src.Type() != dst.Type() {
+			if src.Type().AssignableTo(dst.Type()) {
+				dst.Set(reflect.AppendSlice(dst, src))
+			} else if src.Type().Elem().Kind() == reflect.Interface {
+				convertedSrc, err := convertSlice(dst.Type(), src, visited, depth, config)
+				if err != nil {
+					return fmt.Errorf("cannot append two slice with different type (%s, %s)", src.Type(), dst.Type())
+				}
+				dst.Set(reflect.AppendSlice(dst, convertedSrc))
+			} else {
 				return fmt.Errorf("cannot append two slice with different type (%s, %s)", src.Type(), dst.Type())
 			}
-			dst.Set(reflect.AppendSlice(dst, src))
 		} else if sliceDeepCopy {
 			for i := 0; i < src.Len() && i < dst.Len(); i++ {
 				srcElement := src.Index(i)
@@ -403,3 +457,198 @@ func isReflectNil(v reflect.Value) bool {
 		return false
 	}
 }
+
+// convertSlice converts elements of src into a new slice of dstType.
+func convertSlice(dstType reflect.Type, src reflect.Value, visited map[uintptr]*visit, depth int, config *Config) (reflect.Value, error) {
+	if dstType.Kind() != reflect.Slice || src.Kind() != reflect.Slice {
+		return reflect.Value{}, fmt.Errorf("both arguments must be slices")
+	}
+	dstElemType := dstType.Elem()
+	res := reflect.MakeSlice(dstType, src.Len(), src.Cap())
+	for i := 0; i < src.Len(); i++ {
+		elem := src.Index(i)
+		for elem.Kind() == reflect.Interface && !elem.IsNil() {
+			elem = elem.Elem()
+		}
+		if elem.Kind() == reflect.Interface && elem.IsNil() {
+			if elem.Type().AssignableTo(dstElemType) {
+				res.Index(i).Set(elem)
+			}
+			continue
+		}
+		if !elem.IsValid() {
+			continue
+		}
+		if elem.Kind() == reflect.Pointer && dstElemType.Kind() != reflect.Pointer && !elem.IsNil() {
+			elem = elem.Elem()
+		}
+		if converted, err := safeConvert(elem, dstElemType); err == nil {
+			res.Index(i).Set(converted)
+		} else if dstElemType.Kind() == reflect.Pointer && elem.Kind() != reflect.Pointer {
+			targetElemType := dstElemType.Elem()
+			if ptrConverted, ptrErr := safeConvert(elem, targetElemType); ptrErr == nil {
+				ptr := reflect.New(targetElemType)
+				ptr.Elem().Set(ptrConverted)
+				res.Index(i).Set(ptr)
+			} else if targetElemType.Kind() == reflect.Struct && elem.Kind() == reflect.Map {
+				ptr := reflect.New(targetElemType)
+				if err := deepMap(ptr.Elem(), elem, visited, depth+1, config); err != nil {
+					return reflect.Value{}, err
+				}
+				res.Index(i).Set(ptr)
+			} else {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), dstElemType)
+			}
+		} else if dstElemType.Kind() == reflect.Slice && elem.Kind() == reflect.Slice {
+			subSlice, err := convertSlice(dstElemType, elem, visited, depth+1, config)
+			if err != nil {
+				return reflect.Value{}, err
+			}
+			res.Index(i).Set(subSlice)
+		} else if dstElemType.Kind() == reflect.Struct && elem.Kind() == reflect.Map {
+			elemDst := reflect.New(dstElemType).Elem()
+			if err := deepMap(elemDst, elem, visited, depth+1, config); err != nil {
+				return reflect.Value{}, err
+			}
+			res.Index(i).Set(elemDst)
+		} else if dstElemType.Kind() == reflect.Struct && elem.Kind() == reflect.Struct {
+			elemDst := reflect.New(dstElemType).Elem()
+			if err := deepMerge(elemDst, elem, visited, depth+1, config); err != nil {
+				return reflect.Value{}, err
+			}
+			res.Index(i).Set(elemDst)
+		} else {
+			return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), dstElemType)
+		}
+	}
+	return res, nil
+}
+
+// safeConvert converts elem to targetType if the conversion preserves exact value semantics.
+func safeConvert(elem reflect.Value, targetType reflect.Type) (reflect.Value, error) {
+	if elem.Type().AssignableTo(targetType) {
+		return elem, nil
+	}
+	if !elem.Type().ConvertibleTo(targetType) {
+		return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+	}
+	elemKind := elem.Kind()
+	targetKind := targetType.Kind()
+	if elemKind == targetKind {
+		return elem.Convert(targetType), nil
+	}
+	if elemKind == reflect.String || targetKind == reflect.String {
+		return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+	}
+	if isIntKind(elemKind) && isIntKind(targetKind) {
+		converted := elem.Convert(targetType)
+		if isSignedIntKind(elemKind) && isSignedIntKind(targetKind) {
+			if converted.Int() != elem.Int() {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isUnsignedIntKind(elemKind) && isUnsignedIntKind(targetKind) {
+			if converted.Uint() != elem.Uint() {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isSignedIntKind(elemKind) && isUnsignedIntKind(targetKind) {
+			if elem.Int() < 0 || converted.Uint() != uint64(elem.Int()) {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isUnsignedIntKind(elemKind) && isSignedIntKind(targetKind) {
+			if elem.Uint() > math.MaxInt64 || converted.Int() != int64(elem.Uint()) {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+	}
+	if isFloatKind(elemKind) && isIntKind(targetKind) {
+		f := elem.Float()
+		if math.IsNaN(f) || math.IsInf(f, 0) || math.Trunc(f) != f {
+			return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+		}
+		if isSignedIntKind(targetKind) {
+			if f < -0x1p63 || f >= 0x1p63 {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			i := int64(f)
+			converted := elem.Convert(targetType)
+			if float64(i) != f || converted.Int() != i {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isUnsignedIntKind(targetKind) {
+			if f < 0 || f >= 0x1p64 {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			u := uint64(f)
+			converted := elem.Convert(targetType)
+			if float64(u) != f || converted.Uint() != u {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+	}
+	if isIntKind(elemKind) && isFloatKind(targetKind) {
+		converted := elem.Convert(targetType)
+		f := converted.Float()
+		if math.IsNaN(f) || math.IsInf(f, 0) || math.Trunc(f) != f {
+			return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+		}
+		if isSignedIntKind(elemKind) {
+			if f < -0x1p63 || f >= 0x1p63 || int64(f) != elem.Int() {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+		if isUnsignedIntKind(elemKind) {
+			if f < 0 || f >= 0x1p64 || uint64(f) != elem.Uint() {
+				return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+			}
+			return converted, nil
+		}
+	}
+	if isFloatKind(elemKind) && isFloatKind(targetKind) {
+		converted := elem.Convert(targetType)
+		fOrig := elem.Float()
+		fConv := converted.Float()
+		if math.IsNaN(fOrig) || math.IsInf(fOrig, 0) || math.IsInf(fConv, 0) || fOrig != fConv {
+			return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+		}
+		return converted, nil
+	}
+	return reflect.Value{}, fmt.Errorf("cannot convert %s to %s", elem.Type(), targetType)
+}
+
+func isSignedIntKind(k reflect.Kind) bool {
+	switch k {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return true
+	default:
+		return false
+	}
+}
+
+func isUnsignedIntKind(k reflect.Kind) bool {
+	switch k {
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return true
+	default:
+		return false
+	}
+}
+
+func isIntKind(k reflect.Kind) bool {
+	return isSignedIntKind(k) || isUnsignedIntKind(k)
+}
+
+func isFloatKind(k reflect.Kind) bool {
+	return k == reflect.Float32 || k == reflect.Float64
+}
+

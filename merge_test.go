@@ -86,3 +86,126 @@ func TestMapNonPointer(t *testing.T) {
 		t.Errorf("want: %s, got: %s", want, got)
 	}
 }
+
+type structWithSlices struct {
+	Values []string
+}
+
+func TestMergeInterfaceSliceIntoStringSlice(t *testing.T) {
+	dst := structWithSlices{
+		Values: []string{"value1", "value2", "value3"},
+	}
+	src := map[string]interface{}{
+		"Values": []interface{}{"newValue1", "newValue2", "newValue3"},
+	}
+
+	if err := mergo.Map(&dst, src, mergo.WithOverride); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := []string{"newValue1", "newValue2", "newValue3"}
+	if !reflect.DeepEqual(dst.Values, expected) {
+		t.Errorf("expected %v, got %v", expected, dst.Values)
+	}
+}
+
+func TestMergeInterfaceSliceAppendIntoStringSlice(t *testing.T) {
+	dst := structWithSlices{
+		Values: []string{"value1", "value2", "value3"},
+	}
+	src := map[string]interface{}{
+		"Values": []interface{}{"newValue1", "newValue2", "newValue3"},
+	}
+
+	if err := mergo.Map(&dst, src, mergo.WithAppendSlice); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := []string{"value1", "value2", "value3", "newValue1", "newValue2", "newValue3"}
+	if !reflect.DeepEqual(dst.Values, expected) {
+		t.Errorf("expected %v, got %v", expected, dst.Values)
+	}
+}
+
+func TestMapMergeSliceIntoNonSliceWithoutOverridePreservesValue(t *testing.T) {
+	dst := map[string]interface{}{
+		"key": "existing",
+	}
+	src := map[string]interface{}{
+		"key": []string{"a", "b"},
+	}
+
+	if err := mergo.Map(&dst, src); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if dst["key"] != "existing" {
+		t.Errorf("expected existing value to be preserved, got %#v", dst["key"])
+	}
+}
+
+func TestConvertSliceRejectsLossyConversions(t *testing.T) {
+	type target struct {
+		Strings []string
+		Ints    []int
+		Int8s   []int8
+		Uints   []uint
+		IntPtrs []*int
+	}
+
+	cases := []struct {
+		name string
+		src  map[string]interface{}
+	}{
+		{
+			name: "numeric to string",
+			src:  map[string]interface{}{"Strings": []interface{}{65}},
+		},
+		{
+			name: "fractional float to int",
+			src:  map[string]interface{}{"Ints": []interface{}{1.5}},
+		},
+		{
+			name: "out of range float to int",
+			src:  map[string]interface{}{"Ints": []interface{}{1e30}},
+		},
+		{
+			name: "narrowing int overflow",
+			src:  map[string]interface{}{"Int8s": []interface{}{int64(300)}},
+		},
+		{
+			name: "negative int to uint",
+			src:  map[string]interface{}{"Uints": []interface{}{-1}},
+		},
+		{
+			name: "pointer element lossy float to int",
+			src:  map[string]interface{}{"IntPtrs": []interface{}{2.5}},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name+"_override", func(t *testing.T) {
+			dst := target{
+				Strings: []string{"init"},
+				Ints:    []int{1},
+				Int8s:   []int8{1},
+				Uints:   []uint{1},
+			}
+			if err := mergo.Map(&dst, tc.src, mergo.WithOverride); err == nil {
+				t.Fatalf("expected error for %s with override, got nil", tc.name)
+			}
+		})
+
+		t.Run(tc.name+"_append", func(t *testing.T) {
+			dst := target{
+				Strings: []string{"init"},
+				Ints:    []int{1},
+				Int8s:   []int8{1},
+				Uints:   []uint{1},
+			}
+			if err := mergo.Map(&dst, tc.src, mergo.WithAppendSlice); err == nil {
+				t.Fatalf("expected error for %s with append, got nil", tc.name)
+			}
+		})
+	}
+}
