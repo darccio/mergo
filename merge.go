@@ -46,10 +46,48 @@ type Config struct {
 	overwriteWithEmptyValue      bool
 	overwriteSliceWithEmptyValue bool
 	sliceDeepCopy                bool
+	sliceDeepMerge               bool
+	retainedCopies               []reflect.Value
 }
 
 type Transformers interface {
 	Transformer(reflect.Type) func(dst, src reflect.Value) error
+}
+
+func mergeSliceElements(dst, src reflect.Value, visited map[uintptr]*visit, depth int, config *Config) (reflect.Value, error) {
+	if src.Type() != dst.Type() {
+		return reflect.Value{}, fmt.Errorf("cannot deep merge two slices with different type (%s, %s)", src.Type(), dst.Type())
+	}
+	for i := 0; i < src.Len() && i < dst.Len(); i++ {
+		srcElement := src.Index(i)
+		dstElement := dst.Index(i)
+		if srcElement.CanInterface() {
+			srcElement = reflect.ValueOf(srcElement.Interface())
+		}
+		isIfaceStruct := dstElement.Kind() == reflect.Interface && !dstElement.IsNil() && dstElement.Elem().Kind() == reflect.Struct
+		if isIfaceStruct {
+			if srcElement.IsValid() && srcElement.Type() != dstElement.Elem().Type() {
+				return reflect.Value{}, fmt.Errorf("cannot override two slices with different type (%s, %s)", srcElement.Type(), dstElement.Elem().Type())
+			}
+			copyElem := reflect.New(dstElement.Elem().Type()).Elem()
+			copyElem.Set(dstElement.Elem())
+			config.retainedCopies = append(config.retainedCopies, copyElem)
+			dstElement = copyElem
+		} else if (!config.sliceDeepMerge || dstElement.Kind() == reflect.Interface) && !(dstElement.Kind() == reflect.Interface && dstElement.IsNil()) && dstElement.CanInterface() {
+			dstElement = reflect.ValueOf(dstElement.Interface())
+		}
+
+		if err := deepMerge(dstElement, srcElement, visited, depth+1, config); err != nil {
+			return reflect.Value{}, err
+		}
+		if isIfaceStruct {
+			dst.Index(i).Set(dstElement)
+		}
+	}
+	if config.sliceDeepMerge && src.Len() > dst.Len() {
+		dst = reflect.AppendSlice(dst, src.Slice(dst.Len(), src.Len()))
+	}
+	return dst, nil
 }
 
 // Traverses recursively both values, assigning src's fields values to dst.
@@ -61,6 +99,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 	overwriteWithEmptySrc := config.overwriteWithEmptyValue
 	overwriteSliceWithEmptySrc := config.overwriteSliceWithEmptyValue
 	sliceDeepCopy := config.sliceDeepCopy
+	sliceDeepMerge := config.sliceDeepMerge
 
 	if !src.IsValid() {
 		return
@@ -161,7 +200,7 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 						dstSlice = reflect.ValueOf(dstElement.Interface())
 					}
 
-					if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy {
+					if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy && !sliceDeepMerge {
 						if typeCheck && srcSlice.Type() != dstSlice.Type() {
 							return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
 						}
@@ -171,24 +210,10 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 							return fmt.Errorf("cannot append two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
 						}
 						dstSlice = reflect.AppendSlice(dstSlice, srcSlice)
-					} else if sliceDeepCopy {
-						i := 0
-						for ; i < srcSlice.Len() && i < dstSlice.Len(); i++ {
-							srcElement := srcSlice.Index(i)
-							dstElement := dstSlice.Index(i)
-
-							if srcElement.CanInterface() {
-								srcElement = reflect.ValueOf(srcElement.Interface())
-							}
-							if dstElement.CanInterface() {
-								dstElement = reflect.ValueOf(dstElement.Interface())
-							}
-
-							if err = deepMerge(dstElement, srcElement, visited, depth+1, config); err != nil {
-								return
-							}
+					} else if sliceDeepCopy || sliceDeepMerge {
+						if dstSlice, err = mergeSliceElements(dstSlice, srcSlice, visited, depth, config); err != nil {
+							return
 						}
-
 					}
 					dst.SetMapIndex(key, dstSlice)
 				}
@@ -224,28 +249,19 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 		if !dst.CanSet() {
 			break
 		}
-		if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy {
+		if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy && !sliceDeepMerge {
 			dst.Set(src)
 		} else if config.AppendSlice {
 			if src.Type() != dst.Type() {
 				return fmt.Errorf("cannot append two slice with different type (%s, %s)", src.Type(), dst.Type())
 			}
 			dst.Set(reflect.AppendSlice(dst, src))
-		} else if sliceDeepCopy {
-			for i := 0; i < src.Len() && i < dst.Len(); i++ {
-				srcElement := src.Index(i)
-				dstElement := dst.Index(i)
-				if srcElement.CanInterface() {
-					srcElement = reflect.ValueOf(srcElement.Interface())
-				}
-				if dstElement.CanInterface() {
-					dstElement = reflect.ValueOf(dstElement.Interface())
-				}
-
-				if err = deepMerge(dstElement, srcElement, visited, depth+1, config); err != nil {
-					return
-				}
+		} else if sliceDeepCopy || sliceDeepMerge {
+			var mergedSlice reflect.Value
+			if mergedSlice, err = mergeSliceElements(dst, src, visited, depth, config); err != nil {
+				return
 			}
+			dst.Set(mergedSlice)
 		}
 	case reflect.Pointer:
 		fallthrough
@@ -365,6 +381,11 @@ func WithTypeCheck(config *Config) {
 func WithSliceDeepCopy(config *Config) {
 	config.sliceDeepCopy = true
 	config.Overwrite = true
+}
+
+// WithSliceDeepMerge will deep-merge overlapping slice elements and append trailing src slice elements.
+func WithSliceDeepMerge(config *Config) {
+	config.sliceDeepMerge = true
 }
 
 func merge(dst, src interface{}, opts ...func(*Config)) error {
