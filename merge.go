@@ -161,6 +161,20 @@ func deepMerge(dst, src reflect.Value, visited map[uintptr]*visit, depth int, co
 						dstSlice = reflect.ValueOf(dstElement.Interface())
 					}
 
+					if config.Transformers != nil && dstElement.IsValid() && !dstElement.IsNil() && !isReflectNil(dstSlice) && dstSlice.Type() == srcSlice.Type() {
+						if fn := config.Transformers.Transformer(dstSlice.Type()); fn != nil {
+							// Map values cannot be set directly. Transform a settable copy
+							// and store the result back under the same key.
+							transformed := reflect.New(dstSlice.Type()).Elem()
+							transformed.Set(dstSlice)
+							if err = fn(transformed, srcSlice); err != nil {
+								return
+							}
+							dst.SetMapIndex(key, transformed)
+							continue
+						}
+					}
+
 					if (!isEmptyValue(src, !config.ShouldNotDereference) || overwriteWithEmptySrc || overwriteSliceWithEmptySrc) && (overwrite || isEmptyValue(dst, !config.ShouldNotDereference)) && !config.AppendSlice && !sliceDeepCopy {
 						if typeCheck && srcSlice.Type() != dstSlice.Type() {
 							return fmt.Errorf("cannot override two slices with different type (%s, %s)", srcSlice.Type(), dstSlice.Type())
